@@ -9,7 +9,7 @@ import (
 func decide(scale Scale) (int, Weight) {
 	switch scale.Weigh([]int{0, 1, 2, 3}, []int{4, 5, 6, 7}) {
 	case light:
-		switch scale.Weigh([]int{0, 5, 6, 8}, []int{4, 1, 9, 10}) {
+		switch scale.Weigh([]int{0, 5, 6}, []int{4, 1, 9}) {
 		case equal:
 			// 2, 3, 7
 			switch scale.Weigh([]int{2, 7}, []int{8, 9}) {
@@ -22,13 +22,10 @@ func decide(scale Scale) (int, Weight) {
 			}
 		case light:
 			// # 0, 4
-			switch scale.Weigh([]int{0}, []int{8}) {
-			case equal:
-				return 4, heavy
-			case light:
+			if scale.Weigh([]int{0}, []int{8}) == light {
 				return 0, light
-			case heavy:
-				panic(fmt.Errorf("cannot happen"))
+			} else {
+				return 4, heavy
 			}
 		case heavy:
 			// 5, 6, 1
@@ -42,7 +39,7 @@ func decide(scale Scale) (int, Weight) {
 			}
 		}
 	case heavy:
-		switch scale.Weigh([]int{0, 5, 6, 8}, []int{4, 1, 9, 10}) {
+		switch scale.Weigh([]int{0, 5, 6}, []int{4, 1, 9}) {
 		case equal:
 			// 2, 3, 7
 			switch scale.Weigh([]int{2, 7}, []int{8, 9}) {
@@ -76,14 +73,9 @@ func decide(scale Scale) (int, Weight) {
 	case equal:
 		switch scale.Weigh([]int{8, 9}, []int{10, 0}) {
 		case equal:
-			switch scale.Weigh([]int{10}, []int{11}) {
-			case light:
-				return 11, heavy
-			case heavy:
-				return 11, light
-			}
+			return 11, scale.Weigh([]int{11}, []int{0})
 		case light:
-			switch scale.Weigh([]int{9, 1}, []int{8, 0}) {
+			switch scale.Weigh([]int{9}, []int{8}) {
 			case light:
 				return 9, light
 			case heavy:
@@ -92,7 +84,7 @@ func decide(scale Scale) (int, Weight) {
 				return 10, heavy
 			}
 		case heavy:
-			switch scale.Weigh([]int{9, 1}, []int{8, 0}) {
+			switch scale.Weigh([]int{9}, []int{8}) {
 			case light:
 				return 8, heavy
 			case heavy:
