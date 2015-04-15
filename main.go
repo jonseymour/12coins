@@ -26,6 +26,16 @@ func (w Weight) String() string {
 	}
 }
 
+func (w Weight) invert() Weight {
+	switch w {
+	case light:
+		return heavy
+	case heavy:
+		return light
+	}
+	return w
+}
+
 // A Scale can weigh two collections of coins and answer whether the
 // a collection weighs less, the same as or more than the right collection.
 //
@@ -85,12 +95,7 @@ func (o *Oracle) Weigh(a []int, b []int) Weight {
 
 	for _, e := range b {
 		if e == o.coin {
-			switch o.weight {
-			case light:
-				return heavy
-			case heavy:
-				return light
-			}
+			return o.weight.invert()
 		}
 	}
 
