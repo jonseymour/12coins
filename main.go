@@ -23,12 +23,16 @@ type Scale interface {
 }
 
 type Oracle struct {
-	coin   int
-	weight Weight
+	coin     int
+	weight   Weight
+	attempts int
 }
 
 func (o *Oracle) check(a []int, b []int) {
 	seen := [12]bool{}
+	if o.attempts == 3 {
+		panic(fmt.Errorf("too many attempts to use the scale!"))
+	}
 	for _, e := range a {
 		if e < 0 || e > 11 {
 			panic(fmt.Errorf("invalid coin: %d", e))
@@ -52,6 +56,7 @@ func (o *Oracle) check(a []int, b []int) {
 // coin is the different coin.
 func (o *Oracle) Weigh(a []int, b []int) Weight {
 	o.check(a, b)
+	o.attempts += 1
 
 	for _, e := range a {
 		if e == o.coin {
