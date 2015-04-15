@@ -13,6 +13,19 @@ const (
 	heavy
 )
 
+func (w Weight) String() string {
+	switch w {
+	case light:
+		return "light"
+	case heavy:
+		return "heavy"
+	case equal:
+		return "equal"
+	default:
+		return "invalid"
+	}
+}
+
 // A Scale can weigh two collections of coins and answer whether the
 // a collection weighs less, the same as or more than the right collection.
 //
