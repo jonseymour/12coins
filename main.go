@@ -39,6 +39,12 @@ type Oracle struct {
 	coin     int
 	weight   Weight
 	attempts int
+	err      error
+}
+
+func (o *Oracle) fail(err error) {
+	o.err = err
+	panic(err)
 }
 
 func (o *Oracle) check(a []int, b []int) {
