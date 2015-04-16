@@ -24,7 +24,18 @@ func decide3(scale Scale, weight1 Weight, two []int, one int, authentic []int) (
 	return one, weight2
 }
 
-func decide8(scale Scale, weight1 Weight) (int, Weight) {
+// decide returns the identity of the different coin and what the relative
+// weight of that coin is with respect to any other coin.
+func decide(scale Scale) (int, Weight) {
+	weight1 := scale.Weigh([]int{0, 1, 2, 3}, []int{4, 5, 6, 7})
+	if weight1 == equal {
+		weight2 := scale.Weigh([]int{8, 9}, []int{10, 0})
+		if weight2 == equal {
+			return 11, scale.Weigh([]int{11}, []int{0})
+		} else {
+			return decide3(scale, weight2, []int{8, 9}, 10, []int{0, 1})
+		}
+	}
 	weight2 := scale.Weigh([]int{0, 5, 6}, []int{4, 1, 9})
 	if weight2 == equal {
 		return decide3(scale, weight1, []int{2, 3}, 7, []int{8, 9})
@@ -32,21 +43,4 @@ func decide8(scale Scale, weight1 Weight) (int, Weight) {
 		return decide3(scale, weight1, []int{0, 1}, 4, []int{8, 9})
 	}
 	return decide3(scale, weight2, []int{5, 6}, 1, []int{8, 9})
-}
-
-// decide returns the identity of the different coin and what the relative
-// weight of that coin is with respect to any other coin.
-func decide(scale Scale) (int, Weight) {
-	weight := scale.Weigh([]int{0, 1, 2, 3}, []int{4, 5, 6, 7})
-	if weight == equal {
-		weight2 := scale.Weigh([]int{8, 9}, []int{10, 0})
-		if weight2 == equal {
-			return 11, scale.Weigh([]int{11}, []int{0})
-		} else {
-			return decide3(scale, weight2, []int{8, 9}, 10, []int{0, 1})
-		}
-	} else {
-		return decide8(scale, weight)
-	}
-	return -1, equal
 }
