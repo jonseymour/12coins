@@ -27,20 +27,43 @@ func decide3(scale Scale, weight1 Weight, two []int, one int, authentic []int) (
 // decide returns the identity of the different coin and what the relative
 // weight of that coin is with respect to any other coin.
 func decide(scale Scale) (int, Weight) {
+	// weigh 2 groups of 4 coins
 	weight1 := scale.Weigh([]int{0, 1, 2, 3}, []int{4, 5, 6, 7})
 	if weight1 == equal {
+		// if they are equal, countefeit is in the last group
+
+		// weigh 2 of the last group against a 3rd of the last group and
+		// a known authentic coin
+
 		weight2 := scale.Weigh([]int{8, 9}, []int{10, 0})
 		if weight2 == equal {
+
+			// the unweighed coin is counterfeit, so weigh it against
+			// an authentic coin
+
 			return 11, scale.Weigh([]int{11}, []int{0})
 		} else {
+
+			// decide which of the unweighed coins is counterfeit
+
 			return decide3(scale, weight2, []int{8, 9}, 10, []int{0, 1})
 		}
 	}
+
+	// swap one coin one each side with one from the other side in this case 1 and 5
+	// and replace one of the right hand side coins with an authentic coin
 	weight2 := scale.Weigh([]int{0, 5, 6}, []int{4, 1, 9})
+
 	if weight2 == equal {
+		// the counterfeit coin must be one of the 3 that have only been
+		// weighed once
 		return decide3(scale, weight1, []int{2, 3}, 7, []int{8, 9})
+
 	} else if weight2 == weight1 {
+		// the counterfeit coin is either 0 or 4
 		return decide3(scale, weight1, []int{0, 1}, 4, []int{8, 9})
 	}
+
+	// the counterfeit coin is one of the 3 that have been weighed twice
 	return decide3(scale, weight2, []int{5, 6}, 1, []int{8, 9})
 }
