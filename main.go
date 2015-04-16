@@ -116,7 +116,7 @@ func test(i int, w Weight) error {
 			panic(fmt.Errorf("decide chose coin %d", ri))
 		}
 		if rw != w {
-			panic(fmt.Errorf("decide chose weight %v", w))
+			panic(fmt.Errorf("decide chose weight %v", rw))
 		}
 	}()
 	return oracle.err
