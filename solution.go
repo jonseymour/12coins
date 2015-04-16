@@ -50,17 +50,19 @@ func decide(scale Scale) (int, Weight) {
 		}
 	}
 
-	// swap one coin one each side with one from the other side in this case 1 and 5
-	// and replace one of the right hand side coins with an authentic coin
-	weight2 := scale.Weigh([]int{0, 5, 6}, []int{4, 1, 9})
+	// remove one coin from each side (3,7)
+	// swap two coins on each side with two from the other side in this case 1,2 and 5,6
+	// and replace one of the swapped coins on right hand side (2) with an
+	// authentic coin (8). 
+	weight2 := scale.Weigh([]int{0, 5, 6}, []int{4, 1, 8})
 
 	if weight2 == equal {
-		// the counterfeit coin must be one of the 3 that have only been
-		// weighed once
+		// the counterfeit coin must be one of the 3 {e.g. 2,3,7}
+		// that have only been weighed once
 		return decide3(scale, weight1, []int{2, 3}, 7, []int{8, 9})
 
 	} else if weight2 == weight1 {
-		// the counterfeit coin is either 0 or 4
+		// the counterfeit coin must be one of the coins that was not moved - either 0 or 4.
 		return decide3(scale, weight1, []int{0, 1}, 4, []int{8, 9})
 	}
 
