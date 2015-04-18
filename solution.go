@@ -116,7 +116,7 @@ func decide(scale Scale) (int, Weight) {
 		w := scale.Weigh(a, b)
 		p := r >> nextShift(w) & nextMask
 		if verbose {
-			fmt.Fprintf(os.Stderr, "%d, %016x, %v, %v, %v, %d\n", i, r, a, b, w, p)
+			fmt.Fprintf(os.Stderr, "%d: %016x, %v, %v & %v -> %d\n", i, r, a, b, w, p)
 		}
 		i = int(p)
 		r = table[i]
