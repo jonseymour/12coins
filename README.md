@@ -60,7 +60,6 @@ Some observations:
 
 - 3 weighings share 3 coins {1,5,7}
 - each weighing shares a different 2 coins with each other weighing
-- each weighing puts one pair on the same side of the scale, and splits the other pair across both sides of the scale
 - each weighing has 3 coins that are unique to itself
 
 #Explanation
@@ -69,6 +68,6 @@ If the B and C weighings are balanced, then the A weighing must be unbalanced be
 
 If the A and B weighings are unbalanced and the C weighing is balanced, then the cause must be a coin that is common to A and B and not shared by C, namely 0 or 6. If the A and B weighings have the same bias, then the counterfeit coin must be 0, otherwise it is 6.
 
-If the A, B and C weighings are unbalanced, then the cause must be a coin that is common to A, B and C - namely 1,5 or 7. If the A, B and C weighings have the same bias, then the counterfeit is 5. If B and C have the same bias, then the counterfeit is 1. If A and B have the same bias, then the counterfeit is 7.
+If the A, B and C weighings are unbalanced, then the cause must be a coin that is common to A, B and C - namely 1,5 or 7. If the A and C weighings have the same bias, then the counterfeit is 5. If B and C have the same bias, then the counterfeit is 7. If A and B have the same bias, then the counterfeit is 1.
 
 Symmetry arguments allow derivation of other the possible solutions - 2, 4, 8, 9, 10, 11.
