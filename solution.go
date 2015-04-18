@@ -6,23 +6,25 @@ import (
 )
 
 const (
-	coins    = 12
-	nextBits = 8
-	outcomes = 3
-	verbose  = false
+	coins      = 12
+	nextBits   = 8
+	coinBits   = 8
+	weightBits = 2
+	outcomes   = 3
+	verbose    = false
 )
 
 var (
-	nextMask    = uint64((1 << nextBits) - 1)
-	weightShift = uint(8)
+	weightShift = uint(coinBits)
 	lightShift  = uint(64) - nextBits
 	equalShift  = lightShift - nextBits
 	heavyShift  = equalShift - nextBits
 	leftShift   = heavyShift - coins
 	rightShift  = leftShift - coins
-	coinsMask   = uint64((1 << coins) - 1)
-	coinMask    = uint64(0xff)
-	weightMask  = uint64(0x03)
+	nextMask    = uint64(1<<nextBits - 1)
+	coinsMask   = uint64(1<<coins - 1)
+	coinMask    = uint64(1<<coinBits - 1)
+	weightMask  = uint64(1<<weightBits - 1)
 )
 
 var table = []uint64{
