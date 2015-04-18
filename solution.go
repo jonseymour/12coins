@@ -109,16 +109,17 @@ func init() {
 func decide(scale Scale) (int, Weight) {
 
 	i := 0
-	for table[i]>>heavyShift != 0 {
-		r := table[i]
+	r := table[i]
+	for r>>heavyShift != 0 {
 		a := index[r>>leftShift&coinsMask]
 		b := index[r>>rightShift&coinsMask]
 		w := scale.Weigh(a, b)
-		p := table[i] >> nextShift(w) & nextMask
+		p := r >> nextShift(w) & nextMask
 		if verbose {
 			fmt.Fprintf(os.Stderr, "%d, %016x, %v, %v, %v, %d\n", i, r, a, b, w, p)
 		}
 		i = int(p)
+		r = table[i]
 	}
-	return int(table[i] & coinMask), Weight(table[i] >> weightShift & weightMask)
+	return int(r & coinMask), Weight(r >> weightShift & weightMask)
 }
