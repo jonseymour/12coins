@@ -11,8 +11,10 @@ const (
 	coinBits   = 8
 	weightBits = 2
 	outcomes   = 3
-	verbose    = false
 )
+
+var verbose = false
+var debug = ""
 
 var (
 	weightShift = uint(coinBits)
@@ -74,6 +76,7 @@ func nextShift(w Weight) uint {
 }
 
 func init() {
+	verbose = len(debug) > 0
 	f := func(c uint64) []int {
 		b := c
 		a := []int{}
