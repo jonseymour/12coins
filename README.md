@@ -60,7 +60,7 @@ Some observations:
 
 - 3 weighings share 3 coins {1,5,7}
 - each weighing shares a different 2 coins with each other weighing
-- each weighing has 3 coins that are unique to itself
+- each weighing has a single coin that is unique to itself
 
 #Explanation
 
