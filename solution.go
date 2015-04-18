@@ -119,10 +119,15 @@ func decide(scale Scale) (int, Weight) {
 		w := scale.Weigh(a, b)
 		p := r >> nextShift(w) & nextMask
 		if verbose {
-			fmt.Fprintf(os.Stderr, "%d: %016x, %v, %v & %v -> %d\n", i, r, a, b, w, p)
+			fmt.Fprintf(os.Stderr, "%d: %016x, %v, %v & %v -> do %d\n", i, r, a, b, w, p)
 		}
 		i = int(p)
 		r = table[i]
 	}
-	return int(r & coinMask), Weight(r >> weightShift & weightMask)
+	coin := int(r & coinMask)
+	weight := Weight(r >> weightShift & weightMask)
+	if verbose {
+		fmt.Fprintf(os.Stderr, "%d: %016x -> stop %d, %v\n", i, r, coin, weight)
+	}
+	return coin, weight
 }
