@@ -70,7 +70,7 @@ var table = []uint64{
 var index = make(map[uint64][]int)
 
 func nextShift(w Weight) uint {
-	return uint((heavy-w))*nextBits + heavyShift
+	return uint(heavy-w)*nextBits + heavyShift
 }
 
 func init() {
@@ -89,13 +89,13 @@ func init() {
 	}
 
 	for _, e := range table {
-		c := (e >> leftShift) & coinsMask
+		c := e >> leftShift & coinsMask
 		if c != 0 {
 			if _, ok := index[c]; !ok {
 				index[c] = f(c)
 			}
 		}
-		d := (e >> rightShift) & coinsMask
+		d := e >> rightShift & coinsMask
 		if d != 0 {
 			if _, ok := index[d]; !ok {
 				index[d] = f(d)
@@ -109,16 +109,16 @@ func init() {
 func decide(scale Scale) (int, Weight) {
 
 	i := 0
-	for (table[i] >> heavyShift) != 0 {
+	for table[i]>>heavyShift != 0 {
 		r := table[i]
-		a := index[(r>>leftShift)&coinsMask]
-		b := index[(r>>rightShift)&coinsMask]
+		a := index[r>>leftShift&coinsMask]
+		b := index[r>>rightShift&coinsMask]
 		w := scale.Weigh(a, b)
-		p := (table[i] >> nextShift(w)) & nextMask
+		p := table[i] >> nextShift(w) & nextMask
 		if verbose {
 			fmt.Fprintf(os.Stderr, "%d, %016x, %v, %v, %v, %d\n", i, r, a, b, w, p)
 		}
 		i = int(p)
 	}
-	return int(table[i] & coinMask), Weight((table[i] >> weightShift) & weightMask)
+	return int(table[i] & coinMask), Weight(table[i] >> weightShift & weightMask)
 }
