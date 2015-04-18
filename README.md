@@ -17,27 +17,22 @@ that function against all 24 possible configurations.
 
 The solution documented in solution.go is a very pleasing solution.
 
-Unlike the other attempts, this solution only requires 3 weighings and these weighings are sufficient to discriminate the 24 different possibilities for a given input configuration.
-
-    package main
-
-    // Decide returns the identity of the counterfeit coin and what the relative
-    // weight of that coin is with respect to any other coin.
+Unlike the other attempts, this solution only requires 3 weighings and these weighings are sufficient to discriminate the 24 different possibilities for any given input configuration.
 
     var (
-        coins   = []int{0, 4, 5, 1, 7, 2, 6, 3, 11, 10, 9, 8}
         weights = []Weight{
-            light, heavy, heavy, light,
-            heavy, light, heavy, light,
-            light, heavy, light, heavy,
+            light, heavy, heavy,
+            light, heavy, light,
+            heavy, light, light,
+            heavy, light, heavy,
         }
     )
 
-    // The simplest possible solution. 3 comparisons + 2 table lookup, deals with every case.
     func decide(scale Scale) (int, Weight) {
-        a := scale.Weigh([]int{0, 1, 2, 3}, []int{4, 5, 6, 7})   // 8,9,10,11
-        b := scale.Weigh([]int{0, 6, 9, 11}, []int{2, 3, 4, 10}) // 1,5,7,8
-        c := scale.Weigh([]int{2, 4, 7, 11}, []int{3, 5, 8, 9})  // 0,1,6,10
+
+        a := scale.Weigh([]int{0, 3, 5, 7}, []int{1, 2, 4, 6})
+        b := scale.Weigh([]int{0, 6, 8, 10}, []int{1, 5, 7, 9})
+        c := scale.Weigh([]int{1, 4, 5, 8}, []int{2, 7, 10, 11})
 
         i := a*9 + b*3 + c
         o := i
@@ -45,7 +40,8 @@ Unlike the other attempts, this solution only requires 3 weighings and these wei
         if i > 12 {
             o = 26 - i
         }
-        f := coins[o-1]
+
+        f := int(o - 1)
         w := weights[o-1]
 
         if i > 12 {
@@ -55,11 +51,24 @@ Unlike the other attempts, this solution only requires 3 weighings and these wei
         return f, w
     }
 
+The following Venn diagram, which shows the intersections between the sets of cois involved in all 3 weighings, helps to provide a heuristic justification for why this set of weighings is capable of discriminating the 24 cases - each weighing involves overlapping
+set and subsets of coins and the 12 coins are evenly distributed across all sets and all intersections between all sets.
+
 <img src="venn.png"/>
 
-Some notes about the solution:
+Some observations:
 
-- 3 weighings share 3 coins {2,3,4}
+- 3 weighings share 3 coins {1,5,7}
 - each weighing shares a different 2 coins with each other weighing
 - each weighing puts one pair on the same side of the scale, and splits the other pair across both sides of the scale
 - each weighing has 3 coins that are unique to itself
+
+#Explanation
+
+If the B and C weighings are balanced, then the A weighing must be unbalanced because of the coin unique to A - namely 3.
+
+If the A and B weighings are unbalanced and the C weighing is balanced, then the cause must be a coin that is common to A and B and not shared by C, namely 0 or 6. If the A and B weighings have the same bias, then the counterfeit coin must be 0, otherwise it is 6.
+
+If the A, B and C weighings are unbalanced, then the cause must be a coin that is common to A, B and C - namely 1,5 or 7. If the A, B and C weighings have the same bias, then the counterfeit is 5. If B and C have the same bias, then the counterfeit is 1. If A and B have the same bias, then the counterfeit is 7.
+
+Symmetry arguments allow derivation of other the possible solutions - 2, 4, 8, 9, 10, 11.
