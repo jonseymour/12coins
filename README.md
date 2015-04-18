@@ -1,4 +1,4 @@
-#12 coins
+su#12 coins
 
 Given:
 
@@ -71,3 +71,15 @@ If the A and B weighings are unbalanced and the C weighing is balanced, then the
 If the A, B and C weighings are unbalanced, then the cause must be a coin that is common to A, B and C - namely 1,5 or 7. If the A and C weighings have the same bias, then the counterfeit is 5. If B and C have the same bias, then the counterfeit is 7. If A and B have the same bias, then the counterfeit is 1.
 
 Symmetry arguments allow derivation of other the possible solutions - 2, 4, 8, 9, 10, 11.
+
+#Other notes
+
+Adding one to each coin identifier (so they are numbered 1->12 instead of 0-11), yields this Venn diagram where the even coins are shared
+by an odd number of weighings and the odd coins by an even number of weighings.
+
+<img src="venn-1-based.png">
+
+Converting these numbers to base 3 yeilds a diagram which shows that the coins in the intersection between two sets share the same base 3 digit and this digit is also shared by the coins unique to each set.
+
+<img src="venn-base-3.png">
+
