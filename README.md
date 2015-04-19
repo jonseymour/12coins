@@ -1,4 +1,4 @@
-su#12 coins
+#12 coins
 
 Given:
 
@@ -17,7 +17,7 @@ that function against all 24 possible configurations.
 
 The solution documented in solution.go is a very pleasing solution.
 
-Unlike the other attempts, this solution only requires 3 weighings and these weighings are sufficient to discriminate the 24 different possibilities for any given input configuration.
+Unlike the other attempts, this solution only requires 3 weighings and these weighings are sufficient to discriminate the 24 different possibilities for any given configuration of the coins.
 
     var (
         weights = []Weight{
@@ -51,18 +51,21 @@ Unlike the other attempts, this solution only requires 3 weighings and these wei
         return f, w
     }
 
-The following Venn diagram, which shows the intersections between the sets of cois involved in all 3 weighings, helps to provide a heuristic justification for why this set of weighings is capable of discriminating the 24 cases - each weighing involves overlapping
+The following Venn diagram, which shows the intersections between the sets of coins involved in all 3 weighings, helps to provide a heuristic justification for why this set of weighings is capable of discriminating the 24 cases - each weighing involves overlapping
 set and subsets of coins and the 12 coins are evenly distributed across all sets and all intersections between all sets.
 
 <img src="venn.png"/>
 
 Some observations:
 
-- 3 weighings share 3 coins {1,5,7}
-- each weighing shares a different 2 coins with each other weighing
+- all weighings share 3 coins {1,5,7}
+- each weighing shares a different pair of coins with each other weighing
 - each weighing has a single coin that is unique to itself
+- each weighing shares exactly 5 coins with each other weighing and a different 5 coins with the other weighing
 
-#Explanation
+#Explanation Of Completeness
+
+The following argument explains why the configuration of the weighings has enough information to distinguish the 24 possible configurations. It doesn't explain why the coin is selected using manipulations of a sum derived from the 3 weighings.
 
 If the B and C weighings are balanced, then the A weighing must be unbalanced because of the coin unique to A - namely 3.
 
@@ -71,6 +74,22 @@ If the A and B weighings are unbalanced and the C weighing is balanced, then the
 If the A, B and C weighings are unbalanced, then the cause must be a coin that is common to A, B and C - namely 1,5 or 7. If the A and C weighings have the same bias, then the counterfeit is 5. If B and C have the same bias, then the counterfeit is 7. If A and B have the same bias, then the counterfeit is 1.
 
 Symmetry arguments allow derivation of other the possible solutions - 2, 4, 8, 9, 10, 11.
+
+#Explanation Of Indexing Behaviour Of Sum
+
+The indexing behaviour of the sum answers the identity of the coin appears somewhat magical, and indeed, if I had happened upon a distribution of weights that had this property it would have been amazing. In reality, in an earlier iteration I discovered a
+set of weighings that had the ability to discriminate the 24 configurations. I then used the sum to calculate an index into
+two arrays of length 27 and stored the identity of the coin and the weight of the counterfeit coin at the indexed element. This array served as a mapping function from the sum to the identity of the coin.
+
+When I did this, I observed that elements at 0, 13 and 26 were not assigned to and that coins[13+(n+1)] = coins[13-(n+1)]
+and weights[13+(n+1)] = 2 - weights[13-(n+1)] for all n in [0,11]. This realisation allowed the mapping function to be realised using 2 arrays of 12 elements each and a test for the magnitude of the sum.
+
+Having done this, I then identified a permutation that allowed me to relabel the coins such that the contents of the i'th element was the index of the element, thereby allowing me to replace the coin mapping function with the identity function and so eliminate the need for this array in the solution.
+
+Observe that for each set of coins A, B, C one scale acts as the weight bit and the other scales act as an indexing function. For example, for the coins 0-7 and the corresponding weights specified in the weights array, the A weighings will all be biased
+in the light direction (e.g. produce a trit of 0). The other scales iterate through the 8 trits between 01 and 22. Observe all so that
+the B and C weighings never register 00 (light, light) for any of these coins because any coin that causes weighing A to produce 0
+cannot simultaneously cause both the B and C weighings to produce 0.
 
 #Other notes
 
