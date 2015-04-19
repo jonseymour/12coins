@@ -68,13 +68,13 @@ func decide(scale lib.Scale) (int, lib.Weight) {
 	w := lib.Weight((func() int {
 		switch f >> 2 {
 		case 0:
-			return f>>1 ^ f
+			return f >> 1
 		case 1:
-			return (1 ^ f)
+			return 1
 		default:
-			return f
+			return 0
 		}
-	}() & 1) << 1)
+	}() ^ f&1) << 1)
 
 	if i > 12 {
 		w = heavy - w
