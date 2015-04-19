@@ -41,15 +41,6 @@ package main
 // If only C is unbalanced the counterfeit must be 11
 //
 
-var (
-	weights = []Weight{
-		light, heavy, heavy,
-		light, heavy, light,
-		heavy, light, light,
-		heavy, light, heavy,
-	}
-)
-
 func decide(scale Scale) (int, Weight) {
 
 	a := scale.Weigh([]int{0, 3, 5, 7}, []int{1, 2, 4, 6})
@@ -64,7 +55,17 @@ func decide(scale Scale) (int, Weight) {
 	}
 
 	f := int(o - 1)
-	w := weights[o-1]
+
+	w := Weight((func() int {
+		switch f >> 2 {
+		case 0:
+			return f>>1 ^ f
+		case 1:
+			return (1 ^ f)
+		default:
+			return f
+		}
+	}() & 1) << 1)
 
 	if i > 12 {
 		w = heavy - w
