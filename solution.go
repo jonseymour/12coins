@@ -43,9 +43,9 @@ package main
 
 func decide(scale Scale) (int, Weight) {
 
-	a := scale.Weigh([]int{0, 3, 5, 7}, []int{1, 2, 4, 6})
-	b := scale.Weigh([]int{0, 6, 8, 10}, []int{1, 5, 7, 9})
-	c := scale.Weigh([]int{1, 4, 5, 8}, []int{2, 7, 10, 11})
+	a := scale.Weigh([]int{2, 4, 0, 6}, []int{5, 7, 1, 3})
+	b := scale.Weigh([]int{5, 10, 7, 0}, []int{8, 1, 6, 9})
+	c := scale.Weigh([]int{2, 11, 7, 1}, []int{5, 8, 10, 4})
 
 	i := a*9 + b*3 + c
 	o := i
@@ -57,15 +57,12 @@ func decide(scale Scale) (int, Weight) {
 	f := int(o - 1)
 
 	w := Weight((func() int {
-		switch f >> 2 {
-		case 0:
-			return f >> 1
-		case 1:
-			return 1
-		default:
-			return 0
+		if f&8 == 0 {
+			return f
+		} else {
+			return 1 ^ f>>1
 		}
-	}() ^ f&1) << 1)
+	})() & 1 << 1)
 
 	if i > 12 {
 		w = heavy - w
