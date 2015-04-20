@@ -130,7 +130,8 @@ counterfeit coin that is unique to the A weighing.
 
 #Explanation Of Weight Deriviation Function
 
-I don't currently have an intuitive explanation for the weight derivation function:
+One thing that bugged me about the original solution was the somewhat arbitrary nature
+of the weight derivation function.
 
 		w := Weight((func() int {
 			switch f >> 2 {
@@ -147,12 +148,73 @@ I don't currently have an intuitive explanation for the weight derivation functi
 			w = heavy - w
 		}
 
-This function was derived from the array of weights that were needed to make the
-mapping between 9a*3b+c-1 and the identity of the counterfeit coin produce the correct
-result. This array encoded a function from a x b x c -> Weight. The code above
-produces the same mapping from a, b, c as the original array.
+This function had been reversed engineered from the mapping of 9a*3b*c-1 via a
+table that gave the correct weight for each configuration and certainly can't be
+justified merely by inspecting the code.
 
-Suggestions welcome!
+I did notice that the function appeared to have 3 branches controlled by the
+higher order bits of sum - in effect, it was a function that was composed of 3
+other functions although the significance of this was lost on me at the time.
+
+I also realised that the choice of linear combination I chose was somewhat
+arbitrary: I chose 9a + 3b + c, but I could have just as easily selected
+9b + 3a + c or any of the other 4 permutations of a,b,c that are possible.
+
+So, I shuffled the sum. This broke the identity function and changed the weight
+derivation function so I reintroduced arrays to implement those functions. I
+kept shuffling until I stumbled across a weight deriviation function that had a
+simpler structure that the original one. I then applied the re-labeling
+trick to the resulting solution and ended up with this:
+
+	func decide(scale Scale) (int, Weight) {
+
+		a := scale.Weigh([]int{2, 4, 0, 6}, []int{5, 7, 1, 3})
+		b := scale.Weigh([]int{5, 10, 7, 0}, []int{8, 1, 6, 9})
+		c := scale.Weigh([]int{2, 11, 7, 1}, []int{5, 8, 10, 4})
+
+		i := a*9 + b*3 + c
+		o := i
+
+		if i > 12 {
+			o = 26 - i
+		}
+
+		f := int(o - 1)
+
+		w := Weight((func() int {
+			if f&8 == 0 {
+				return f
+			} else {
+				return 1 ^ f>>1
+			}
+		})() & 1 << 1)
+
+		if i > 12 {
+			w = heavy - w
+		}
+
+		return f, w
+	}
+
+This is a much simpler function as the weight varies according to the first bit
+of the coin identity for the first 8 coins and according to the negation of the
+2nd bit for the remaining 4.
+
+Another interesting thing is that while the order of coins in each weighing has
+changed, each weighing has the same coins as the original solution. My
+conjecture, therefore, is that the indexing property is a function of which
+coins are in each weighing and the weight derivation function is a function of
+the permutation of the coins in each weighing.  I intend to explore this further
+by generating the 4 remaining solutions of this type.
+
+The fact that the coins 0 -> 7 appear in the first weighing of both solutions
+is indubitably related to the fact that for these coins to be indexed in the first
+8 positions by 9a+3b+3c-1, the first weighing trit (e.g. a) has to be 0 for these 8 coins.
+This can only be true for the 4 configurations where one of the coins on the left hand side
+is light and the 4 configurations where one of the coins on the right hand side is heavy.
+
+Presumably this style of argument can be extended so show why the other weighings
+must contain the coins they do.
 
 #Other notes
 
