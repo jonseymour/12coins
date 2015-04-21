@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -21,19 +20,13 @@ func main() {
 	flag.BoolVar(&permute, "permute", false, "Generate permutations of the solution.")
 	flag.Parse()
 
-	reader := bufio.NewReader(os.Stdin)
+	decoder := json.NewDecoder(os.Stdin)
 	encoder := json.NewEncoder(os.Stdout)
 	for {
-		var line []byte
 		var err error
-
-		if line, _, err = reader.ReadLine(); err != nil {
-			break
-		}
 		solver := &lib.Solver{}
-		if err := json.Unmarshal(line, &solver); err != nil {
-			fmt.Fprintf(os.Stderr, "parsing error: %v", err)
-			continue
+		if err = decoder.Decode(&solver); err != nil {
+			break
 		}
 		if reverse {
 			if solver, err = solver.Reverse(); err != nil {
