@@ -47,6 +47,13 @@ type Oracle struct {
 
 type Solution func(Scale) (int, Weight)
 
+func NewOracle(coin int, w Weight) *Oracle {
+	return &Oracle{
+		coin:   coin,
+		weight: w,
+	}
+}
+
 func (o *Oracle) fail(err error) {
 	o.err = err
 	panic(err)
