@@ -2,6 +2,7 @@ package lib
 
 import (
 	"encoding/json"
+	"fmt"
 	"sort"
 )
 
@@ -99,4 +100,23 @@ func (s *Solver) Relabel() {
 	for i, _ := range s.Coins {
 		s.Coins[i] = i + s.ZeroCoin
 	}
+}
+func (s *Solver) Reverse() error {
+	seen := [12]bool{}
+	for _, i := range []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12} {
+		o := NewOracle(i, Light, 1)
+		ri, rw := s.Decide(o)
+		if ri != i {
+			if seen[ri-1] {
+				return fmt.Errorf("cannot distinguish between (%d, %v) and (%d, %v) ", s.Coins[ri-1], s.Weights[ri-1], i, rw)
+			} else {
+				seen[ri-1] = true
+			}
+			s.Coins[ri-1] = i
+		}
+		if rw != Light {
+			s.Weights[ri-1] = Heavy - s.Weights[ri-1]
+		}
+	}
+	return nil
 }
