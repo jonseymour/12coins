@@ -43,16 +43,7 @@ func main() {
 			clone.Mirror = m
 			clone.Permutation = p
 			clone.Weighings = [3][2][]int{clone.Weighings[p[0]], clone.Weighings[p[1]], clone.Weighings[p[2]]}
-			for _, i := range IDENTITY {
-				o := lib.NewOracle(i, lib.Light, 1)
-				ri, rw := clone.Decide(o)
-				if ri != i {
-					clone.Coins[ri-1] = i
-				}
-				if rw != lib.Light {
-					clone.Weights[ri-1] = lib.Heavy - clone.Weights[ri-1]
-				}
-			}
+			clone.Reverse()
 			clone.Relabel()
 			if errors := lib.TestAll(clone.Decide); len(errors) != 0 {
 				panic(fmt.Errorf("errors: %v", errors))
