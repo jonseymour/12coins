@@ -145,3 +145,15 @@ func Test(i int, w Weight, zeroCoin int, p Solution) error {
 	}()
 	return oracle.err
 }
+
+func TestAll(p Solution) []error {
+	errors := []error{}
+	for i := 0; i < 12; i++ {
+		for _, w := range []Weight{Light, Heavy} {
+			if err := Test(i, w, 0, p); err != nil {
+				errors = append(errors, fmt.Errorf("fail: for (%d, %v): %v\n", i, w, err))
+			}
+		}
+	}
+	return errors
+}
