@@ -37,7 +37,7 @@ func (s *Solver) Decide(scale Scale) (int, Weight) {
 	f := s.Coins[o-1]
 	w := s.Weights[o-1]
 
-	if i < 0 {
+	if i > 0 {
 		w = Heavy - w
 	}
 
