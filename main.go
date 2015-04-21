@@ -9,18 +9,13 @@ import (
 // exhaustively test the decision procedure against all possibilities and return those that fail
 func main() {
 
-	fail := false
-	for i := 0; i < 12; i++ {
-		for _, w := range []lib.Weight{lib.Light, lib.Heavy} {
-			if err := lib.Test(i, w, decide); err != nil {
-				fail = true
-				fmt.Fprintf(os.Stderr, "fail: for (%d, %v): %v\n", i, w, err)
-			}
+	errors := lib.TestAll(decide)
+	if len(errors) > 0 {
+		for _, e := range errors {
+			fmt.Fprintf(os.Stderr, "%v", e)
 		}
-	}
-	if fail {
 		os.Exit(1)
 	} else {
-		fmt.Fprintf(os.Stderr, "ok\n")
+		fmt.Fprintf(os.Stdout, "ok\n")
 	}
 }
