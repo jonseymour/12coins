@@ -5,11 +5,20 @@ import (
 	"sort"
 )
 
+func abs(i int) int {
+	if i < 0 {
+		return -i
+	} else {
+		return i
+	}
+}
+
 type Solver struct {
 	Permutation []int       `json:"permutation,omitempty"`
 	Weighings   [3][2][]int `json:"weighings"`
 	Coins       [12]int     `json:"coins"`
 	Weights     [12]Weight  `json:"weights"`
+	Mirror      bool        `json:"mirror,omitempty"`
 	ZeroCoin    int         `json:"zero-coin,omitempty"`
 }
 
@@ -19,17 +28,16 @@ func (s *Solver) Decide(scale Scale) (int, Weight) {
 	b := scale.Weigh(s.Weighings[1][0], s.Weighings[1][1])
 	c := scale.Weigh(s.Weighings[2][0], s.Weighings[2][1])
 
-	i := a*9 + b*3 + c
-	o := i
-
-	if i > 12 {
-		o = 26 - i
+	i := int(a*9 + b*3 + c - 13)
+	o := abs(i)
+	if s.Mirror {
+		o = 13 - o
 	}
 
-	f := s.Coins[int(o-1)]
-	w := s.Weights[int(o-1)]
+	f := s.Coins[o-1]
+	w := s.Weights[o-1]
 
-	if i > 12 {
+	if i < 0 {
 		w = Heavy - w
 	}
 
@@ -51,6 +59,7 @@ func (s *Solver) Clone() *Solver {
 		Coins:     [12]int{},
 		Weights:   [12]Weight{},
 		ZeroCoin:  s.ZeroCoin,
+		Mirror:    s.Mirror,
 	}
 
 	for j, _ := range []int{0, 1} {
