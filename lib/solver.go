@@ -10,9 +10,11 @@ type Solver struct {
 	Weighings   [3][2][]int `json:"weighings"`
 	Coins       [12]int     `json:"coins"`
 	Weights     [12]Weight  `json:"weights"`
+	ZeroCoin    int         `json:"zero-coin,omitempty"`
 }
 
 func (s *Solver) Decide(scale Scale) (int, Weight) {
+	scale.SetZeroCoin(s.ZeroCoin)
 	a := scale.Weigh(s.Weighings[0][0], s.Weighings[0][1])
 	b := scale.Weigh(s.Weighings[1][0], s.Weighings[1][1])
 	c := scale.Weigh(s.Weighings[2][0], s.Weighings[2][1])
@@ -34,6 +36,10 @@ func (s *Solver) Decide(scale Scale) (int, Weight) {
 	return f, w
 }
 
+func (s *Solver) SetZeroCoin(coin int) {
+	s.ZeroCoin = coin
+}
+
 func (s *Solver) String() string {
 	b, _ := json.Marshal(s)
 	return string(b)
@@ -44,6 +50,7 @@ func (s *Solver) Clone() *Solver {
 		Weighings: [3][2][]int{},
 		Coins:     [12]int{},
 		Weights:   [12]Weight{},
+		ZeroCoin:  s.ZeroCoin,
 	}
 
 	for j, _ := range []int{0, 1} {
@@ -61,7 +68,7 @@ func (s *Solver) Clone() *Solver {
 		clone.Weights[i] = e
 	}
 
-	return s
+	return &clone
 }
 
 func (s *Solver) Relabel() {
@@ -69,18 +76,18 @@ func (s *Solver) Relabel() {
 	for i, e := range s.Coins {
 		c[i] = e
 	}
-	p := NewPermutation(c)
+	p := NewPermutation(c, s.ZeroCoin)
 
 	for i, _ := range s.Weighings {
 		for j, _ := range []int{0, 1} {
 			for k, e := range s.Weighings[i][j] {
-				s.Weighings[i][j][k] = p.Index(e)
+				s.Weighings[i][j][k] = p.Index(e) + s.ZeroCoin
 			}
 			sort.Sort(sort.IntSlice(s.Weighings[i][j]))
 		}
 	}
 
 	for i, _ := range s.Coins {
-		s.Coins[i] = i
+		s.Coins[i] = i + s.ZeroCoin
 	}
 }

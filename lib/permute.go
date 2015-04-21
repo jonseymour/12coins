@@ -20,21 +20,23 @@ func Permute(origin []int) [][]int {
 
 type Permutation struct {
 	index []int
+	zero  int
 }
 
-func NewPermutation(permutation []int) *Permutation {
+func NewPermutation(permutation []int, zero int) *Permutation {
 
 	index := make([]int, len(permutation), len(permutation))
 
 	for i, e := range permutation {
-		index[e] = i
+		index[e-zero] = i
 	}
 
 	return &Permutation{
 		index: index,
+		zero:  zero,
 	}
 }
 
 func (p *Permutation) Index(e int) int {
-	return p.index[e]
+	return p.index[e-p.zero]
 }
