@@ -101,6 +101,15 @@ func (s *Solver) Relabel() {
 		s.Coins[i] = i + s.ZeroCoin
 	}
 }
+
+func (s *Solver) Normalize() {
+	for i, _ := range s.Weighings {
+		for j, _ := range []int{0, 1} {
+			sort.Sort(sort.IntSlice(s.Weighings[i][j]))
+		}
+	}
+}
+
 func (s *Solver) Reverse() error {
 	seen := [12]bool{}
 	for _, i := range []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12} {
