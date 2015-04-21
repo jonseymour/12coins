@@ -81,51 +81,60 @@ func (s *Solver) Clone() *Solver {
 	return &clone
 }
 
-func (s *Solver) Relabel() {
-	c := make([]int, len(s.Coins), len(s.Coins))
-	for i, e := range s.Coins {
+func (s *Solver) Relabel() *Solver {
+
+	clone := s.Clone()
+
+	c := make([]int, len(clone.Coins), len(clone.Coins))
+	for i, e := range clone.Coins {
 		c[i] = e
 	}
-	p := NewPermutation(c, s.ZeroCoin)
+	p := NewPermutation(c, clone.ZeroCoin)
 
-	for i, _ := range s.Weighings {
+	for i, _ := range clone.Weighings {
 		for j, _ := range []int{0, 1} {
-			for k, e := range s.Weighings[i][j] {
-				s.Weighings[i][j][k] = p.Index(e) + s.ZeroCoin
+			for k, e := range clone.Weighings[i][j] {
+				clone.Weighings[i][j][k] = p.Index(e) + clone.ZeroCoin
 			}
-			sort.Sort(sort.IntSlice(s.Weighings[i][j]))
+			sort.Sort(sort.IntSlice(clone.Weighings[i][j]))
 		}
 	}
 
-	for i, _ := range s.Coins {
-		s.Coins[i] = i + s.ZeroCoin
+	for i, _ := range clone.Coins {
+		clone.Coins[i] = i + clone.ZeroCoin
 	}
+
+	return clone
 }
 
-func (s *Solver) Normalize() {
-	for i, _ := range s.Weighings {
+func (s *Solver) Normalize() *Solver {
+	clone := s.Clone()
+
+	for i, _ := range clone.Weighings {
 		for j, _ := range []int{0, 1} {
-			sort.Sort(sort.IntSlice(s.Weighings[i][j]))
+			sort.Sort(sort.IntSlice(clone.Weighings[i][j]))
 		}
 	}
+	return clone
 }
 
-func (s *Solver) Reverse() error {
+func (s *Solver) Reverse() (*Solver, error) {
+	clone := s.Clone()
 	seen := [12]bool{}
 	for _, i := range []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12} {
 		o := NewOracle(i, Light, 1)
-		ri, rw := s.Decide(o)
+		ri, rw := clone.Decide(o)
 		if ri != i {
 			if seen[ri-1] {
-				return fmt.Errorf("cannot distinguish between (%d, %v) and (%d, %v) ", s.Coins[ri-1], s.Weights[ri-1], i, rw)
+				return nil, fmt.Errorf("cannot distinguish between (%d, %v) and (%d, %v) ", clone.Coins[ri-1], clone.Weights[ri-1], i, rw)
 			} else {
 				seen[ri-1] = true
 			}
-			s.Coins[ri-1] = i
+			clone.Coins[ri-1] = i
 		}
 		if rw != Light {
-			s.Weights[ri-1] = Heavy - s.Weights[ri-1]
+			clone.Weights[ri-1] = Heavy - clone.Weights[ri-1]
 		}
 	}
-	return nil
+	return clone, nil
 }
