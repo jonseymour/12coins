@@ -56,11 +56,12 @@ func (s *Solver) String() string {
 
 func (s *Solver) Clone() *Solver {
 	clone := Solver{
-		Weighings: [3][2][]int{},
-		Coins:     [12]int{},
-		Weights:   [12]Weight{},
-		ZeroCoin:  s.ZeroCoin,
-		Mirror:    s.Mirror,
+		Weighings:   [3][2][]int{},
+		Coins:       [12]int{},
+		Weights:     [12]Weight{},
+		ZeroCoin:    s.ZeroCoin,
+		Mirror:      s.Mirror,
+		Permutation: append([]int{}, s.Permutation...),
 	}
 
 	for j, _ := range []int{0, 1} {
@@ -120,6 +121,9 @@ func (s *Solver) Normalize() *Solver {
 
 func (s *Solver) Reverse() (*Solver, error) {
 	clone := s.Clone()
+	for i, _ := range clone.Coins {
+		clone.Coins[i] = clone.ZeroCoin + i
+	}
 	seen := [12]bool{}
 	for _, i := range []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12} {
 		o := NewOracle(i, Light, 1)
