@@ -21,6 +21,9 @@ type Solver struct {
 	Weights     [12]Weight  `json:"weights"`
 	Mirror      bool        `json:"mirror,omitempty"`
 	ZeroCoin    int         `json:"zero-coin,omitempty"`
+	Unique      []int       `json:"unique,omitempty"`
+	Pairs       [][2]int    `json:"pairs,omitempty"`
+	Triples     []int       `json:"triples,omitempty"`
 }
 
 func (s *Solver) Decide(scale Scale) (int, Weight) {
@@ -65,6 +68,9 @@ func (s *Solver) Clone() *Solver {
 		ZeroCoin:    s.ZeroCoin,
 		Mirror:      s.Mirror,
 		Permutation: append([]int{}, s.Permutation...),
+		Unique:      append([]int{}, s.Unique...),
+		Triples:     append([]int{}, s.Triples...),
+		Pairs:       append([][2]int{}, s.Pairs...),
 	}
 
 	for j, _ := range []int{0, 1} {
@@ -88,6 +94,8 @@ func (s *Solver) Clone() *Solver {
 func (s *Solver) Relabel() *Solver {
 
 	clone := s.Clone()
+
+	clone.resetCounts()
 
 	c := make([]int, len(clone.Coins), len(clone.Coins))
 	for i, e := range clone.Coins {
@@ -144,4 +152,61 @@ func (s *Solver) Reverse() (*Solver, error) {
 		}
 	}
 	return clone, nil
+}
+
+func (s *Solver) resetCounts() {
+	s.Unique = []int{}
+	s.Triples = []int{}
+	s.Pairs = [][2]int{}
+}
+
+func (s *Solver) Groupings() *Solver {
+	clone := s.Clone()
+	clone.Unique = []int{}
+	clone.Triples = []int{}
+	clone.Pairs = [][2]int{[2]int{-1, -1}, [2]int{-1, -1}, [2]int{-1, -1}}
+	counts := make(map[int]int)
+	sets := make(map[int]int)
+	pairs := []int{}
+	for i := s.ZeroCoin; i < s.ZeroCoin+12; i++ {
+		counts[i] = 0
+		sets[i] = 0
+	}
+	for i, _ := range clone.Weighings {
+		for j, _ := range []int{0, 1} {
+			for _, e := range clone.Weighings[i][j] {
+				counts[e] += 1
+				sets[e] |= (1 << uint(i))
+			}
+		}
+	}
+	for k, v := range counts {
+		if v == 1 {
+			clone.Unique = append(clone.Unique, k)
+		} else if v == 3 {
+			clone.Triples = append(clone.Triples, k)
+		} else {
+			pairs = append(pairs, k)
+		}
+	}
+
+	sort.Sort(sort.IntSlice(pairs))
+
+	for i, _ := range clone.Weighings {
+		for _, k := range pairs {
+			mask := 1<<uint(i) | 1<<uint((i+1)%3)
+			if sets[k]&mask == mask {
+				if clone.Pairs[i][0] < 0 {
+					clone.Pairs[i][0] = k
+				} else {
+					clone.Pairs[i][1] = k
+				}
+			}
+		}
+	}
+
+	sort.Sort(sort.IntSlice(clone.Unique))
+	sort.Sort(sort.IntSlice(clone.Triples))
+
+	return clone
 }

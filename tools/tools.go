@@ -13,11 +13,13 @@ func main() {
 	reverse := false
 	normalize := false
 	permute := false
+	groupings := false
 
 	flag.BoolVar(&reverse, "reverse", false, "Reverse the solution.")
 	flag.BoolVar(&relabel, "relabel", false, "Relabel solution.")
 	flag.BoolVar(&normalize, "normalize", false, "Normalize the solution.")
 	flag.BoolVar(&permute, "permute", false, "Generate permutations of the solution.")
+	flag.BoolVar(&groupings, "groupings", false, "Extract the singletons, pairs and triples.")
 	flag.Parse()
 
 	decoder := json.NewDecoder(os.Stdin)
@@ -28,6 +30,7 @@ func main() {
 		if err = decoder.Decode(&solver); err != nil {
 			break
 		}
+
 		if reverse {
 			if solver, err = solver.Reverse(); err != nil {
 				fmt.Fprintf(os.Stderr, "bad solution: %v", err)
@@ -41,6 +44,10 @@ func main() {
 
 		if relabel {
 			solver = solver.Relabel()
+		}
+
+		if groupings {
+			solver = solver.Groupings()
 		}
 
 		if permute {
