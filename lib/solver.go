@@ -31,6 +31,9 @@ func (s *Solver) Decide(scale Scale) (int, Weight) {
 
 	i := int(a*9 + b*3 + c - 13)
 	o := abs(i)
+	if o < 1 || o > 12 {
+		panic(fmt.Errorf("index out of bounds: %d, %v", o, []Weight{a, b, c}))
+	}
 	if s.Mirror {
 		o = 13 - o
 	}
