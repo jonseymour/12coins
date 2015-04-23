@@ -44,14 +44,14 @@ func main() {
 		}
 
 		if permute {
+			ref := solver.Clone()
 			for _, m := range []bool{false, true} {
 				for _, p := range lib.Permute([]int{0, 1, 2}) {
-					clone := solver.Clone()
+					clone := ref.Clone()
 					clone.Mirror = m
 					clone.Permutation = p
 					clone.Weighings = [3][2][]int{clone.Weighings[p[0]], clone.Weighings[p[1]], clone.Weighings[p[2]]}
 					clone, _ = clone.Reverse()
-					clone = clone.Relabel()
 					if errors := lib.TestAll(clone.Decide); len(errors) != 0 {
 						panic(fmt.Errorf("errors: %v", errors))
 					}
