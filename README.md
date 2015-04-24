@@ -432,7 +432,7 @@ of the structure as a number between 0 and 4 and call this number S.
 		<td>20</td><td>pqp</td><td>2,0,1</td>
 	</tr>
 	<tr>
-		<td>20</td><td>ppp</td><td>0,1,2</td>
+		<td>21</td><td>ppp</td><td>0,1,2</td>
 	</tr>
 	</table>
 
