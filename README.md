@@ -356,7 +356,7 @@ reconstruct that solution at a later time.
 1. Count the occurrences of each coin in each weighing. No coin can appear more than once in a given weighing. There should be 3 coins that appear it at most one weighing, 6 coins that appear exactly twice and 3 coins that appear exactly three times. Any other combination of coins will not be a valid solution to the problem. This can be verified by testing the proposed solution against all 24 input configurations.
 
 2. If the left hand side of each weighing contains less triples than the right handside, flip the
-weighing and record the fact of the flip. Call this recording (f0,f1,f2) where fn is 0 if the pans of the nth weighing was flipped 0 if it wasn't.
+weighing and record the fact of the flip. Call this recording (f0,f1,f2) where fn is 1 if the pans of the nth weighing were flipped and 0 if they weren't.
 
 3. Identify the pairs by finding coins that are split across two pans in one weighing and grouped in one pan on the other weighing.
 
