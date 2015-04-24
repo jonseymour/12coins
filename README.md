@@ -344,8 +344,7 @@ Labelling a solution
 The objective of labeling is, given a valid solution, identify a tuple of numbers that can be used to
 reconstruct that solution at a later time.
 
-1. Count the occurrences of each coin in each weighing. No coin can appear more than once. There should be 3 coins that appear once, 6 coins that appear twice and 3 coins that appear three times. Any other
-combination of coins will not be a valid solution to the problem.
+1. Count the occurrences of each coin in each weighing. No coin can appear more than once in a given weighing. There should be 3 coins that appear it at most one weighing, 6 coins that appear exactly twice and 3 coins that appear exactly three times. Any other combination of coins will not be a valid solution to the problem. This can be verified by testing the proposed solution against all 24 input configurations.
 
 2. If the left hand side of each weighing contains less triples than the right handside, flip the
 weighing and record the fact of the flip. Call this recording (f0,f1,f2) where fn is 0 if the pans of the nth weighing was flipped 0 if it wasn't.
@@ -489,7 +488,7 @@ Rewrite f in the form:
 
 	f = 4*f2 + 2*f1 + f0
 
-Allocate the coins according to the allocations implied by the identified structure. Flip the pans according to the bits f2, f1 and f0.
+Allocate the coins according to the allocations implied by the identified structure then permute the weighings according to the identified permutation. Flip the pans according to the bits f2, f1 and f0.
 
 #Other notes
 
