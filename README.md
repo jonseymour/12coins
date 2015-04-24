@@ -337,7 +337,7 @@ Notice that if you sum the like terms of each solution from both sides,the total
 The interpretation of this sum is:
 
 * every member of the triple (j, k, l) appears in 3 weighings => 9T
-* every pair is on the same side of one weighing => (6J) and the opposite side on one weighing => (6S)
+* every pair is on the same side of one weighing => (6J) and the opposite side on one weighing => (3L+3R)
 * every singleton appears once => 3U
 
 An example of an invalid solution is r(0)+s(1)+t(2):
