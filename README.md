@@ -383,10 +383,10 @@ then permute the weighings according to the permutation to produce one of 5 poss
 		<td>2</td><td>rqs</td><td>1,0,2</td>
 	</tr>
 	<tr>
-		<td>3</td><td>rsq</td><td>1,2,0</td>
+		<td>3</td><td>sqr</td><td>1,2,0</td>
 	</tr>
 	<tr>
-		<td>4</td><td>sqr</td><td>2,0,1</td>
+		<td>4</td><td>rsq</td><td>2,0,1</td>
 	</tr>
 	<tr>
 		<td>5</td><td>srq</td><td>2,1,0</td>
@@ -401,10 +401,10 @@ then permute the weighings according to the permutation to produce one of 5 poss
 		<td>8</td><td>rps</td><td>1,0,2</td>
 	</tr>
 	<tr>
-		<td>9</td><td>rsp</td><td>1,2,0</td>
+		<td>9</td><td>spr</td><td>1,2,0</td>
 	</tr>
 	<tr>
-		<td>10</td><td>spr</td><td>2,0,1</td>
+		<td>10</td><td>rsp</td><td>2,0,1</td>
 	</tr>
 	<tr>
 		<td>11</td><td>srp</td><td>2,1,0</td>
@@ -419,10 +419,10 @@ then permute the weighings according to the permutation to produce one of 5 poss
 		<td>14</td><td>rpt</td><td>1,0,2</td>
 	</tr>
 	<tr>
-		<td>15</td><td>rtp</td><td>1,2,0</td>
+		<td>15</td><td>tpr</td><td>1,2,0</td>
 	</tr>
 	<tr>
-		<td>16</td><td>tpr</td><td>2,0,1</td>
+		<td>16</td><td>rtp</td><td>2,0,1</td>
 	</tr>
 	<tr>
 		<td>17</td><td>trp</td><td>2,1,0</td>
