@@ -348,7 +348,7 @@ An example of an invalid solution is r(0)+s(1)+t(2):
 
 whose terms sum to 9T+3U+2L+2R+8J. Intuitively this is not a solution because one pair (h,i) is weighed on the same side twice and is never split. This arrangement prevents discrimination between of the relative weight of h and i.
 
-Labelling a solution
+Labeling a solution
 --------------------
 The objective of labeling is, given a valid solution, identify a tuple of numbers that can be used to
 reconstruct that solution at a later time.
