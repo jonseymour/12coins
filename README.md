@@ -310,13 +310,13 @@ This is an example of p(0)+p(1)+p(2):
 
 This is an example of q(0)+p(1)+p(2):
 
-    (j,k,l,d) (e,f,g,a)
+	(j,k,l,d) (e,f,g,a)
 	(k,l,f,b) (j,h,i,g)
 	(l,j,h,c) (k,d,e,i)
 
 This is an example of q(0)+r(1)+s(2):
 
-    (j,k,l,d) (e,f,g,a)
+	(j,k,l,d) (e,f,g,a)
 	(k,l,f,h) (j,g,i,b)
 	(l,j,d,e) (k,h,i,c)
 
