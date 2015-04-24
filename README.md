@@ -431,10 +431,10 @@ then permute the weighings according to the permutation to produce one of 5 poss
 		<td>18</td><td>qpp</td><td>0,1,2</td>
 	</tr>
 	<tr>
-		<td>19</td><td>ppq</td><td>1,2,0</td>
+		<td>19</td><td>pqp</td><td>1,2,0</td>
 	</tr>
 	<tr>
-		<td>20</td><td>pqp</td><td>2,0,1</td>
+		<td>20</td><td>ppq</td><td>2,0,1</td>
 	</tr>
 	<tr>
 		<td>21</td><td>ppp</td><td>0,1,2</td>
