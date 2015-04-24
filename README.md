@@ -363,7 +363,7 @@ weighing and record the fact of the flip. Call this recording (f0,f1,f2) where f
 5. Label the structure of each weighing with p,q,r,s,t according to how many of each type of coin the
 the left hand side of the weighing has.
 
-6. Lookup the structure labeled by 5 and assign the index of that structure to S
+6. Lookup the structure labeled by step 5. and assign the index of that structure to S
 then permute the weighings according to the permutation to produce one of 5 possible structures:
 {ppp, qpp, prs, prt or qrs}.
 
