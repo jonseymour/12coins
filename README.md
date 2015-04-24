@@ -354,14 +354,11 @@ weighing and record the fact of the flip. Call this recording (f0,f1,f2) where f
 5. Label the structure of each weighing with p,q,r,s,t according to how many of each type of coin the
 the left hand side of the weighing has.
 
-6. Permute the 3 weighings so that they have one of the 5 possible structures. Record this permutation as
-(r0,r1,r2) where final[r0],final[r1],final[r2] = initial[0], initial[1], initial[2]. Record the identity
-of the structure as a number between 0 and 4 and call this number S.
+6. Lookup the structure labeled by 5 and assign the index of that structure to S
+then permute the weighings according to the permutation to produce one of 5 possible structures:
+{ppp, qpp, prs, prt or qrs}.
 
-	Note that there may be multiple ways to obtain the required structure from the original permutation. In these cases, we choose one of the possible permutations and always use that one. For example, for weighings of the structure ppp we always choose the permutation (0,1,2). For weighings of the structure qpp, we always choose whichever of (0,1,2), (1,0,2), (2,1,0) produces a set of weighings with structure qpp.
-
-	As a result, there are 1+3+6+6+6 = 22 possible structures ( or 22 * 8 = 176 if pan flips are included ).
-	Label structure with a number, S, between 0 and 21 inclusive according to structure and the permutation required to sort the original order into one of the 5 possible structures.
+	Note that there may be multiple ways to obtain the required structure from the original permutation. In these cases, we choose one of the possible permutations and always use that one. For example, for weighings of the structure ppp we always choose the permutation (0,1,2). For weighings of the structure qpp, we always choose whichever of (0,1,2), (1,0,2), (2,1,0) produces the correct permutation.
 
 	<table>
 	<tr>
@@ -434,6 +431,8 @@ of the structure as a number between 0 and 4 and call this number S.
 		<td>21</td><td>ppp</td><td>0,1,2</td>
 	</tr>
 	</table>
+
+	Note that there are 6+6+6+3+1 = 22 possible structures ( or 22 * 8 = 176 if pan flips are included ).
 
 5. Label the singletons (a,b,c) according to which weighing they appear in. Label the triples j,k,l according to the weighing in which they appear as the only triple on one side. (Or the remaining triple, in cases where there is no such weighing.). Label the pairs according to the order of the weighings in which they are split. If the pair is split in weighing 1 of type r, then assign 0 to the pair that was grouped in weighing 0 and 2 to the pair that was grouped in weighing 2.
 
