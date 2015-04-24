@@ -246,6 +246,7 @@ There appear to be 5 ways to choose coins from a->l that will produce a weighing
 * 2R means to choose the right side of the two pairs selected by 2L on the left hand side. So, one of
 (e,g), (g,i) or (i,e) depending on the choice of 2L on the left hand side.
 * 2J means choose both elements of a pair. So (d,e), (f,g) or (h,i).
+* 4J means choose both elements of two pairs.
 * 1U means choose one element from (a,b,c).
 
 <pre>
@@ -277,6 +278,14 @@ whereas p(1) means apply permutation (1,2,0) to the triples, pairs and singleton
 	1R = g
 
 and p(2) means apply the permutation (1,2,0) to the triples, pairs and singletons twice before applying p(0) to the resulting configuration.
+
+	2T = l,j
+	1L = h
+	1U = c
+	1T = k
+	2J = d,e
+	1R = i
+
 
 Note that weighings such as:
 
@@ -337,7 +346,7 @@ An example of an invalid solution is r(0)+s(1)+t(2):
 	(k,l,f,g) (j,h,i,b)
 	(l,j,k,c) (h,i,d,e)
 
-whose terms sum to 9T+3U+2L+2J+8J. Intuitively this is not a solution because one pair (h,i) is weighed on the same side twice and is never split. This arrangement prevents discrimination between of the relative weight of h and i.
+whose terms sum to 9T+3U+2L+2R+8J. Intuitively this is not a solution because one pair (h,i) is weighed on the same side twice and is never split. This arrangement prevents discrimination between of the relative weight of h and i.
 
 Labelling a solution
 --------------------
@@ -458,11 +467,11 @@ the solution.
 
 The solutions can be numbered with a formula of this kind:
 
-	f2+2*(f1+4*(f0+8*(S+22*(k'+2*(j'+3*(i'+4*(h'+5*(g'+6*(f'+7*(e'+8*(d'+9*(c'+10*(b'+11*(a')))))))))))))
+	f0+2*(f1+4*(f2+8*(S+22*(k'+2*(j'+3*(i'+4*(h'+5*(g'+6*(f'+7*(e'+8*(d'+9*(c'+10*(b'+11*(a'))))))))))))))
     =
-	      1 * f2+
+	      1 * f0+
 	      2 * f1+
-	      4 * f0+
+	      4 * f2+
 	      8 * S+
 	    176 * P12(a,b,c,d,e,f,g,j,k,l)
 
