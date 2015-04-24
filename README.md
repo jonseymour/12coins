@@ -319,7 +319,7 @@ This is an example of p(0)+r(1)+s(2):
 
 This is an example of p(0),r(1),t(2):
 
-	(j,k,d,f) (l,f,g,e)
+	(j,k,d,a) (l,f,g,e)
 	(k,l,f,h) (j,g,i,b)
 	(l,j,k,c) (h,i,d,e)
 
