@@ -23,6 +23,7 @@ type Solver struct {
 	Pairs     [][2]int    `json:"pairs,omitempty"`
 	Triples   []int       `json:"triples,omitempty"`
 	Flip      *int        `json:"flip,omitempty"`
+	Valid     *bool       `json:"valid,omitempty"`
 }
 
 func (s *Solver) decide(scale Scale) (int, Weight, int) {
@@ -82,6 +83,10 @@ func (s *Solver) Clone() *Solver {
 	if tmp != nil {
 		tmp = pi(*tmp)
 	}
+	v := s.Valid
+	if v != nil {
+		v = pbool(*v)
+	}
 	clone := Solver{
 		Weighings: [3][2][]int{},
 		Coins:     make([]int, len(s.Coins), len(s.Coins)),
@@ -91,6 +96,7 @@ func (s *Solver) Clone() *Solver {
 		Triples:   append([]int{}, s.Triples...),
 		Pairs:     append([][2]int{}, s.Pairs...),
 		Flip:      tmp,
+		Valid:     v,
 	}
 
 	for j, _ := range []int{0, 1} {
@@ -167,7 +173,8 @@ func (s *Solver) Reverse() (*Solver, error) {
 			ri, rw, rx := clone.decide(o)
 			if ri != i {
 				if clone.Weights[rx] != Equal {
-					return nil, fmt.Errorf("cannot distinguish between (%d, %v) and (%d, %v) ", clone.Coins[rx], clone.Weights[rx], i, rw)
+					s.Valid = pbool(false)
+					return s, fmt.Errorf("cannot distinguish between (%d, %v) and (%d, %v) ", clone.Coins[rx], clone.Weights[rx], i, rw)
 				}
 				clone.Coins[rx] = i
 			}
@@ -210,11 +217,16 @@ func (s *Solver) Reverse() (*Solver, error) {
 		}
 		return clone.Reverse()
 	}
+	clone.Valid = pbool(true)
 	return clone, nil
 }
 
 func pi(i int) *int {
 	return &i
+}
+
+func pbool(b bool) *bool {
+	return &b
 }
 
 func (s *Solver) resetCounts() {
@@ -240,7 +252,8 @@ func (s *Solver) Groupings() (*Solver, error) {
 			for _, e := range clone.Weighings[i][j] {
 				x := e - s.ZeroCoin
 				if x < 0 || x > 11 {
-					return nil, fmt.Errorf("invalid coin detected at %d, %d -> %d", i, j, e)
+					s.Valid = pbool(false)
+					return s, fmt.Errorf("invalid coin detected at %d, %d -> %d", i, j, e)
 				}
 				counts[x] += 1
 				sets[x] |= (1 << uint(i))
@@ -256,7 +269,8 @@ func (s *Solver) Groupings() (*Solver, error) {
 		case 3:
 			clone.Triples = append(clone.Triples, k)
 		default:
-			return nil, fmt.Errorf("invalid count detected for coin %d -> %d", k, v)
+			s.Valid = pbool(false)
+			return s, fmt.Errorf("invalid count detected for coin %d -> %d", k, v)
 		}
 	}
 
