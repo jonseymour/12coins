@@ -32,7 +32,6 @@ func main() {
 		if reverse {
 			if solver, err = solver.Reverse(); err != nil {
 				fmt.Fprintf(os.Stderr, "bad solution: %v", err)
-				continue
 			}
 		}
 
@@ -41,13 +40,14 @@ func main() {
 		}
 
 		if relabel {
-			solver = solver.Relabel()
+			if solver, err = solver.Relabel(); err != nil {
+				fmt.Fprintf(os.Stderr, "cannot relabel: %v", err)
+			}
 		}
 
 		if groupings {
 			if solver, err = solver.Groupings(); err != nil {
 				fmt.Fprintf(os.Stderr, "bad solution: %v", err)
-				continue
 			}
 		}
 
