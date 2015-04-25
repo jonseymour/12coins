@@ -16,8 +16,8 @@ func abs(i int) int {
 
 type Solver struct {
 	Weighings [3][2][]int `json:"weighings"`
-	Coins     [12]int     `json:"coins"`
-	Weights   [12]Weight  `json:"weights"`
+	Coins     []int       `json:"coins"`
+	Weights   []Weight    `json:"weights"`
 	ZeroCoin  int         `json:"zero-coin,omitempty"`
 	Unique    []int       `json:"unique,omitempty"`
 	Pairs     [][2]int    `json:"pairs,omitempty"`
@@ -25,7 +25,7 @@ type Solver struct {
 	Flip      *int        `json:"flip,omitempty"`
 }
 
-func (s *Solver) Decide(scale Scale) (int, Weight) {
+func (s *Solver) decide(scale Scale) (int, Weight, int) {
 	scale.SetZeroCoin(s.ZeroCoin)
 
 	results := [3]Weight{}
@@ -44,17 +44,27 @@ func (s *Solver) Decide(scale Scale) (int, Weight) {
 
 	i := int(a*9 + b*3 + c - 13)
 	o := abs(i)
-	if o < 1 || o > 12 {
-		panic(fmt.Errorf("index out of bounds: %d, %v", o, []Weight{a, b, c}))
+	if len(s.Coins) == 12 {
+		if o < 1 || o > 12 {
+			panic(fmt.Errorf("index out of bounds: %d, %v", o, []Weight{a, b, c}))
+		}
+		o = o - 1
+	} else {
+		o = i + 13
 	}
 
-	f := s.Coins[o-1]
-	w := s.Weights[o-1]
+	f := s.Coins[o]
+	w := s.Weights[o]
 
 	if i > 0 {
 		w = Heavy - w
 	}
 
+	return f, w, o
+}
+
+func (s *Solver) Decide(scale Scale) (int, Weight) {
+	f, w, _ := s.decide(scale)
 	return f, w
 }
 
@@ -68,14 +78,19 @@ func (s *Solver) String() string {
 }
 
 func (s *Solver) Clone() *Solver {
+	tmp := s.Flip
+	if tmp != nil {
+		tmp = pi(*tmp)
+	}
 	clone := Solver{
 		Weighings: [3][2][]int{},
-		Coins:     [12]int{},
-		Weights:   [12]Weight{},
+		Coins:     make([]int, len(s.Coins), len(s.Coins)),
+		Weights:   make([]Weight, len(s.Weights), len(s.Weights)),
 		ZeroCoin:  s.ZeroCoin,
 		Unique:    append([]int{}, s.Unique...),
 		Triples:   append([]int{}, s.Triples...),
 		Pairs:     append([][2]int{}, s.Pairs...),
+		Flip:      tmp,
 	}
 
 	for j, _ := range []int{0, 1} {
@@ -137,26 +152,69 @@ func (s *Solver) Normalize() *Solver {
 
 func (s *Solver) Reverse() (*Solver, error) {
 	clone := s.Clone()
+
+	clone.Coins = make([]int, 27, 27)
+	clone.Weights = make([]Weight, 27, 27)
+
 	for i, _ := range clone.Coins {
-		clone.Coins[i] = clone.ZeroCoin + i
+		clone.Coins[i] = clone.ZeroCoin
+		clone.Weights[i] = Equal
 	}
-	seen := [12]bool{}
-	for _, i := range []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12} {
-		o := NewOracle(i, Light, 1)
-		ri, rw := clone.Decide(o)
-		if ri != i {
-			if seen[ri-1] {
-				return nil, fmt.Errorf("cannot distinguish between (%d, %v) and (%d, %v) ", clone.Coins[ri-1], clone.Weights[ri-1], i, rw)
-			} else {
-				seen[ri-1] = true
+
+	for _, w := range []Weight{Light, Heavy} {
+		for _, i := range []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12} {
+			o := NewOracle(i, w, 1)
+			ri, rw, rx := clone.decide(o)
+			if ri != i {
+				if clone.Weights[rx] != Equal {
+					return nil, fmt.Errorf("cannot distinguish between (%d, %v) and (%d, %v) ", clone.Coins[rx], clone.Weights[rx], i, rw)
+				}
+				clone.Coins[rx] = i
 			}
-			clone.Coins[ri-1] = i
+			clone.Weights[rx] = w
 		}
-		if rw != Light {
-			clone.Weights[ri-1] = Heavy - clone.Weights[ri-1]
+	}
+
+	// exploit symmetry where it exists
+
+	if clone.Weights[0] == Equal {
+		clone.Coins = clone.Coins[1:13]
+		clone.Weights = clone.Weights[1:13]
+	} else {
+
+		//
+		// A curious truth is that within the first 13 positions, of the
+		// array, the unassigned slots can only ever occur at positions
+		// 0,2,6 or 8.
+		//
+		// If it occurs an 0, then LLL is not a valid weighing. If it occurs
+		// at 2, then LLH is not a valid weighing. If it occurs at 6, then LHL
+		// is not a valid weighing. If it occurs at 8 then LHH is not a valid
+		// weighing.
+		//
+		// The desired outcome is that the empty slots occur at
+		// 0 which allows the sum derived from the other bits to
+		// index the counterfeit coin directly.
+		//
+		// This can be arranged by identifying the weighing that is causing
+		// the empty slot to happen at something other than 0 and flipping
+		// the contribution of that weighing to the sum.
+		//
+
+		if clone.Weights[8] == Equal {
+			clone.Flip = pi(0)
+		} else if clone.Weights[6] == Equal {
+			clone.Flip = pi(1)
+		} else {
+			clone.Flip = pi(2)
 		}
+		return clone.Reverse()
 	}
 	return clone, nil
+}
+
+func pi(i int) *int {
+	return &i
 }
 
 func (s *Solver) resetCounts() {
