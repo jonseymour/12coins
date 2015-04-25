@@ -22,6 +22,9 @@ type coinset struct {
 }
 
 func (s *coinset) AsCoins(zeroCoin int) []int {
+	if s == nil {
+		return []int{}
+	}
 	result := make([]int, s.Size())
 	bits := s.mask
 	mask := CoinMask(1)
