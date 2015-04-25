@@ -14,6 +14,11 @@ func abs(i int) int {
 	}
 }
 
+type Failure struct {
+	Coin   int    `json:"coin"`
+	Weight Weight `json:"weight"`
+}
+
 type Solver struct {
 	Weighings [3][2][]int `json:"weighings,omitempty"`
 	Coins     []int       `json:"coins,omitempty"`
@@ -24,6 +29,7 @@ type Solver struct {
 	Triples   []int       `json:"triples,omitempty"`
 	Flip      *int        `json:"flip,omitempty"`
 	Valid     *bool       `json:"valid,omitempty"`
+	Failures  []Failure   `json:"failures,omitempty"`
 }
 
 func (s *Solver) decide(scale Scale) (int, Weight, int) {
@@ -177,19 +183,37 @@ func (s *Solver) Reverse() (*Solver, error) {
 		clone.Weights[i] = Equal
 	}
 
+	failures := make(map[int]bool)
+
+	fail := func(coin int, weight Weight) {
+		if !failures[coin] {
+			failures[coin] = true
+			s.Failures = append(s.Failures, Failure{
+				Coin:   coin,
+				Weight: weight,
+			})
+		}
+	}
+
 	for _, w := range []Weight{Light, Heavy} {
 		for _, i := range []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12} {
 			o := NewOracle(i, w, 1)
-			ri, rw, rx := clone.decide(o)
+			ri, _, rx := clone.decide(o)
 			if ri != i {
 				if clone.Weights[rx] != Equal {
 					s.Valid = pbool(false)
-					return s, fmt.Errorf("cannot distinguish between (%d, %v) and (%d, %v)", clone.Coins[rx], clone.Weights[rx], i, rw)
+					fail(clone.Coins[rx], clone.Weights[rx])
+					fail(i, w)
+					continue
 				}
 				clone.Coins[rx] = i
 			}
 			clone.Weights[rx] = w
 		}
+	}
+
+	if len(s.Failures) != 0 {
+		return s, fmt.Errorf("not a valid solution because of %d failures", len(s.Failures))
 	}
 
 	// exploit symmetry where it exists
