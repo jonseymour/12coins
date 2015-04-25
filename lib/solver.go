@@ -22,13 +22,25 @@ type Solver struct {
 	Unique    []int       `json:"unique,omitempty"`
 	Pairs     [][2]int    `json:"pairs,omitempty"`
 	Triples   []int       `json:"triples,omitempty"`
+	Flip      *int        `json:"flip,omitempty"`
 }
 
 func (s *Solver) Decide(scale Scale) (int, Weight) {
 	scale.SetZeroCoin(s.ZeroCoin)
-	a := scale.Weigh(s.Weighings[0][0], s.Weighings[0][1])
-	b := scale.Weigh(s.Weighings[1][0], s.Weighings[1][1])
-	c := scale.Weigh(s.Weighings[2][0], s.Weighings[2][1])
+
+	results := [3]Weight{}
+
+	results[0] = scale.Weigh(s.Weighings[0][0], s.Weighings[0][1])
+	results[1] = scale.Weigh(s.Weighings[1][0], s.Weighings[1][1])
+	results[2] = scale.Weigh(s.Weighings[2][0], s.Weighings[2][1])
+
+	if s.Flip != nil {
+		results[*s.Flip] = Heavy - results[*s.Flip]
+	}
+
+	a := results[0]
+	b := results[1]
+	c := results[2]
 
 	i := int(a*9 + b*3 + c - 13)
 	o := abs(i)
