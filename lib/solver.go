@@ -15,9 +15,9 @@ func abs(i int) int {
 }
 
 type Solver struct {
-	Weighings [3][2][]int `json:"weighings"`
-	Coins     []int       `json:"coins"`
-	Weights   []Weight    `json:"weights"`
+	Weighings [3][2][]int `json:"weighings,omitempty"`
+	Coins     []int       `json:"coins,omitempty"`
+	Weights   []Weight    `json:"weights,omitempty"`
 	ZeroCoin  int         `json:"zero-coin,omitempty"`
 	Unique    []int       `json:"unique,omitempty"`
 	Pairs     [][2]int    `json:"pairs,omitempty"`
