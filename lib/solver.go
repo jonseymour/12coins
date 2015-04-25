@@ -299,60 +299,38 @@ func (s *Solver) resetCounts() {
 // Tabulate the singletons, pairs and triples of the solution.
 func (s *Solver) Groupings() (*Solver, error) {
 	clone := s.Clone()
-	clone.Unique = []int{}
-	clone.Triples = []int{}
-	clone.Pairs = [][2]int{[2]int{-1, -1}, [2]int{-1, -1}, [2]int{-1, -1}}
-	counts := make(map[int]int)
-	sets := make(map[int]int)
-	pairs := []int{}
-	for i := 0; i < 12; i++ {
-		counts[i] = 0
-		sets[i] = 0
-	}
-	for i, w := range clone.Weighings {
-		for j, p := range w.Pans() {
-			for _, e := range p.AsCoins(clone.ZeroCoin) {
-				x := e - s.ZeroCoin
-				if x < 0 || x > 11 {
-					s.Valid = pbool(false)
-					return s, fmt.Errorf("invalid coin detected at %d, %d -> %d", i, j, e)
-				}
-				counts[x] += 1
-				sets[x] |= (1 << uint(i))
-			}
-		}
-	}
-	for k, v := range counts {
-		switch v {
-		case 1:
-			clone.Unique = append(clone.Unique, k)
-		case 2:
-			pairs = append(pairs, k)
-		case 3:
-			clone.Triples = append(clone.Triples, k)
-		default:
-			s.Valid = pbool(false)
-			return s, fmt.Errorf("invalid count detected for coin %d -> %d", k, v)
-		}
+	clone.resetCounts()
+
+	a := clone.Weighings[0].Both()
+	b := clone.Weighings[1].Both()
+	c := clone.Weighings[2].Both()
+
+	ab := a.Intersection(b)
+	bc := b.Intersection(c)
+	ca := c.Intersection(a)
+
+	all := a.Union(b).Union(c)
+	triples := ab.Intersection(bc).Intersection(ca)
+	singletons := a.Remove(b.Union(c)).Union(b.Remove(a.Union(c))).Union(c.Remove(a.Union(b)))
+	pairs := all.Remove(triples).Remove(singletons)
+
+	if triples.Size() != 3 || singletons.Size() != 3 || pairs.Size() != 6 {
+		s.Valid = pbool(false)
+		return s, fmt.Errorf("invalid grouping sizes: %v, %v, %v", triples, pairs, singletons)
 	}
 
-	sort.Sort(sort.IntSlice(pairs))
+	abp := pairs.Intersection(ab)
+	bcp := pairs.Intersection(bc)
+	cap := pairs.Intersection(ca)
 
-	for i, _ := range clone.Weighings {
-		for _, k := range pairs {
-			mask := 1<<uint(i) | 1<<uint((i+1)%3)
-			if sets[k]&mask == mask {
-				if clone.Pairs[i][0] < 0 {
-					clone.Pairs[i][0] = k
-				} else {
-					clone.Pairs[i][1] = k
-				}
-			}
-		}
+	dp := func(c CoinSet) [2]int {
+		tmp := c.AsCoins(clone.ZeroCoin)
+		return [2]int{tmp[0], tmp[1]}
 	}
 
-	sort.Sort(sort.IntSlice(clone.Unique))
-	sort.Sort(sort.IntSlice(clone.Triples))
+	clone.Triples = triples.AsCoins(clone.ZeroCoin)
+	clone.Unique = singletons.AsCoins(clone.ZeroCoin)
+	clone.Pairs = [][2]int{dp(abp), dp(bcp), dp(cap)}
 
 	return clone, nil
 }
