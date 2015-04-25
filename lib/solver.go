@@ -234,7 +234,6 @@ func (s *Solver) Reverse() (*Solver, error) {
 			ri, _, rx := clone.decide(o)
 			if ri != i {
 				if clone.Weights[rx] != Equal {
-					s.Valid = pbool(false)
 					fail(clone.Coins[rx], clone.Weights[rx])
 					fail(i, w)
 					continue
@@ -246,6 +245,7 @@ func (s *Solver) Reverse() (*Solver, error) {
 	}
 
 	if len(s.Failures) != 0 {
+		s.Valid = pbool(false)
 		return s, fmt.Errorf("not a valid solution because of %d failures", len(s.Failures))
 	}
 
