@@ -15,15 +15,13 @@ func abs(i int) int {
 }
 
 type Solver struct {
-	Permutation []int       `json:"permutation,omitempty"`
-	Weighings   [3][2][]int `json:"weighings"`
-	Coins       [12]int     `json:"coins"`
-	Weights     [12]Weight  `json:"weights"`
-	Mirror      bool        `json:"mirror,omitempty"`
-	ZeroCoin    int         `json:"zero-coin,omitempty"`
-	Unique      []int       `json:"unique,omitempty"`
-	Pairs       [][2]int    `json:"pairs,omitempty"`
-	Triples     []int       `json:"triples,omitempty"`
+	Weighings [3][2][]int `json:"weighings"`
+	Coins     [12]int     `json:"coins"`
+	Weights   [12]Weight  `json:"weights"`
+	ZeroCoin  int         `json:"zero-coin,omitempty"`
+	Unique    []int       `json:"unique,omitempty"`
+	Pairs     [][2]int    `json:"pairs,omitempty"`
+	Triples   []int       `json:"triples,omitempty"`
 }
 
 func (s *Solver) Decide(scale Scale) (int, Weight) {
@@ -36,9 +34,6 @@ func (s *Solver) Decide(scale Scale) (int, Weight) {
 	o := abs(i)
 	if o < 1 || o > 12 {
 		panic(fmt.Errorf("index out of bounds: %d, %v", o, []Weight{a, b, c}))
-	}
-	if s.Mirror {
-		o = 13 - o
 	}
 
 	f := s.Coins[o-1]
@@ -62,15 +57,13 @@ func (s *Solver) String() string {
 
 func (s *Solver) Clone() *Solver {
 	clone := Solver{
-		Weighings:   [3][2][]int{},
-		Coins:       [12]int{},
-		Weights:     [12]Weight{},
-		ZeroCoin:    s.ZeroCoin,
-		Mirror:      s.Mirror,
-		Permutation: append([]int{}, s.Permutation...),
-		Unique:      append([]int{}, s.Unique...),
-		Triples:     append([]int{}, s.Triples...),
-		Pairs:       append([][2]int{}, s.Pairs...),
+		Weighings: [3][2][]int{},
+		Coins:     [12]int{},
+		Weights:   [12]Weight{},
+		ZeroCoin:  s.ZeroCoin,
+		Unique:    append([]int{}, s.Unique...),
+		Triples:   append([]int{}, s.Triples...),
+		Pairs:     append([][2]int{}, s.Pairs...),
 	}
 
 	for j, _ := range []int{0, 1} {

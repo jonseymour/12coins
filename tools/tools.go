@@ -12,13 +12,11 @@ func main() {
 	relabel := false
 	reverse := false
 	normalize := false
-	permute := false
 	groupings := false
 
 	flag.BoolVar(&reverse, "reverse", false, "Reverse the solution.")
 	flag.BoolVar(&relabel, "relabel", false, "Relabel solution.")
 	flag.BoolVar(&normalize, "normalize", false, "Normalize the solution.")
-	flag.BoolVar(&permute, "permute", false, "Generate permutations of the solution.")
 	flag.BoolVar(&groupings, "groupings", false, "Extract the singletons, pairs and triples.")
 	flag.Parse()
 
@@ -48,24 +46,6 @@ func main() {
 
 		if groupings {
 			solver = solver.Groupings()
-		}
-
-		if permute {
-			ref := solver.Clone()
-			for _, m := range []bool{false, true} {
-				for _, p := range lib.Permute([]int{0, 1, 2}) {
-					clone := ref.Clone()
-					clone.Mirror = m
-					clone.Permutation = p
-					clone.Weighings = [3][2][]int{clone.Weighings[p[0]], clone.Weighings[p[1]], clone.Weighings[p[2]]}
-					clone, _ = clone.Reverse()
-					if errors := lib.TestAll(clone.Decide); len(errors) != 0 {
-						panic(fmt.Errorf("errors: %v", errors))
-					}
-					encoder.Encode(clone)
-				}
-			}
-			continue
 		}
 
 		encoder.Encode(solver)
