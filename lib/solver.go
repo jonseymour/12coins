@@ -25,16 +25,17 @@ type Failure struct {
 
 // Describes a possibly invalid solution to the 12 coins problem.
 type Solver struct {
-	Weighings [3][2][]int `json:"weighings,omitempty"` // the weighings of the solution
-	Coins     []int       `json:"coins,omitempty"`     // a mapping between abs(27*a+9*b+c-13)-1 and the coin identity
-	Weights   []Weight    `json:"weights,omitempty"`   // a mapping between sgn(27*a+9*b+c-13)-1 and the coin weight
-	ZeroCoin  int         `json:"zero-coin,omitempty"` // the zero coin of the weighings. either 0 or 1.
-	Unique    []int       `json:"unique,omitempty"`    // the coins that appear in one weighing
-	Pairs     [][2]int    `json:"pairs,omitempty"`     // the pairs that appear in exactly two weighings
-	Triples   []int       `json:"triples,omitempty"`   // the coins that appear in all 3 weighings
-	Flip      *int        `json:"flip,omitempty"`      // the weighing which needs to be flipped to guarantee abs(27*a+9*b+c-13)-1 is between 0 and 11
-	Valid     *bool       `json:"valid,omitempty"`     // true if the solution is valid
-	Failures  []Failure   `json:"failures,omitempty"`  // a list of tests for which the solution is ambiguous
+	EncodedWeighings [3][2][]int   `json:"weighings,omitempty"` // the weighings of the solution
+	Weighings        [3][2]CoinSet `json:"-",omit`
+	Coins            []int         `json:"coins,omitempty"`     // a mapping between abs(27*a+9*b+c-13)-1 and the coin identity
+	Weights          []Weight      `json:"weights,omitempty"`   // a mapping between sgn(27*a+9*b+c-13)-1 and the coin weight
+	ZeroCoin         int           `json:"zero-coin,omitempty"` // the zero coin of the weighings. either 0 or 1.
+	Unique           []int         `json:"unique,omitempty"`    // the coins that appear in one weighing
+	Pairs            [][2]int      `json:"pairs,omitempty"`     // the pairs that appear in exactly two weighings
+	Triples          []int         `json:"triples,omitempty"`   // the coins that appear in all 3 weighings
+	Flip             *int          `json:"flip,omitempty"`      // the weighing which needs to be flipped to guarantee abs(27*a+9*b+c-13)-1 is between 0 and 11
+	Valid            *bool         `json:"valid,omitempty"`     // true if the solution is valid
+	Failures         []Failure     `json:"failures,omitempty"`  // a list of tests for which the solution is ambiguous
 }
 
 // Decide the relative weight of a coin by generating a linear combination of the three weighings and using
@@ -44,9 +45,9 @@ func (s *Solver) decide(scale Scale) (int, Weight, int) {
 
 	results := [3]Weight{}
 
-	results[0] = scale.Weigh(s.Weighings[0][0], s.Weighings[0][1])
-	results[1] = scale.Weigh(s.Weighings[1][0], s.Weighings[1][1])
-	results[2] = scale.Weigh(s.Weighings[2][0], s.Weighings[2][1])
+	results[0] = scale.Weigh(s.Weighings[0][0].AsCoins(s.ZeroCoin), s.Weighings[0][1].AsCoins(s.ZeroCoin))
+	results[1] = scale.Weigh(s.Weighings[1][0].AsCoins(s.ZeroCoin), s.Weighings[1][1].AsCoins(s.ZeroCoin))
+	results[2] = scale.Weigh(s.Weighings[2][0].AsCoins(s.ZeroCoin), s.Weighings[2][1].AsCoins(s.ZeroCoin))
 
 	if s.Flip != nil {
 		results[*s.Flip] = Heavy - results[*s.Flip]
@@ -90,12 +91,6 @@ func (s *Solver) SetZeroCoin(coin int) {
 	s.ZeroCoin = coin
 }
 
-// Convert the solution to its JSON representation.
-func (s *Solver) String() string {
-	b, _ := json.Marshal(s)
-	return string(b)
-}
-
 // Create a deep clone of the receiver.
 func (s *Solver) Clone() *Solver {
 	tmp := s.Flip
@@ -107,7 +102,7 @@ func (s *Solver) Clone() *Solver {
 		v = pbool(*v)
 	}
 	clone := Solver{
-		Weighings: [3][2][]int{},
+		Weighings: [3][2]CoinSet{},
 		Coins:     make([]int, len(s.Coins), len(s.Coins)),
 		Weights:   make([]Weight, len(s.Weights), len(s.Weights)),
 		ZeroCoin:  s.ZeroCoin,
@@ -120,9 +115,7 @@ func (s *Solver) Clone() *Solver {
 
 	for j, _ := range []int{0, 1} {
 		for i, _ := range s.Weighings {
-			p := make([]int, len(s.Weighings[i][j]), len(s.Weighings[i][j]))
-			copy(p, s.Weighings[i][j])
-			clone.Weighings[i][j] = p
+			clone.Weighings[i][j] = s.Weighings[i][j]
 		}
 	}
 	for i, e := range s.Coins {
@@ -162,10 +155,12 @@ func (s *Solver) Relabel() (*Solver, error) {
 
 	for i, _ := range clone.Weighings {
 		for j, _ := range []int{0, 1} {
-			for k, e := range clone.Weighings[i][j] {
-				clone.Weighings[i][j][k] = p.Index(e) + clone.ZeroCoin
+			coins := clone.Weighings[i][j].AsCoins(clone.ZeroCoin)
+			for k, e := range coins {
+				coins[k] = p.Index(e) + clone.ZeroCoin
 			}
-			sort.Sort(sort.IntSlice(clone.Weighings[i][j]))
+			sort.Sort(sort.IntSlice(coins))
+			clone.Weighings[i][j] = NewCoinSet(coins, clone.ZeroCoin)
 		}
 	}
 
@@ -182,7 +177,7 @@ func (s *Solver) Normalize() *Solver {
 
 	for i, _ := range clone.Weighings {
 		for j, _ := range []int{0, 1} {
-			sort.Sort(sort.IntSlice(clone.Weighings[i][j]))
+			clone.Weighings[i][j] = clone.Weighings[i][j].Sort()
 		}
 	}
 	return clone
@@ -319,7 +314,7 @@ func (s *Solver) Groupings() (*Solver, error) {
 	}
 	for i, _ := range clone.Weighings {
 		for j, _ := range []int{0, 1} {
-			for _, e := range clone.Weighings[i][j] {
+			for _, e := range clone.Weighings[i][j].AsCoins(clone.ZeroCoin) {
 				x := e - s.ZeroCoin
 				if x < 0 || x > 11 {
 					s.Valid = pbool(false)
@@ -363,4 +358,27 @@ func (s *Solver) Groupings() (*Solver, error) {
 	sort.Sort(sort.IntSlice(clone.Triples))
 
 	return clone, nil
+}
+
+// Convert the solution to its JSON representation.
+func (s *Solver) String() string {
+	s.Encode()
+	b, _ := json.Marshal(s)
+	return string(b)
+}
+
+func (s *Solver) Encode() {
+	for i, w := range s.Weighings {
+		for j, p := range w {
+			s.EncodedWeighings[i][j] = p.AsCoins(s.ZeroCoin)
+		}
+	}
+}
+
+func (s *Solver) Decode() {
+	for i, w := range s.EncodedWeighings {
+		for j, p := range w {
+			s.Weighings[i][j] = NewCoinSet(p, s.ZeroCoin)
+		}
+	}
 }

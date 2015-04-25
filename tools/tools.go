@@ -32,6 +32,8 @@ func main() {
 			break
 		}
 
+		solver.Decode()
+
 		if valid {
 			solver.Valid = nil
 		}
@@ -71,6 +73,7 @@ func main() {
 			}
 		}
 
+		solver.Encode()
 		encoder.Encode(solver)
 	}
 }
