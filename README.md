@@ -346,7 +346,28 @@ An example of an invalid solution is r(0)+s(1)+t(2):
 	(k,l,f,g) (j,h,i,b)
 	(l,j,k,c) (h,i,d,e)
 
-whose terms sum to 9T+3U+2L+2R+8J. Intuitively this is not a solution because one pair (h,i) is weighed on the same side twice and is never split. This arrangement prevents discrimination between of the relative weight of h and i.
+whose terms sum to 9T+3U+2L+2R+8J. Intuitively this is not a solution because
+one pair (h,i) is weighed on the same side twice and is never split. This
+arrangement prevents discrimination between of the relative weight of h and i.
+
+In fact, for this reason any structure that has more than one than one weighing
+with a structure from the set (s,t) cannot be a solution.
+
+Another class of invalid solution is represented by structures that have more
+than 7T's on the left hand side. An example of this class is the solution
+q(0)+p(1)+t(2):
+
+	(j,k,l,d) (e,f,g,a)
+	(k,l,f,b) (j,h,i,g)
+	(l,j,k,c) (h,i,d,e)
+
+In this case, the issue is that there is no way to distinguish the relative
+weight of l and k since l and k, when they appear, always appear on the same
+side of a weighing and are never split across pans.
+
+It turns out that of the 125 possible ways to construct a triple from p,q,r,s,t
+only 22 of these produce valid solutions to the 12 coins problem because of
+issues of this kind.
 
 Labeling a solution
 --------------------
