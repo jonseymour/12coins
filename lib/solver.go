@@ -184,7 +184,7 @@ func (s *Solver) Reverse() (*Solver, error) {
 			if ri != i {
 				if clone.Weights[rx] != Equal {
 					s.Valid = pbool(false)
-					return s, fmt.Errorf("cannot distinguish between (%d, %v) and (%d, %v) ", clone.Coins[rx], clone.Weights[rx], i, rw)
+					return s, fmt.Errorf("cannot distinguish between (%d, %v) and (%d, %v)", clone.Coins[rx], clone.Weights[rx], i, rw)
 				}
 				clone.Coins[rx] = i
 			}

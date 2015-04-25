@@ -26,6 +26,7 @@ func main() {
 	encoder := json.NewEncoder(os.Stdout)
 	for {
 		var err error
+		ok := true
 		solver := &lib.Solver{}
 		if err = decoder.Decode(&solver); err != nil {
 			break
@@ -37,7 +38,8 @@ func main() {
 
 		if reverse {
 			if solver, err = solver.Reverse(); err != nil {
-				fmt.Fprintf(os.Stderr, "bad solution: %v", err)
+				ok = false
+				fmt.Fprintf(os.Stderr, "error: reverse: %v: %v\n", err, solver)
 			}
 		}
 
@@ -45,15 +47,17 @@ func main() {
 			solver = solver.Normalize()
 		}
 
-		if relabel {
+		if relabel && ok {
 			if solver, err = solver.Relabel(); err != nil {
-				fmt.Fprintf(os.Stderr, "cannot relabel: %v", err)
+				ok = false
+				fmt.Fprintf(os.Stderr, "error: relabel: %v: %v\n", err, solver)
 			}
 		}
 
-		if groupings {
+		if groupings && ok {
 			if solver, err = solver.Groupings(); err != nil {
-				fmt.Fprintf(os.Stderr, "bad solution: %v", err)
+				ok = false
+				fmt.Fprintf(os.Stderr, "error: groupings: %v: %v\n", err, solver)
 			}
 		}
 
