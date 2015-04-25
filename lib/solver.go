@@ -117,9 +117,19 @@ func (s *Solver) Clone() *Solver {
 	return &clone
 }
 
-func (s *Solver) Relabel() *Solver {
+func (s *Solver) Relabel() (*Solver, error) {
 
-	clone := s.Clone()
+	var clone *Solver
+	var err error
+
+	if len(s.Coins) != 12 {
+		if clone, err = s.Reverse(); err != nil {
+			s.Valid = pbool(false)
+			return s, err
+		}
+	} else {
+		clone = s.Clone()
+	}
 
 	clone.resetCounts()
 
@@ -142,7 +152,7 @@ func (s *Solver) Relabel() *Solver {
 		clone.Coins[i] = i + clone.ZeroCoin
 	}
 
-	return clone
+	return clone, nil
 }
 
 func (s *Solver) Normalize() *Solver {
