@@ -15,11 +15,11 @@ func main() {
 	groupings := false
 	valid := false
 
-	flag.BoolVar(&reverse, "reverse", false, "Reverse the solution.")
-	flag.BoolVar(&relabel, "relabel", false, "Relabel solution.")
-	flag.BoolVar(&normalize, "normalize", false, "Normalize the solution.")
-	flag.BoolVar(&groupings, "groupings", false, "Extract the singletons, pairs and triples.")
-	flag.BoolVar(&valid, "valid", false, "Only pass valid solutions.")
+	flag.BoolVar(&reverse, "reverse", false, "Derive the coins and weights array from the weighings.")
+	flag.BoolVar(&relabel, "relabel", false, "Relabel solution into a indexing form.")
+	flag.BoolVar(&normalize, "normalize", false, "Order the coins in each weighing from lowest to highest.")
+	flag.BoolVar(&groupings, "groupings", false, "Derive the singletons, pairs and triples from the weighings.")
+	flag.BoolVar(&valid, "valid", false, "Only pass valid solutions to stdout.")
 	flag.Parse()
 
 	decoder := json.NewDecoder(os.Stdin)
