@@ -13,11 +13,13 @@ func main() {
 	reverse := false
 	normalize := false
 	groupings := false
+	valid := false
 
 	flag.BoolVar(&reverse, "reverse", false, "Reverse the solution.")
 	flag.BoolVar(&relabel, "relabel", false, "Relabel solution.")
 	flag.BoolVar(&normalize, "normalize", false, "Normalize the solution.")
 	flag.BoolVar(&groupings, "groupings", false, "Extract the singletons, pairs and triples.")
+	flag.BoolVar(&valid, "valid", false, "Only pass valid solutions.")
 	flag.Parse()
 
 	decoder := json.NewDecoder(os.Stdin)
@@ -27,6 +29,10 @@ func main() {
 		solver := &lib.Solver{}
 		if err = decoder.Decode(&solver); err != nil {
 			break
+		}
+
+		if valid {
+			solver.Valid = nil
 		}
 
 		if reverse {
@@ -48,6 +54,16 @@ func main() {
 		if groupings {
 			if solver, err = solver.Groupings(); err != nil {
 				fmt.Fprintf(os.Stderr, "bad solution: %v", err)
+			}
+		}
+
+		if valid {
+			if solver.Valid == nil {
+				if _, err := solver.Reverse(); err != nil {
+					continue
+				}
+			} else if !*solver.Valid {
+				continue
 			}
 		}
 
