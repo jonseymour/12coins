@@ -1,9 +1,15 @@
 package lib
 
+import (
+	"fmt"
+)
+
 type Weighing interface {
 	Left() CoinSet
 	Right() CoinSet
 	Both() CoinSet
+	Pan(pan int) CoinSet
+	Pans() []CoinSet
 }
 
 type weighing struct {
@@ -30,4 +36,19 @@ func (w *weighing) Right() CoinSet {
 
 func (w *weighing) Both() CoinSet {
 	return w.both
+}
+
+func (w *weighing) Pan(pan int) CoinSet {
+	switch pan {
+	case 0:
+		return w.Left()
+	case 1:
+		return w.Right()
+	default:
+		panic(fmt.Errorf("pan %d ?!", pan))
+	}
+}
+
+func (w *weighing) Pans() []CoinSet {
+	return []CoinSet{w.left, w.right}
 }
