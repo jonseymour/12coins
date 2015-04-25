@@ -1,5 +1,9 @@
 package lib
 
+import (
+	"fmt"
+)
+
 type CoinMask uint16
 
 type CoinSet interface {
@@ -40,6 +44,10 @@ func (s *coinset) Size() uint8 {
 
 func (s *coinset) Sort() CoinSet {
 	return s
+}
+
+func (s *coinset) String() string {
+	return fmt.Sprintf("%v", s.AsCoins(1))
 }
 
 func (s *coinset) Union(other CoinSet) CoinSet {
