@@ -6,6 +6,7 @@ import (
 	"sort"
 )
 
+// Calculate the absolute value of the specified integer.
 func abs(i int) int {
 	if i < 0 {
 		return -i
@@ -14,24 +15,30 @@ func abs(i int) int {
 	}
 }
 
+// Describes a test failure. A test failure is an instance of a coin and weight such that the
+// results of the weighings for that coin and weight are indistiguishable from some other coin
+// and weight.
 type Failure struct {
 	Coin   int    `json:"coin"`
 	Weight Weight `json:"weight"`
 }
 
+// Describes a possibly invalid solution to the 12 coins problem.
 type Solver struct {
-	Weighings [3][2][]int `json:"weighings,omitempty"`
-	Coins     []int       `json:"coins,omitempty"`
-	Weights   []Weight    `json:"weights,omitempty"`
-	ZeroCoin  int         `json:"zero-coin,omitempty"`
-	Unique    []int       `json:"unique,omitempty"`
-	Pairs     [][2]int    `json:"pairs,omitempty"`
-	Triples   []int       `json:"triples,omitempty"`
-	Flip      *int        `json:"flip,omitempty"`
-	Valid     *bool       `json:"valid,omitempty"`
-	Failures  []Failure   `json:"failures,omitempty"`
+	Weighings [3][2][]int `json:"weighings,omitempty"` // the weighings of the solution
+	Coins     []int       `json:"coins,omitempty"`     // a mapping between abs(27*a+9*b+c-13)-1 and the coin identity
+	Weights   []Weight    `json:"weights,omitempty"`   // a mapping between sgn(27*a+9*b+c-13)-1 and the coin weight
+	ZeroCoin  int         `json:"zero-coin,omitempty"` // the zero coin of the weighings. either 0 or 1.
+	Unique    []int       `json:"unique,omitempty"`    // the coins that appear in one weighing
+	Pairs     [][2]int    `json:"pairs,omitempty"`     // the pairs that appear in exactly two weighings
+	Triples   []int       `json:"triples,omitempty"`   // the coins that appear in all 3 weighings
+	Flip      *int        `json:"flip,omitempty"`      // the weighing which needs to be flipped to guarantee abs(27*a+9*b+c-13)-1 is between 0 and 11
+	Valid     *bool       `json:"valid,omitempty"`     // true if the solution is valid
+	Failures  []Failure   `json:"failures,omitempty"`  // a list of tests for which the solution is ambiguous
 }
 
+// Decide the relative weight of a coin by generating a linear combination of the three weighings and using
+// this to index the array.
 func (s *Solver) decide(scale Scale) (int, Weight, int) {
 	scale.SetZeroCoin(s.ZeroCoin)
 
@@ -49,10 +56,11 @@ func (s *Solver) decide(scale Scale) (int, Weight, int) {
 	b := results[1]
 	c := results[2]
 
-	i := int(a*9 + b*3 + c - 13)
+	i := int(a*9 + b*3 + c - 13) // must be between 0 and 26, inclusive.
 	o := abs(i)
 	if len(s.Coins) == 12 {
 		if o < 1 || o > 12 {
+			// this can only happen if flip hasn't be set correctly.
 			panic(fmt.Errorf("index out of bounds: %d, %v", o, []Weight{a, b, c}))
 		}
 		o = o - 1
@@ -70,20 +78,25 @@ func (s *Solver) decide(scale Scale) (int, Weight, int) {
 	return f, w, o
 }
 
+// Invoke the internal decide method to decide which coin
+// is counterfeit and what it's relative weight is.
 func (s *Solver) Decide(scale Scale) (int, Weight) {
 	f, w, _ := s.decide(scale)
 	return f, w
 }
 
+// Configure the zero coin of the solution.
 func (s *Solver) SetZeroCoin(coin int) {
 	s.ZeroCoin = coin
 }
 
+// Convert the solution to its JSON representation.
 func (s *Solver) String() string {
 	b, _ := json.Marshal(s)
 	return string(b)
 }
 
+// Create a deep clone of the receiver.
 func (s *Solver) Clone() *Solver {
 	tmp := s.Flip
 	if tmp != nil {
@@ -123,6 +136,8 @@ func (s *Solver) Clone() *Solver {
 	return &clone
 }
 
+// Relabel the coins of the weighing such that the Coins
+// slice is numbered in strictly increasing numerical order.
 func (s *Solver) Relabel() (*Solver, error) {
 
 	var clone *Solver
@@ -161,6 +176,7 @@ func (s *Solver) Relabel() (*Solver, error) {
 	return clone, nil
 }
 
+// Sort the coins in each weighing in increasing numerical order.
 func (s *Solver) Normalize() *Solver {
 	clone := s.Clone()
 
@@ -172,11 +188,28 @@ func (s *Solver) Normalize() *Solver {
 	return clone
 }
 
+//
+// If the receiver is a valid solution to the 12 coins problem,
+// return a clone of the receiver in which the Coins and Weights
+// slice and the Flip pointer have been populated with values
+// required to make Decide(Scale) return the correct values for
+// all inputs.
+//
+// Otherwise, return a pointer to the receiver.
+//
+// The .Valid value of the returned pointer is always non nil
+// and always indicates whether the receiver was a valid solution.
+//
+// If err is non-nil, then .Valid of the result will point to a false
+// value and .Failures of the result will list the tests that
+// caused the receiver to be marked invalid.
+//
 func (s *Solver) Reverse() (*Solver, error) {
 	clone := s.Clone()
 
 	clone.Coins = make([]int, 27, 27)
 	clone.Weights = make([]Weight, 27, 27)
+	clone.Flip = nil
 
 	for i, _ := range clone.Coins {
 		clone.Coins[i] = clone.ZeroCoin
@@ -255,10 +288,12 @@ func (s *Solver) Reverse() (*Solver, error) {
 	return clone, nil
 }
 
+// convert an integer value into a pointer to that value.
 func pi(i int) *int {
 	return &i
 }
 
+// convert a boolean value into a pointer to that value.
 func pbool(b bool) *bool {
 	return &b
 }
@@ -269,6 +304,7 @@ func (s *Solver) resetCounts() {
 	s.Pairs = [][2]int{}
 }
 
+// Tabulate the singletons, pairs and triples of the solution.
 func (s *Solver) Groupings() (*Solver, error) {
 	clone := s.Clone()
 	clone.Unique = []int{}
