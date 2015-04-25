@@ -165,7 +165,7 @@ func (s *Solver) resetCounts() {
 	s.Pairs = [][2]int{}
 }
 
-func (s *Solver) Groupings() *Solver {
+func (s *Solver) Groupings() (*Solver, error) {
 	clone := s.Clone()
 	clone.Unique = []int{}
 	clone.Triples = []int{}
@@ -173,25 +173,32 @@ func (s *Solver) Groupings() *Solver {
 	counts := make(map[int]int)
 	sets := make(map[int]int)
 	pairs := []int{}
-	for i := s.ZeroCoin; i < s.ZeroCoin+12; i++ {
+	for i := 0; i < 12; i++ {
 		counts[i] = 0
 		sets[i] = 0
 	}
 	for i, _ := range clone.Weighings {
 		for j, _ := range []int{0, 1} {
 			for _, e := range clone.Weighings[i][j] {
-				counts[e] += 1
-				sets[e] |= (1 << uint(i))
+				x := e - s.ZeroCoin
+				if x < 0 || x > 11 {
+					return nil, fmt.Errorf("invalid coin detected at %d, %d -> %d", i, j, e)
+				}
+				counts[x] += 1
+				sets[x] |= (1 << uint(i))
 			}
 		}
 	}
 	for k, v := range counts {
-		if v == 1 {
+		switch v {
+		case 1:
 			clone.Unique = append(clone.Unique, k)
-		} else if v == 3 {
-			clone.Triples = append(clone.Triples, k)
-		} else {
+		case 2:
 			pairs = append(pairs, k)
+		case 3:
+			clone.Triples = append(clone.Triples, k)
+		default:
+			return nil, fmt.Errorf("invalid count detected for coin %d -> %d", k, v)
 		}
 	}
 
@@ -213,5 +220,5 @@ func (s *Solver) Groupings() *Solver {
 	sort.Sort(sort.IntSlice(clone.Unique))
 	sort.Sort(sort.IntSlice(clone.Triples))
 
-	return clone
+	return clone, nil
 }

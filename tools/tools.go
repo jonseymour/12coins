@@ -45,7 +45,10 @@ func main() {
 		}
 
 		if groupings {
-			solver = solver.Groupings()
+			if solver, err = solver.Groupings(); err != nil {
+				fmt.Fprintf(os.Stderr, "bad solution: %v", err)
+				continue
+			}
 		}
 
 		encoder.Encode(solver)
