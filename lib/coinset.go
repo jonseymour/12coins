@@ -9,6 +9,7 @@ type CoinSet interface {
 	Union(other CoinSet) CoinSet
 	Intersection(other CoinSet) CoinSet
 	Add(coin int, zeroCoin int) CoinSet
+	Remove(other CoinSet) CoinSet
 }
 
 type coinset struct {
@@ -57,6 +58,15 @@ func (s *coinset) Intersection(other CoinSet) CoinSet {
 		o = NewCoinSet(other.AsCoins(0), 0).(*coinset)
 	}
 	return NewCoinSetFromMask(s.mask & o.mask)
+}
+
+func (s *coinset) Remove(other CoinSet) CoinSet {
+	var o *coinset
+	var ok bool
+	if o, ok = other.(*coinset); !ok {
+		o = NewCoinSet(other.AsCoins(0), 0).(*coinset)
+	}
+	return NewCoinSetFromMask(s.mask &^ o.mask)
 }
 
 func (s *coinset) Add(coin int, zeroCoin int) CoinSet {
