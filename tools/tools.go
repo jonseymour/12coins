@@ -47,7 +47,7 @@ func main() {
 
 		solution.Decode()
 
-		reset = reset || reverse || relabel || groupings || structure || canonical
+		reset = reset || reverse || relabel || groupings || structure || canonical || valid || invalid
 
 		if reset {
 			solution.Reset()
