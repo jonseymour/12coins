@@ -9,7 +9,7 @@ func (s *Solution) Groupings() (*Solution, error) {
 
 	var clone *Solution
 
-	if s.flags&REVERSED == 0 {
+	if s.flags&REVERSED != 0 {
 		clone = s.Clone()
 	} else {
 		var err error
