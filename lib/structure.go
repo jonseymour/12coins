@@ -127,7 +127,7 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 			case 0:
 				r.Structure[i] = NewStructure(Q, pi, i)
 			default:
-				s.flags = INVALID
+				s.markInvalid()
 				return s, fmt.Errorf("illegal state: t==3, u > 1")
 			}
 		case 2:
@@ -145,17 +145,17 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 					case 2:
 						r.Structure[i] = NewStructure(S, pi, i)
 					default:
-						s.flags = INVALID
+						s.markInvalid()
 						return s, fmt.Errorf("illegal state: t==2 && u==0 && j==0 && l == 0")
 					}
 					break
 				}
 			default:
-				s.flags = INVALID
+				s.markInvalid()
 				return s, fmt.Errorf("illegal state: t==2, u > 1")
 			}
 		default:
-			s.flags = INVALID
+			s.markInvalid()
 			return s, fmt.Errorf("illegal state: t < 2 || t > 3")
 		}
 	}

@@ -24,6 +24,7 @@ import (
 func (s *Solution) Reverse() (*Solution, error) {
 	clone := s.Clone()
 
+	clone.markInvalid()
 	clone.Coins = make([]int, 27, 27)
 	clone.Weights = make([]Weight, 27, 27)
 	if clone.flags&RECURSE == 0 {

@@ -107,6 +107,10 @@ func (s *Solution) Reset() *Solution {
 	return r
 }
 
+func (s *Solution) markInvalid() {
+	s.flags = INVALID | (s.flags & RECURSE)
+}
+
 // Invoke the internal decide method to decide which coin
 // is counterfeit and what it's relative weight is.
 func (s *Solution) Decide(scale Scale) (int, Weight) {
