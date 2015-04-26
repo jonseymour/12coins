@@ -17,16 +17,23 @@ func main() {
 	structure := false
 	canonical := false
 	reset := false
+	invalid := false
 
 	flag.BoolVar(&reverse, "reverse", false, "Derive the coins and weights array from the weighings.")
 	flag.BoolVar(&relabel, "relabel", false, "Relabel solution into a indexing form.")
 	flag.BoolVar(&normalize, "normalize", false, "Order the coins in each weighing from lowest to highest.")
 	flag.BoolVar(&groupings, "groupings", false, "Derive the singletons, pairs and triples from the weighings.")
 	flag.BoolVar(&valid, "valid", false, "Only pass valid solutions to stdout.")
+	flag.BoolVar(&invalid, "invalid", false, "Only pass invalid solutions to stdout.")
 	flag.BoolVar(&structure, "structure", false, "Analyse the structure of the weighings.")
 	flag.BoolVar(&canonical, "canonical", false, "Permute the weighings into the canonical form.")
 	flag.BoolVar(&reset, "reset", false, "Reset the analysis. Implied by reverse, relabel, groupings, structure or canonical.")
 	flag.Parse()
+
+	if invalid && valid {
+		fmt.Fprintf(os.Stderr, "--invalid and --valid are mutually incompatible options - choose one.")
+		os.Exit(1)
+	}
 
 	decoder := json.NewDecoder(os.Stdin)
 	encoder := json.NewEncoder(os.Stdout)
@@ -87,6 +94,12 @@ func main() {
 
 		if valid {
 			if !solution.IsValid() {
+				continue
+			}
+		}
+
+		if invalid {
+			if solution.IsValid() {
 				continue
 			}
 		}
