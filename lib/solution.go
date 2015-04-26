@@ -81,7 +81,7 @@ func (s *Solution) decide(scale Scale) (int, Weight, int) {
 	return f, w, o
 }
 
-func (s *Solution) resetAnalysis() {
+func (s *Solution) Reset() {
 	s.Unique = nil
 	s.Triples = nil
 	s.Pairs = [3]CoinSet{nil, nil, nil}

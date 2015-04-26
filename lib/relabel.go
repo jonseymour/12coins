@@ -19,7 +19,7 @@ func (s *Solution) Relabel() (*Solution, error) {
 		clone = s.Clone()
 	}
 
-	clone.resetAnalysis()
+	clone.Reset()
 
 	c := make([]int, len(clone.Coins), len(clone.Coins))
 	for i, e := range clone.Coins {
