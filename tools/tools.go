@@ -60,10 +60,6 @@ func main() {
 			}
 		}
 
-		if normalize {
-			solution = solution.Normalize()
-		}
-
 		if relabel && ok {
 			if solution, err = solution.Relabel(); err != nil {
 				ok = false
@@ -90,6 +86,10 @@ func main() {
 				ok = false
 				fmt.Fprintf(os.Stderr, "error: canonical: %v: %v\n", err, solution)
 			}
+		}
+
+		if normalize {
+			solution = solution.Normalize()
 		}
 
 		if valid {
