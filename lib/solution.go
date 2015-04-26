@@ -87,6 +87,8 @@ func (s *Solution) Reset() {
 	s.Triples = nil
 	s.Pairs = [3]CoinSet{nil, nil, nil}
 	s.Structure = [3]Structure{nil, nil, nil}
+	s.Coins = []int{}
+	s.Weights = []Weight{}
 	s.encoding = encoding{
 		ZeroCoin: s.encoding.ZeroCoin,
 	}
