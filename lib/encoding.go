@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 )
 
+// A simple JSON encoding of data that has a richer structure internally.
 type encoding struct {
-	Weighings *[3][2][]int `json:"weighings,omitempty"` // the weighings of the solution
-	Unique    *[]int       `json:"unique,omitempty"`    // the coins that appear in one weighing
-	Pairs     *[3][2]int   `json:"pairs,omitempty"`     // the pairs that appear in exactly two weighings
-	Triples   *[]int       `json:"triples,omitempty"`   // the coins that appear in all 3 weighings
-	Structure *[3]string   `json:"structure,omitempty"` // An encoding of the structure
-	ZeroCoin  *int         `json:"zero-coin,omitempty"` // the zero coin of the weighings. either 0 or 1.
+	Weighings *[3][2][]int `json:"weighings,omitempty"`
+	Unique    *[]int       `json:"unique,omitempty"`
+	Pairs     *[3][2]int   `json:"pairs,omitempty"`
+	Triples   *[]int       `json:"triples,omitempty"`
+	Structure *[3]string   `json:"structure,omitempty"`
+	ZeroCoin  *int         `json:"zero-coin,omitempty"`
 }
 
 // Convert the solution to its JSON representation.
@@ -20,6 +21,7 @@ func (s *Solution) String() string {
 	return string(b)
 }
 
+// Encode the rich structure into the simple JSON encoding.
 func (s *Solution) Encode() {
 	z := s.GetZeroCoin()
 	tmp := [3][2][]int{}
@@ -63,6 +65,7 @@ func (s *Solution) Encode() {
 	}
 }
 
+// Decode the simple JSON encoding into the richer internal structure.
 func (s *Solution) Decode() {
 	z := s.GetZeroCoin()
 	if s.encoding.Weighings != nil {
