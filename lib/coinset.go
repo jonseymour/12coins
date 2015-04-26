@@ -16,12 +16,12 @@ type CoinSet interface {
 	Remove(other CoinSet) CoinSet
 }
 
-type coinset struct {
+type coinSet struct {
 	mask CoinMask
 	size uint8
 }
 
-func (s *coinset) AsCoins(zeroCoin int) []int {
+func (s *coinSet) AsCoins(zeroCoin int) []int {
 	if s == nil {
 		return []int{}
 	}
@@ -41,46 +41,46 @@ func (s *coinset) AsCoins(zeroCoin int) []int {
 	return result
 }
 
-func (s *coinset) Size() uint8 {
+func (s *coinSet) Size() uint8 {
 	return s.size
 }
 
-func (s *coinset) Sort() CoinSet {
+func (s *coinSet) Sort() CoinSet {
 	return s
 }
 
-func (s *coinset) String() string {
+func (s *coinSet) String() string {
 	return fmt.Sprintf("%v", s.AsCoins(1))
 }
 
-func (s *coinset) Union(other CoinSet) CoinSet {
-	var o *coinset
+func (s *coinSet) Union(other CoinSet) CoinSet {
+	var o *coinSet
 	var ok bool
-	if o, ok = other.(*coinset); !ok {
-		o = NewCoinSet(other.AsCoins(0), 0).(*coinset)
+	if o, ok = other.(*coinSet); !ok {
+		o = NewCoinSet(other.AsCoins(0), 0).(*coinSet)
 	}
 	return NewCoinSetFromMask(s.mask | o.mask)
 }
 
-func (s *coinset) Intersection(other CoinSet) CoinSet {
-	var o *coinset
+func (s *coinSet) Intersection(other CoinSet) CoinSet {
+	var o *coinSet
 	var ok bool
-	if o, ok = other.(*coinset); !ok {
-		o = NewCoinSet(other.AsCoins(0), 0).(*coinset)
+	if o, ok = other.(*coinSet); !ok {
+		o = NewCoinSet(other.AsCoins(0), 0).(*coinSet)
 	}
 	return NewCoinSetFromMask(s.mask & o.mask)
 }
 
-func (s *coinset) Remove(other CoinSet) CoinSet {
-	var o *coinset
+func (s *coinSet) Remove(other CoinSet) CoinSet {
+	var o *coinSet
 	var ok bool
-	if o, ok = other.(*coinset); !ok {
-		o = NewCoinSet(other.AsCoins(0), 0).(*coinset)
+	if o, ok = other.(*coinSet); !ok {
+		o = NewCoinSet(other.AsCoins(0), 0).(*coinSet)
 	}
 	return NewCoinSetFromMask(s.mask &^ o.mask)
 }
 
-func (s *coinset) Add(coin int, zeroCoin int) CoinSet {
+func (s *coinSet) Add(coin int, zeroCoin int) CoinSet {
 	mask := CoinMask(1 << uint(coin-zeroCoin))
 	if (s.mask & mask) == 0 {
 		return NewCoinSetFromMask(s.mask | mask)
@@ -99,7 +99,7 @@ func NewCoinSet(coins []int, zeroCoin int) CoinSet {
 			count += 1
 		}
 	}
-	return &coinset{
+	return &coinSet{
 		mask: mask,
 		size: count,
 	}
@@ -116,7 +116,7 @@ func NewCoinSetFromMask(mask CoinMask) CoinSet {
 		}
 		bit <<= 1
 	}
-	return &coinset{
+	return &coinSet{
 		mask: mask,
 		size: count,
 	}
