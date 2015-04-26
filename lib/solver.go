@@ -362,7 +362,7 @@ func (s *Solver) AnalyseStructure() (*Solver, error) {
 	var r *Solver
 	var err error
 
-	if s.Unique == nil || s.Triples == nil || s.Pairs[0] == nil || s.Pairs[1] == nil || s.Pairs[2] == nil {
+	if s.flags&GROUPED == 0 {
 		r, err = s.Groupings()
 	} else {
 		r = s.Clone()
@@ -382,7 +382,7 @@ func (s *Solver) Canonical() (*Solver, error) {
 	var r *Solver
 	var err error
 
-	if s.Structure[0] == nil || s.Structure[1] == nil || s.Structure[2] == nil {
+	if s.flags&ANALYSED == 0 {
 		r, err = s.AnalyseStructure()
 	} else {
 		r = s.Clone()
