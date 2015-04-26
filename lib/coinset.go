@@ -21,6 +21,12 @@ type coinSet struct {
 	size uint8
 }
 
+type orderedCoinSet struct {
+	coinSet
+	coins    []int
+	zeroCoin int
+}
+
 func (s *coinSet) AsCoins(zeroCoin int) []int {
 	if s == nil {
 		return []int{}
@@ -41,6 +47,15 @@ func (s *coinSet) AsCoins(zeroCoin int) []int {
 	return result
 }
 
+func (s *orderedCoinSet) AsCoins(zeroCoin int) []int {
+	c := make([]int, len(s.coins))
+	diff := zeroCoin - s.zeroCoin
+	for i, e := range s.coins {
+		c[i] = e + diff
+	}
+	return c
+}
+
 func (s *coinSet) Size() uint8 {
 	return s.size
 }
@@ -49,8 +64,16 @@ func (s *coinSet) Sort() CoinSet {
 	return s
 }
 
+func (s *orderedCoinSet) Sort() CoinSet {
+	return &s.coinSet
+}
+
 func (s *coinSet) String() string {
 	return fmt.Sprintf("%v", s.AsCoins(1))
+}
+
+func (s *orderedCoinSet) String() string {
+	return fmt.Sprintf("%v", s.AsCoins(s.zeroCoin))
 }
 
 func (s *coinSet) Union(other CoinSet) CoinSet {
@@ -120,4 +143,14 @@ func NewCoinSetFromMask(mask CoinMask) CoinSet {
 		mask: mask,
 		size: count,
 	}
+}
+
+func NewOrderedCoinSet(coins []int, zeroCoin int) CoinSet {
+	result := orderedCoinSet{
+		coins:    coins,
+		zeroCoin: zeroCoin,
+	}
+	result.coinSet = *(NewCoinSet(coins, zeroCoin).(*coinSet))
+	result.size = uint8(len(result.coins)) // co-erce size to be consistent with coins
+	return &result
 }
