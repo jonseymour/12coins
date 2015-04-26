@@ -2,6 +2,7 @@ package lib
 
 import (
 	"fmt"
+	"os"
 )
 
 type StructureType uint8
@@ -114,6 +115,7 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 
 	p := [3]int{0, 1, 2}
 	st := [3]StructureType{P, P, P}
+	F := 0
 
 	for i, w := range r.Weighings {
 		pi := [2]int{0, 1}
@@ -125,6 +127,7 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 			pi = [2]int{1, 0}
 			t = tr
 			l = w.Right()
+			F |= (1 << uint(i))
 		}
 		u := l.Intersection(r.Unique)
 		switch t.Size() {
@@ -177,33 +180,68 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 		case S:
 			st[2] = S
 			p[2] = i
+		case P:
+			if st[0] == P {
+				p[0] = i
+			}
 		case T:
 			st[2] = T
 			p[2] = i
-		case P:
 		default:
 			panic(fmt.Errorf("unknown structure: %v", r.Structure[i]))
 		}
 	}
 
-	if st[0] == Q && st[1] != R {
+	if (st[0] == Q || st[0] == P) && st[1] != R {
 		if st[1] != P || st[2] != P {
 			panic(fmt.Errorf("illegal state: st[1] != P || st[2] != P: %v", st))
 		}
 		switch p[0] {
 		case 0:
+			p[0] = 0
 			p[1] = 1
 			p[2] = 2
 		case 1:
+			p[0] = 1
 			p[1] = 2
 			p[2] = 0
 		case 2:
+			p[0] = 2
 			p[1] = 0
 			p[2] = 1
 		default:
 			panic(fmt.Errorf("illegal state: p[0] < 0 || p[0] > 2: %d", p[0]))
 		}
 	}
+
+	sS := uint(0)
+
+	switch st[0] {
+	case P:
+		if st[1] == P {
+			sS = 21
+		} else {
+			switch st[2] {
+			case T:
+				sS = Number(p[0:]) + 12
+			case S:
+				sS = Number(p[0:]) + 6
+			}
+		}
+	case Q:
+		if st[1] == P {
+			sS = 18 + Number(p[0:])/2
+		} else {
+			sS = Number(p[0:])
+		}
+	default:
+		panic(fmt.Errorf("illegal state: st[1] != P"))
+	}
+
+	fmt.Fprintf(os.Stderr, "%d %v\n", sS, p)
+
+	r.encoding.S = pi(int(sS))
+	r.encoding.F = pi(F)
 
 	r.flags |= ANALYSED
 	return r, nil
