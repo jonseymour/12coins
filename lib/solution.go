@@ -84,6 +84,9 @@ func (s *Solution) decide(scale Scale) (int, Weight, int) {
 // Invoke the internal decide method to decide which coin
 // is counterfeit and what it's relative weight is.
 func (s *Solution) Decide(scale Scale) (int, Weight) {
+	if s.flags&REVERSED == 0 {
+		panic(fmt.Errorf("This solution must be reversed first."))
+	}
 	f, w, _ := s.decide(scale)
 	return f, w
 }
