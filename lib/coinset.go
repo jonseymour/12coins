@@ -12,7 +12,6 @@ type CoinSet interface {
 	Sort() CoinSet
 	Union(other CoinSet) CoinSet
 	Intersection(other CoinSet) CoinSet
-	Add(coin int, zeroCoin int) CoinSet
 	Remove(other CoinSet) CoinSet
 }
 
@@ -101,15 +100,6 @@ func (s *coinSet) Remove(other CoinSet) CoinSet {
 		o = NewCoinSet(other.AsCoins(0), 0).(*coinSet)
 	}
 	return NewCoinSetFromMask(s.mask &^ o.mask)
-}
-
-func (s *coinSet) Add(coin int, zeroCoin int) CoinSet {
-	mask := CoinMask(1 << uint(coin-zeroCoin))
-	if (s.mask & mask) == 0 {
-		return NewCoinSetFromMask(s.mask | mask)
-	} else {
-		return s
-	}
 }
 
 func NewCoinSet(coins []int, zeroCoin int) CoinSet {
