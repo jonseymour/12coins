@@ -4,15 +4,6 @@ import (
 	"fmt"
 )
 
-// Calculate the absolute value of the specified integer.
-func abs(i int) int {
-	if i < 0 {
-		return -i
-	} else {
-		return i
-	}
-}
-
 type flag uint
 
 const (
@@ -147,16 +138,6 @@ func (s *Solver) Normalize() *Solver {
 	}
 	clone.flags |= NORMALISED &^ (CANONICALISED)
 	return clone
-}
-
-// convert an integer value into a pointer to that value.
-func pi(i int) *int {
-	return &i
-}
-
-// convert a boolean value into a pointer to that value.
-func pbool(b bool) *bool {
-	return &b
 }
 
 // Return a clone of the receiver in which the structure has been populated.
