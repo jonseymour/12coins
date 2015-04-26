@@ -11,7 +11,7 @@ func (s *Solution) Relabel() (*Solution, error) {
 	var clone *Solution
 	var err error
 
-	if len(s.Coins) != 12 {
+	if s.flags&REVERSED == 0 {
 		if clone, err = s.Reverse(); err != nil {
 			s.Valid = pbool(false)
 			return s, err
