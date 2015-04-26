@@ -68,11 +68,13 @@ func (s *orderedCoinSet) Sort() CoinSet {
 }
 
 func (s *coinSet) String() string {
-	return fmt.Sprintf("%v", s.AsCoins(1))
+	tmp, _ := json.Marshal(s.AsCoins(1))
+	return string(tmp)
 }
 
 func (s *orderedCoinSet) String() string {
-	return fmt.Sprintf("%v", s.AsCoins(s.zeroCoin))
+	tmp, _ := json.Marshal(s.AsCoins(s.zeroCoin))
+	return string(tmp)
 }
 
 func (s *coinSet) Union(other CoinSet) CoinSet {
