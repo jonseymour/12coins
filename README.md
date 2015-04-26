@@ -464,7 +464,11 @@ then permute the weighings according to the permutation to produce one of 5 poss
 
 	Note that there are 6+6+6+3+1 = 22 possible structures ( or 22 * 8 = 176 if pan flips are included ).
 
-5. Label the singletons (a,b,c) according to which weighing they appear in. Label the triples j,k,l according to the weighing in which they appear as the only triple on one side. (Or the remaining triple, in cases where there is no such weighing.). Label the pairs according to the order of the weighings in which they are split. If the pair is split in weighing 1 of type r, then assign 0 to the pair that was grouped in weighing 0 and 2 to the pair that was grouped in weighing 2.
+5. Label the singletons (a,b,c) according to which weighing they appear in.
+
+6. Label the triples l,j,k according to the weighing in which they appear as the only triple on one side. In cases where a weighing has all the triples on one side then if that weighing is 0, label the unisolated triple as l, otherwise label it as k. The isolated triple appearing on the right hand side of weighing 1 is always labeled j.
+
+7. Label the pairs according to the order of the weighings in which they are split. If the pair is split in weighing 1 of type r, then assign (f,g) to the pair that was grouped in weighing 0 and (h,i) to the pair that was grouped in weighing 2. The pair split by weighing 0 is always labeled (d,e).
 
 The original weighing is then uniquely identified by:
 
