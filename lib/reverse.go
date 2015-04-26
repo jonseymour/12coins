@@ -27,7 +27,7 @@ func (s *Solution) Reverse() (*Solution, error) {
 	clone.Coins = make([]int, 27, 27)
 	clone.Weights = make([]Weight, 27, 27)
 	if clone.flags&RECURSE == 0 {
-		clone.Flip = nil
+		clone.encoding.Flip = nil
 	}
 
 	for i, _ := range clone.Coins {
@@ -95,11 +95,11 @@ func (s *Solution) Reverse() (*Solution, error) {
 		//
 
 		if clone.Weights[8] == Equal {
-			clone.Flip = pi(0)
+			clone.encoding.Flip = pi(0)
 		} else if clone.Weights[6] == Equal {
-			clone.Flip = pi(1)
+			clone.encoding.Flip = pi(1)
 		} else if clone.Weights[2] == Equal {
-			clone.Flip = pi(2)
+			clone.encoding.Flip = pi(2)
 		} else {
 			panic(fmt.Errorf("unexpected case: %v!", clone.Weights))
 		}

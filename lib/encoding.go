@@ -12,6 +12,7 @@ type encoding struct {
 	Triples   *[]int       `json:"triples,omitempty"`
 	Structure *[3]string   `json:"structure,omitempty"`
 	ZeroCoin  *int         `json:"zero-coin,omitempty"`
+	Flip      *int         `json:"flip,omitempty"`
 }
 
 // Convert the solution to its JSON representation.

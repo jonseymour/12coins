@@ -34,7 +34,6 @@ type Solution struct {
 	Unique    CoinSet      `json:"-"`                  // the coins that appear in one weighing
 	Pairs     [3]CoinSet   `json:"-"`                  // the pairs that appear in exactly two weighings
 	Triples   CoinSet      `json:"-"`                  // the coins that appear in all 3 weighings
-	Flip      *int         `json:"flip,omitempty"`     // the weighing which needs to be flipped to guarantee abs(27*a+9*b+c-13)-1 is between 0 and 11
 	Failures  []Failure    `json:"failures,omitempty"` // a list of tests for which the solution is ambiguous
 	Structure [3]Structure `json:"-"`                  // the structure of the permutation
 	flags     flag         // as
@@ -52,8 +51,8 @@ func (s *Solution) decide(scale Scale) (int, Weight, int) {
 	results[1] = scale.Weigh(s.Weighings[1].Left().AsCoins(z), s.Weighings[1].Right().AsCoins(z))
 	results[2] = scale.Weigh(s.Weighings[2].Left().AsCoins(z), s.Weighings[2].Right().AsCoins(z))
 
-	if s.Flip != nil {
-		results[*s.Flip] = Heavy - results[*s.Flip]
+	if s.encoding.Flip != nil {
+		results[*s.encoding.Flip] = Heavy - results[*s.encoding.Flip]
 	}
 
 	a := results[0]
@@ -91,6 +90,7 @@ func (s *Solution) reset() {
 	s.Structure = [3]Structure{nil, nil, nil}
 	s.encoding = encoding{
 		ZeroCoin: s.encoding.ZeroCoin,
+		Flip:     s.encoding.Flip,
 	}
 	s.flags = s.flags &^ (GROUPED | ANALYSED | CANONICALISED)
 }
@@ -103,7 +103,7 @@ func (s *Solution) Reset() *Solution {
 	r.Coins = []int{}
 	r.Weights = []Weight{}
 	r.flags = INVALID
-	r.Flip = nil
+	r.encoding.Flip = nil
 	return r
 }
 
@@ -136,13 +136,14 @@ func (s *Solution) GetZeroCoin() int {
 
 // Create a deep clone of the receiver.
 func (s *Solution) Clone() *Solution {
-	tmp := s.Flip
+	tmp := s.encoding.Flip
 	if tmp != nil {
 		tmp = pi(*tmp)
 	}
 	clone := Solution{
 		encoding: encoding{
 			ZeroCoin: s.encoding.ZeroCoin,
+			Flip:     s.encoding.Flip,
 		},
 		Weighings: [3]Weighing{},
 		Coins:     make([]int, len(s.Coins)),
@@ -150,7 +151,6 @@ func (s *Solution) Clone() *Solution {
 		Unique:    s.Unique,
 		Triples:   s.Triples,
 		Failures:  make([]Failure, len(s.Failures)),
-		Flip:      tmp,
 		flags:     s.flags,
 	}
 
