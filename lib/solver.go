@@ -23,7 +23,7 @@ type Failure struct {
 	Weight Weight `json:"weight"`
 }
 
-type SolverEncoding struct {
+type encoding struct {
 	Weighings *[3][2][]int `json:"weighings,omitempty"` // the weighings of the solution
 	Unique    *[]int       `json:"unique,omitempty"`    // the coins that appear in one weighing
 	Pairs     *[3][2]int   `json:"pairs,omitempty"`     // the pairs that appear in exactly two weighings
@@ -32,7 +32,7 @@ type SolverEncoding struct {
 
 // Describes a possibly invalid solution to the 12 coins problem.
 type Solver struct {
-	SolverEncoding
+	encoding
 	Weighings [3]Weighing `json:"-"`
 	Coins     []int       `json:"coins,omitempty"`     // a mapping between abs(27*a+9*b+c-13)-1 and the coin identity
 	Weights   []Weight    `json:"weights,omitempty"`   // a mapping between sgn(27*a+9*b+c-13)-1 and the coin weight
@@ -346,19 +346,19 @@ func (s *Solver) String() string {
 
 func (s *Solver) Encode() {
 	tmp := [3][2][]int{}
-	s.SolverEncoding.Weighings = &tmp
+	s.encoding.Weighings = &tmp
 	for i, w := range s.Weighings {
 		for j, p := range w.Pans() {
-			s.SolverEncoding.Weighings[i][j] = p.AsCoins(s.ZeroCoin)
+			s.encoding.Weighings[i][j] = p.AsCoins(s.ZeroCoin)
 		}
 	}
 	if s.Unique != nil {
 		tmp := s.Unique.AsCoins(s.ZeroCoin)
-		s.SolverEncoding.Unique = &tmp
+		s.encoding.Unique = &tmp
 	}
 	if s.Triples != nil {
 		tmp := s.Triples.AsCoins(s.ZeroCoin)
-		s.SolverEncoding.Triples = &tmp
+		s.encoding.Triples = &tmp
 	}
 	if s.Unique != nil {
 		tmp := [3][2]int{}
@@ -367,24 +367,24 @@ func (s *Solver) Encode() {
 				copy(tmp[i][0:], s.Pairs[i].AsCoins(s.ZeroCoin))
 			}
 		}
-		s.SolverEncoding.Pairs = &tmp
+		s.encoding.Pairs = &tmp
 	}
 }
 
 func (s *Solver) Decode() {
-	if s.SolverEncoding.Weighings != nil {
-		for i, w := range *s.SolverEncoding.Weighings {
+	if s.encoding.Weighings != nil {
+		for i, w := range *s.encoding.Weighings {
 			s.Weighings[i] = NewWeighing(NewCoinSet(w[0], s.ZeroCoin), NewCoinSet(w[1], s.ZeroCoin))
 		}
 	}
-	if s.SolverEncoding.Unique != nil {
-		s.Unique = NewCoinSet(*s.SolverEncoding.Unique, s.ZeroCoin)
+	if s.encoding.Unique != nil {
+		s.Unique = NewCoinSet(*s.encoding.Unique, s.ZeroCoin)
 	}
-	if s.SolverEncoding.Triples != nil {
-		s.Triples = NewCoinSet(*s.SolverEncoding.Triples, s.ZeroCoin)
+	if s.encoding.Triples != nil {
+		s.Triples = NewCoinSet(*s.encoding.Triples, s.ZeroCoin)
 	}
-	if s.SolverEncoding.Pairs != nil {
-		for i, p := range *s.SolverEncoding.Pairs {
+	if s.encoding.Pairs != nil {
+		for i, p := range *s.encoding.Pairs {
 			s.Pairs[i] = NewCoinSet(p[0:], s.ZeroCoin)
 		}
 	}
