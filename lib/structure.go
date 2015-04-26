@@ -106,8 +106,61 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 	if err != nil {
 		return r, err
 	}
-	r.flags |= ANALYSED
 
+	for i, w := range r.Weighings {
+		pi := [2]int{0, 1}
+		tl := w.Left().Intersection(r.Triples)
+		tr := w.Right().Intersection(r.Triples)
+		t := tl
+		l := w.Left()
+		if tr.Size() > tl.Size() {
+			pi = [2]int{1, 0}
+			t = tr
+			l = w.Right()
+		}
+		u := l.Intersection(r.Unique)
+		switch t.Size() {
+		case 3:
+			switch u.Size() {
+			case 1:
+				r.Structure[i] = NewStructure(T, pi, i)
+			case 0:
+				r.Structure[i] = NewStructure(Q, pi, i)
+			default:
+				s.flags = INVALID
+				return s, fmt.Errorf("illegal state: t==3, u > 1")
+			}
+		case 2:
+			switch u.Size() {
+			case 1:
+				r.Structure[i] = NewStructure(P, pi, i)
+			case 0:
+				for _, pair := range r.Pairs {
+					match := pair.Intersection(l)
+					switch match.Size() {
+					case 0:
+						continue
+					case 1:
+						r.Structure[i] = NewStructure(R, pi, i)
+					case 2:
+						r.Structure[i] = NewStructure(S, pi, i)
+					default:
+						s.flags = INVALID
+						return s, fmt.Errorf("illegal state: t==2 && u==0 && j==0 && l == 0")
+					}
+					break
+				}
+			default:
+				s.flags = INVALID
+				return s, fmt.Errorf("illegal state: t==2, u > 1")
+			}
+		default:
+			s.flags = INVALID
+			return s, fmt.Errorf("illegal state: t < 2 || t > 3")
+		}
+	}
+
+	r.flags |= ANALYSED
 	return r, nil
 }
 
