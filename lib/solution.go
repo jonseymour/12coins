@@ -105,11 +105,12 @@ func (s *Solution) Clone() *Solution {
 	}
 	clone := Solution{
 		Weighings: [3]Weighing{},
-		Coins:     make([]int, len(s.Coins), len(s.Coins)),
-		Weights:   make([]Weight, len(s.Weights), len(s.Weights)),
+		Coins:     make([]int, len(s.Coins)),
+		Weights:   make([]Weight, len(s.Weights)),
 		ZeroCoin:  s.ZeroCoin,
 		Unique:    s.Unique,
 		Triples:   s.Triples,
+		Failures:  make([]Failure, len(s.Failures)),
 		Flip:      tmp,
 		Valid:     v,
 		flags:     s.flags,
@@ -117,14 +118,10 @@ func (s *Solution) Clone() *Solution {
 
 	copy(clone.Pairs[0:], s.Pairs[0:])
 	copy(clone.Weighings[0:], s.Weighings[0:])
-
-	for i, e := range s.Coins {
-		clone.Coins[i] = e
-	}
-
-	for i, e := range s.Weights {
-		clone.Weights[i] = e
-	}
+	copy(clone.Coins[0:], s.Coins[0:])
+	copy(clone.Weights[0:], s.Weights[0:])
+	copy(clone.Failures[0:], s.Failures[0:])
+	copy(clone.Structure[0:], s.Structure[0:])
 
 	return &clone
 }
