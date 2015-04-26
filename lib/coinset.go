@@ -1,7 +1,7 @@
 package lib
 
 import (
-	"fmt"
+	"encoding/json"
 )
 
 type CoinMask uint16
@@ -26,6 +26,8 @@ type orderedCoinSet struct {
 	zeroCoin int
 }
 
+// Answer the coins of the set as an array of integers. The
+// coins are numbered w.r.t. to the specified 0 coin.
 func (s *coinSet) AsCoins(zeroCoin int) []int {
 	if s == nil {
 		return []int{}
@@ -46,6 +48,7 @@ func (s *coinSet) AsCoins(zeroCoin int) []int {
 	return result
 }
 
+// Answer the coins of the ordered set in the original order.
 func (s *orderedCoinSet) AsCoins(zeroCoin int) []int {
 	c := make([]int, len(s.coins))
 	diff := zeroCoin - s.zeroCoin
@@ -55,28 +58,35 @@ func (s *orderedCoinSet) AsCoins(zeroCoin int) []int {
 	return c
 }
 
+// Answer the size of the set.
 func (s *coinSet) Size() uint8 {
 	return s.size
 }
 
+// Answer a sorted version of the current set.
 func (s *coinSet) Sort() CoinSet {
 	return s
 }
 
+// Answer a sorted version of the current set.
 func (s *orderedCoinSet) Sort() CoinSet {
 	return &s.coinSet
 }
 
+// Answer a description of the set.
 func (s *coinSet) String() string {
 	tmp, _ := json.Marshal(s.AsCoins(1))
 	return string(tmp)
 }
 
+// Answer a description of the set.
 func (s *orderedCoinSet) String() string {
 	tmp, _ := json.Marshal(s.AsCoins(s.zeroCoin))
 	return string(tmp)
 }
 
+// Return a new set which is the union of the receiver
+// and the specified set.
 func (s *coinSet) Union(other CoinSet) CoinSet {
 	var o *coinSet
 	var ok bool
@@ -86,6 +96,8 @@ func (s *coinSet) Union(other CoinSet) CoinSet {
 	return NewCoinSetFromMask(s.mask | o.mask)
 }
 
+// Return a new set which is the intersection of the receiver
+// and the specified set.
 func (s *coinSet) Intersection(other CoinSet) CoinSet {
 	var o *coinSet
 	var ok bool
@@ -95,6 +107,8 @@ func (s *coinSet) Intersection(other CoinSet) CoinSet {
 	return NewCoinSetFromMask(s.mask & o.mask)
 }
 
+// Return a new set which is a complement of the coins
+// specified set w.r.t to the receiver's set.
 func (s *coinSet) Complement(other CoinSet) CoinSet {
 	var o *coinSet
 	var ok bool
@@ -104,6 +118,8 @@ func (s *coinSet) Complement(other CoinSet) CoinSet {
 	return NewCoinSetFromMask(s.mask &^ o.mask)
 }
 
+// Return a new unordered set from the specified coins, assuming
+// the zero coin is the specified coin.
 func NewCoinSet(coins []int, zeroCoin int) CoinSet {
 	mask := CoinMask(0)
 	count := uint8(0)
@@ -120,6 +136,7 @@ func NewCoinSet(coins []int, zeroCoin int) CoinSet {
 	}
 }
 
+// Return a new unordered coin set from the specified coin mask.
 func NewCoinSetFromMask(mask CoinMask) CoinSet {
 	newMask := CoinMask(0)
 	bit := CoinMask(1)
