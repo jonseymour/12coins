@@ -4,6 +4,11 @@ import (
 	"encoding/json"
 )
 
+const (
+	ZERO_BASED = 0
+	ONE_BASED  = 1
+)
+
 type CoinMask uint16
 
 type CoinSet interface {
@@ -15,6 +20,10 @@ type CoinSet interface {
 	Complement(other CoinSet) CoinSet
 }
 
+type hasCoinSet interface {
+	asCoinSet() *coinSet
+}
+
 type coinSet struct {
 	mask CoinMask
 	size uint8
@@ -24,6 +33,14 @@ type orderedCoinSet struct {
 	coinSet
 	coins    []int
 	zeroCoin int
+}
+
+func (s *coinSet) asCoinSet() *coinSet {
+	return s
+}
+
+func (s *orderedCoinSet) asCoinSet() *coinSet {
+	return &s.coinSet
 }
 
 // Answer the coins of the set as an array of integers. The
@@ -88,34 +105,34 @@ func (s *orderedCoinSet) String() string {
 // Return a new set which is the union of the receiver
 // and the specified set.
 func (s *coinSet) Union(other CoinSet) CoinSet {
-	var o *coinSet
+	var o hasCoinSet
 	var ok bool
-	if o, ok = other.(*coinSet); !ok {
-		o = NewCoinSet(other.AsCoins(0), 0).(*coinSet)
+	if o, ok = other.(hasCoinSet); !ok {
+		o = NewCoinSet(other.AsCoins(ZERO_BASED), ZERO_BASED).(hasCoinSet)
 	}
-	return NewCoinSetFromMask(s.mask | o.mask)
+	return NewCoinSetFromMask(s.mask | o.asCoinSet().mask)
 }
 
 // Return a new set which is the intersection of the receiver
 // and the specified set.
 func (s *coinSet) Intersection(other CoinSet) CoinSet {
-	var o *coinSet
+	var o hasCoinSet
 	var ok bool
-	if o, ok = other.(*coinSet); !ok {
-		o = NewCoinSet(other.AsCoins(0), 0).(*coinSet)
+	if o, ok = other.(hasCoinSet); !ok {
+		o = NewCoinSet(other.AsCoins(ZERO_BASED), ZERO_BASED).(hasCoinSet)
 	}
-	return NewCoinSetFromMask(s.mask & o.mask)
+	return NewCoinSetFromMask(s.mask & o.asCoinSet().mask)
 }
 
 // Return a new set which is a complement of the coins
 // specified set w.r.t to the receiver's set.
 func (s *coinSet) Complement(other CoinSet) CoinSet {
-	var o *coinSet
+	var o hasCoinSet
 	var ok bool
-	if o, ok = other.(*coinSet); !ok {
-		o = NewCoinSet(other.AsCoins(0), 0).(*coinSet)
+	if o, ok = other.(hasCoinSet); !ok {
+		o = NewCoinSet(other.AsCoins(ZERO_BASED), ZERO_BASED).(hasCoinSet)
 	}
-	return NewCoinSetFromMask(s.mask &^ o.mask)
+	return NewCoinSetFromMask(s.mask &^ o.asCoinSet().mask)
 }
 
 // Return a new unordered set from the specified coins, assuming
