@@ -15,6 +15,7 @@ const (
 )
 
 type Structure interface {
+	Type() StructureType
 	String() string
 }
 
@@ -59,6 +60,10 @@ func NewStructure(t StructureType, p [2]int, i int) Structure {
 
 func (s *structure) String() string {
 	return fmt.Sprintf("%v[%d, %d]", s._type, s.permutation[0], s.permutation[1])
+}
+
+func (s *structure) Type() StructureType {
+	return s._type
 }
 
 func ParseStructure(r string, i int) (Structure, error) {
@@ -106,6 +111,9 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 	if err != nil {
 		return r, err
 	}
+
+	p := [3]int{0, 1, 2}
+	st := [3]StructureType{P, P, P}
 
 	for i, w := range r.Weighings {
 		pi := [2]int{0, 1}
@@ -157,6 +165,43 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 		default:
 			s.markInvalid()
 			return s, fmt.Errorf("illegal state: t < 2 || t > 3")
+		}
+
+		switch r.Structure[i].Type() {
+		case Q:
+			p[0] = i
+			st[0] = Q
+		case R:
+			st[1] = R
+			p[1] = i
+		case S:
+			st[2] = S
+			p[2] = i
+		case T:
+			st[2] = T
+			p[2] = i
+		case P:
+		default:
+			panic(fmt.Errorf("unknown structure: %v", r.Structure[i]))
+		}
+	}
+
+	if st[0] == Q && st[1] != R {
+		if st[1] != P || st[2] != P {
+			panic(fmt.Errorf("illegal state: st[1] != P || st[2] != P: %v", st))
+		}
+		switch p[0] {
+		case 0:
+			p[1] = 1
+			p[2] = 2
+		case 1:
+			p[1] = 2
+			p[2] = 0
+		case 2:
+			p[1] = 0
+			p[2] = 1
+		default:
+			panic(fmt.Errorf("illegal state: p[0] < 0 || p[0] > 2: %d", p[0]))
 		}
 	}
 
