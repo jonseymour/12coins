@@ -381,7 +381,7 @@ weighing and record the fact of the flip. Call this recording (f0,f1,f2) where f
 
 3. Identify the pairs by finding coins that are split across two pans in one weighing and grouped in one pan on the other weighing.
 
-5. Label the structure of each weighing with p,q,r,s,t according to how many of each type of coin the
+5. Label the structure of each weighing with p,q,r,s,t according to how many of each type of coin
 the left hand side of the weighing has.
 
 6. Lookup the structure labeled by step 5. and assign the index of that structure to S
