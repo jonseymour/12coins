@@ -28,8 +28,8 @@ type Failure struct {
 type Solution struct {
 	encoding
 	Weighings [3]Weighing  `json:"-"`
-	Coins     []int        `json:"coins,omitempty"`    // a mapping between abs(27*a+9*b+c-13)-1 and the coin identity
-	Weights   []Weight     `json:"weights,omitempty"`  // a mapping between sgn(27*a+9*b+c-13)-1 and the coin weight
+	Coins     []int        `json:"coins,omitempty"`    // a mapping between abs(9*a+3*b+c-13)-1 and the coin identity
+	Weights   []Weight     `json:"weights,omitempty"`  // a mapping between sgn(9*a+3*b+c-13)-1 and the coin weight
 	Unique    CoinSet      `json:"-"`                  // the coins that appear in one weighing
 	Pairs     [3]CoinSet   `json:"-"`                  // the pairs that appear in exactly two weighings
 	Triples   CoinSet      `json:"-"`                  // the coins that appear in all 3 weighings
