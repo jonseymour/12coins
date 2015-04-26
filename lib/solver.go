@@ -28,21 +28,23 @@ type encoding struct {
 	Unique    *[]int       `json:"unique,omitempty"`    // the coins that appear in one weighing
 	Pairs     *[3][2]int   `json:"pairs,omitempty"`     // the pairs that appear in exactly two weighings
 	Triples   *[]int       `json:"triples,omitempty"`   // the coins that appear in all 3 weighings
+	Structure *[3]string   `json:"structure,omitempty"` // An encoding of the structure
 }
 
 // Describes a possibly invalid solution to the 12 coins problem.
 type Solver struct {
 	encoding
-	Weighings [3]Weighing `json:"-"`
-	Coins     []int       `json:"coins,omitempty"`     // a mapping between abs(27*a+9*b+c-13)-1 and the coin identity
-	Weights   []Weight    `json:"weights,omitempty"`   // a mapping between sgn(27*a+9*b+c-13)-1 and the coin weight
-	ZeroCoin  int         `json:"zero-coin,omitempty"` // the zero coin of the weighings. either 0 or 1.
-	Unique    CoinSet     `json:"-"`                   // the coins that appear in one weighing
-	Pairs     [3]CoinSet  `json:"-"`                   // the pairs that appear in exactly two weighings
-	Triples   CoinSet     `json:"-"`                   // the coins that appear in all 3 weighings
-	Flip      *int        `json:"flip,omitempty"`      // the weighing which needs to be flipped to guarantee abs(27*a+9*b+c-13)-1 is between 0 and 11
-	Valid     *bool       `json:"valid,omitempty"`     // true if the solution is valid
-	Failures  []Failure   `json:"failures,omitempty"`  // a list of tests for which the solution is ambiguous
+	Weighings [3]Weighing  `json:"-"`
+	Coins     []int        `json:"coins,omitempty"`     // a mapping between abs(27*a+9*b+c-13)-1 and the coin identity
+	Weights   []Weight     `json:"weights,omitempty"`   // a mapping between sgn(27*a+9*b+c-13)-1 and the coin weight
+	ZeroCoin  int          `json:"zero-coin,omitempty"` // the zero coin of the weighings. either 0 or 1.
+	Unique    CoinSet      `json:"-"`                   // the coins that appear in one weighing
+	Pairs     [3]CoinSet   `json:"-"`                   // the pairs that appear in exactly two weighings
+	Triples   CoinSet      `json:"-"`                   // the coins that appear in all 3 weighings
+	Flip      *int         `json:"flip,omitempty"`      // the weighing which needs to be flipped to guarantee abs(27*a+9*b+c-13)-1 is between 0 and 11
+	Valid     *bool        `json:"valid,omitempty"`     // true if the solution is valid
+	Failures  []Failure    `json:"failures,omitempty"`  // a list of tests for which the solution is ambiguous
+	Structure [3]Structure `json:"-"`                   // the structure of the permutation
 }
 
 // Decide the relative weight of a coin by generating a linear combination of the three weighings and using
@@ -369,6 +371,17 @@ func (s *Solver) Encode() {
 		}
 		s.encoding.Pairs = &tmp
 	}
+	structure := [3]string{}
+	count := 0
+	for i, _ := range structure {
+		if s.Structure[i] != nil {
+			structure[i] = s.Structure[i].String()
+			count += 1
+		}
+	}
+	if count == 3 {
+		s.encoding.Structure = &structure
+	}
 }
 
 func (s *Solver) Decode() {
@@ -386,6 +399,11 @@ func (s *Solver) Decode() {
 	if s.encoding.Pairs != nil {
 		for i, p := range *s.encoding.Pairs {
 			s.Pairs[i] = NewCoinSet(p[0:], s.ZeroCoin)
+		}
+	}
+	if s.encoding.Structure != nil {
+		for i, t := range *s.encoding.Structure {
+			s.Structure[i], _ = ParseStructure(t, i)
 		}
 	}
 }
