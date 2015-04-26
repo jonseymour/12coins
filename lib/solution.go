@@ -86,6 +86,9 @@ func (s *Solution) Reset() {
 	s.Triples = nil
 	s.Pairs = [3]CoinSet{nil, nil, nil}
 	s.Structure = [3]Structure{nil, nil, nil}
+	s.encoding = encoding{
+		ZeroCoin: s.encoding.ZeroCoin,
+	}
 	s.flags = s.flags &^ (GROUPED | ANALYSED | CANONICALISED)
 }
 
