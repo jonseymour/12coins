@@ -384,6 +384,19 @@ func (s *Solver) Encode() {
 	}
 }
 
+// Return a clone of the receiver in which the structure has been populated.
+func (s *Solver) AnalyseStructure() (*Solver, error) {
+	r := s.Clone()
+	return r, nil
+}
+
+// Return a clone of the receiver in which the weighings have been permuted into the
+// the canonical order and all sets are ordered sets.
+func (s *Solver) Canonical() (*Solver, error) {
+	r := s.Clone()
+	return r, nil
+}
+
 func (s *Solver) Decode() {
 	if s.encoding.Weighings != nil {
 		for i, w := range *s.encoding.Weighings {
