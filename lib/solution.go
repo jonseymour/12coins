@@ -7,12 +7,13 @@ import (
 type flag uint
 
 const (
-	REVERSED flag = 1
-	GROUPED
-	ANALYSED
-	RELABLED
-	NORMALISED
-	CANONICALISED
+	INVALID       flag = 0
+	REVERSED           = 1 << 1
+	GROUPED            = 1 << 2
+	ANALYSED           = 1 << 3
+	RELABLED           = 1 << 4
+	NORMALISED         = 1 << 5
+	CANONICALISED      = 1 << 6
 )
 
 // Describes a test failure. A test failure is an instance of a coin and weight such that the
