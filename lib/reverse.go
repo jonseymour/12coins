@@ -13,8 +13,9 @@ import (
 //
 // Otherwise, return a pointer to the receiver.
 //
-// The .Valid value of the returned pointer is always non nil
-// and always indicates whether the receiver was a valid solution.
+// The .flags value of the returned pointer is INVALID if the solution
+// is invalid or REVERSED if the receiver is a valid solution to the
+// the problem.
 //
 // If err is non-nil, then .Valid of the result will point to a false
 // value and .Failures of the result will list the tests that
@@ -61,7 +62,7 @@ func (s *Solution) Reverse() (*Solution, error) {
 	}
 
 	if len(s.Failures) != 0 {
-		s.Valid = pbool(false)
+		s.flags = INVALID
 		return s, fmt.Errorf("not a valid solution because of %d failures", len(s.Failures))
 	}
 
@@ -100,7 +101,6 @@ func (s *Solution) Reverse() (*Solution, error) {
 		}
 		return clone.Reverse()
 	}
-	clone.Valid = pbool(true)
 	clone.flags |= REVERSED
 	return clone, nil
 }

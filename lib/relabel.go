@@ -13,7 +13,6 @@ func (s *Solution) Relabel() (*Solution, error) {
 
 	if s.flags&REVERSED == 0 {
 		if clone, err = s.Reverse(); err != nil {
-			s.Valid = pbool(false)
 			return s, err
 		}
 	} else {

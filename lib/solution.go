@@ -35,7 +35,6 @@ type Solution struct {
 	Pairs     [3]CoinSet   `json:"-"`                   // the pairs that appear in exactly two weighings
 	Triples   CoinSet      `json:"-"`                   // the coins that appear in all 3 weighings
 	Flip      *int         `json:"flip,omitempty"`      // the weighing which needs to be flipped to guarantee abs(27*a+9*b+c-13)-1 is between 0 and 11
-	Valid     *bool        `json:"valid,omitempty"`     // true if the solution is valid
 	Failures  []Failure    `json:"failures,omitempty"`  // a list of tests for which the solution is ambiguous
 	Structure [3]Structure `json:"-"`                   // the structure of the permutation
 	flags     flag         // as
@@ -111,10 +110,6 @@ func (s *Solution) Clone() *Solution {
 	if tmp != nil {
 		tmp = pi(*tmp)
 	}
-	v := s.Valid
-	if v != nil {
-		v = pbool(*v)
-	}
 	clone := Solution{
 		Weighings: [3]Weighing{},
 		Coins:     make([]int, len(s.Coins)),
@@ -124,7 +119,6 @@ func (s *Solution) Clone() *Solution {
 		Triples:   s.Triples,
 		Failures:  make([]Failure, len(s.Failures)),
 		Flip:      tmp,
-		Valid:     v,
 		flags:     s.flags,
 	}
 
@@ -147,4 +141,15 @@ func (s *Solution) Normalize() *Solution {
 	}
 	clone.flags |= NORMALISED &^ (CANONICALISED)
 	return clone
+}
+
+// Answer true if the solution is a valid solution. This will be true if it could
+// be successfully reversed, false otherwise.
+func (s *Solution) IsValid() bool {
+	if s.flags&REVERSED == 0 {
+		c, err := s.Reverse()
+		return err == nil && c.flags&REVERSED != 0
+	} else {
+		return true
+	}
 }

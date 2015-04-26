@@ -6,7 +6,17 @@ import (
 
 // Tabulate the singletons, pairs and triples of the solution.
 func (s *Solution) Groupings() (*Solution, error) {
-	clone := s.Clone()
+
+	var clone *Solution
+
+	if s.flags&REVERSED == 0 {
+		clone = s.Clone()
+	} else {
+		var err error
+		if clone, err = s.Reverse(); err != nil {
+			return clone, err
+		}
+	}
 
 	clone.resetAnalysis()
 
@@ -24,7 +34,7 @@ func (s *Solution) Groupings() (*Solution, error) {
 	pairs := all.Complement(triples).Complement(singletons)
 
 	if triples.Size() != 3 || singletons.Size() != 3 || pairs.Size() != 6 {
-		s.Valid = pbool(false)
+		s.flags = INVALID
 		return s, fmt.Errorf("invalid grouping sizes: %v, %v, %v", triples, pairs, singletons)
 	}
 

@@ -38,10 +38,6 @@ func main() {
 
 		solution.Decode()
 
-		if valid {
-			solution.Valid = nil
-		}
-
 		if reverse {
 			if solution, err = solution.Reverse(); err != nil {
 				ok = false
@@ -82,11 +78,7 @@ func main() {
 		}
 
 		if valid {
-			if solution.Valid == nil {
-				if _, err := solution.Reverse(); err != nil {
-					continue
-				}
-			} else if !*solution.Valid {
+			if !solution.IsValid() {
 				continue
 			}
 		}
