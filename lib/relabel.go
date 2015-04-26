@@ -6,9 +6,9 @@ import (
 
 // Relabel the coins of the weighing such that the Coins
 // slice is numbered in strictly increasing numerical order.
-func (s *Solver) Relabel() (*Solver, error) {
+func (s *Solution) Relabel() (*Solution, error) {
 
-	var clone *Solver
+	var clone *Solution
 	var err error
 
 	if len(s.Coins) != 12 {

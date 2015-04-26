@@ -93,8 +93,8 @@ func ParseStructure(r string, i int) (Structure, error) {
 }
 
 // Return a clone of the receiver in which the structure has been populated.
-func (s *Solver) AnalyseStructure() (*Solver, error) {
-	var r *Solver
+func (s *Solution) AnalyseStructure() (*Solution, error) {
+	var r *Solution
 	var err error
 
 	if s.flags&GROUPED == 0 {
@@ -113,8 +113,8 @@ func (s *Solver) AnalyseStructure() (*Solver, error) {
 
 // Return a clone of the receiver in which the weighings have been permuted into the
 // the canonical order and all sets are ordered sets.
-func (s *Solver) Canonical() (*Solver, error) {
-	var r *Solver
+func (s *Solution) Canonical() (*Solution, error) {
+	var r *Solution
 	var err error
 
 	if s.flags&ANALYSED == 0 {

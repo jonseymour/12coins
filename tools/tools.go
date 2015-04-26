@@ -31,67 +31,67 @@ func main() {
 	for {
 		var err error
 		ok := true
-		solver := &lib.Solver{}
-		if err = decoder.Decode(&solver); err != nil {
+		solution := &lib.Solution{}
+		if err = decoder.Decode(&solution); err != nil {
 			break
 		}
 
-		solver.Decode()
+		solution.Decode()
 
 		if valid {
-			solver.Valid = nil
+			solution.Valid = nil
 		}
 
 		if reverse {
-			if solver, err = solver.Reverse(); err != nil {
+			if solution, err = solution.Reverse(); err != nil {
 				ok = false
-				fmt.Fprintf(os.Stderr, "error: reverse: %v: %v\n", err, solver)
+				fmt.Fprintf(os.Stderr, "error: reverse: %v: %v\n", err, solution)
 			}
 		}
 
 		if normalize {
-			solver = solver.Normalize()
+			solution = solution.Normalize()
 		}
 
 		if relabel && ok {
-			if solver, err = solver.Relabel(); err != nil {
+			if solution, err = solution.Relabel(); err != nil {
 				ok = false
-				fmt.Fprintf(os.Stderr, "error: relabel: %v: %v\n", err, solver)
+				fmt.Fprintf(os.Stderr, "error: relabel: %v: %v\n", err, solution)
 			}
 		}
 
 		if groupings && ok {
-			if solver, err = solver.Groupings(); err != nil {
+			if solution, err = solution.Groupings(); err != nil {
 				ok = false
-				fmt.Fprintf(os.Stderr, "error: groupings: %v: %v\n", err, solver)
+				fmt.Fprintf(os.Stderr, "error: groupings: %v: %v\n", err, solution)
 			}
 		}
 
 		if structure && ok {
-			if solver, err = solver.AnalyseStructure(); err != nil {
+			if solution, err = solution.AnalyseStructure(); err != nil {
 				ok = false
-				fmt.Fprintf(os.Stderr, "error: structure: %v: %v\n", err, solver)
+				fmt.Fprintf(os.Stderr, "error: structure: %v: %v\n", err, solution)
 			}
 		}
 
 		if canonical && ok {
-			if solver, err = solver.Canonical(); err != nil {
+			if solution, err = solution.Canonical(); err != nil {
 				ok = false
-				fmt.Fprintf(os.Stderr, "error: canonical: %v: %v\n", err, solver)
+				fmt.Fprintf(os.Stderr, "error: canonical: %v: %v\n", err, solution)
 			}
 		}
 
 		if valid {
-			if solver.Valid == nil {
-				if _, err := solver.Reverse(); err != nil {
+			if solution.Valid == nil {
+				if _, err := solution.Reverse(); err != nil {
 					continue
 				}
-			} else if !*solver.Valid {
+			} else if !*solution.Valid {
 				continue
 			}
 		}
 
-		solver.Encode()
-		encoder.Encode(solver)
+		solution.Encode()
+		encoder.Encode(solution)
 	}
 }

@@ -53,7 +53,7 @@ type Oracle struct {
 	zeroCoin int
 }
 
-type Solution func(Scale) (int, Weight)
+type Candidate func(Scale) (int, Weight)
 
 func NewOracle(coin int, w Weight, zeroCoin int) *Oracle {
 	return &Oracle{
@@ -127,7 +127,7 @@ func (o *Oracle) Weigh(a []int, b []int) Weight {
 }
 
 // test checks whether decide answers the right coin for a given coin and relative weight
-func Test(i int, w Weight, zeroCoin int, p Solution) error {
+func Test(i int, w Weight, zeroCoin int, p Candidate) error {
 	oracle := NewOracle(i, w, zeroCoin)
 	func() {
 		defer func() {
@@ -146,7 +146,7 @@ func Test(i int, w Weight, zeroCoin int, p Solution) error {
 	return oracle.err
 }
 
-func TestAll(p Solution) []error {
+func TestAll(p Candidate) []error {
 	errors := []error{}
 	for i := 0; i < 12; i++ {
 		for _, w := range []Weight{Light, Heavy} {

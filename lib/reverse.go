@@ -20,7 +20,7 @@ import (
 // value and .Failures of the result will list the tests that
 // caused the receiver to be marked invalid.
 //
-func (s *Solver) Reverse() (*Solver, error) {
+func (s *Solution) Reverse() (*Solution, error) {
 	clone := s.Clone()
 
 	clone.Coins = make([]int, 27, 27)

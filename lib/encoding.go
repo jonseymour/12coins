@@ -13,13 +13,13 @@ type encoding struct {
 }
 
 // Convert the solution to its JSON representation.
-func (s *Solver) String() string {
+func (s *Solution) String() string {
 	s.Encode()
 	b, _ := json.Marshal(s)
 	return string(b)
 }
 
-func (s *Solver) Encode() {
+func (s *Solution) Encode() {
 	tmp := [3][2][]int{}
 	s.encoding.Weighings = &tmp
 	for i, w := range s.Weighings {
@@ -57,7 +57,7 @@ func (s *Solver) Encode() {
 	}
 }
 
-func (s *Solver) Decode() {
+func (s *Solution) Decode() {
 	if s.encoding.Weighings != nil {
 		for i, w := range *s.encoding.Weighings {
 			s.Weighings[i] = NewWeighing(NewCoinSet(w[0], s.ZeroCoin), NewCoinSet(w[1], s.ZeroCoin))

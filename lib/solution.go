@@ -24,7 +24,7 @@ type Failure struct {
 }
 
 // Describes a possibly invalid solution to the 12 coins problem.
-type Solver struct {
+type Solution struct {
 	encoding
 	Weighings [3]Weighing  `json:"-"`
 	Coins     []int        `json:"coins,omitempty"`     // a mapping between abs(27*a+9*b+c-13)-1 and the coin identity
@@ -42,7 +42,7 @@ type Solver struct {
 
 // Decide the relative weight of a coin by generating a linear combination of the three weighings and using
 // this to index the array.
-func (s *Solver) decide(scale Scale) (int, Weight, int) {
+func (s *Solution) decide(scale Scale) (int, Weight, int) {
 	scale.SetZeroCoin(s.ZeroCoin)
 
 	results := [3]Weight{}
@@ -83,18 +83,18 @@ func (s *Solver) decide(scale Scale) (int, Weight, int) {
 
 // Invoke the internal decide method to decide which coin
 // is counterfeit and what it's relative weight is.
-func (s *Solver) Decide(scale Scale) (int, Weight) {
+func (s *Solution) Decide(scale Scale) (int, Weight) {
 	f, w, _ := s.decide(scale)
 	return f, w
 }
 
 // Configure the zero coin of the solution.
-func (s *Solver) SetZeroCoin(coin int) {
+func (s *Solution) SetZeroCoin(coin int) {
 	s.ZeroCoin = coin
 }
 
 // Create a deep clone of the receiver.
-func (s *Solver) Clone() *Solver {
+func (s *Solution) Clone() *Solution {
 	tmp := s.Flip
 	if tmp != nil {
 		tmp = pi(*tmp)
@@ -103,7 +103,7 @@ func (s *Solver) Clone() *Solver {
 	if v != nil {
 		v = pbool(*v)
 	}
-	clone := Solver{
+	clone := Solution{
 		Weighings: [3]Weighing{},
 		Coins:     make([]int, len(s.Coins), len(s.Coins)),
 		Weights:   make([]Weight, len(s.Weights), len(s.Weights)),
@@ -130,7 +130,7 @@ func (s *Solver) Clone() *Solver {
 }
 
 // Sort the coins in each weighing in increasing numerical order.
-func (s *Solver) Normalize() *Solver {
+func (s *Solution) Normalize() *Solution {
 	clone := s.Clone()
 
 	for i, _ := range clone.Weighings {

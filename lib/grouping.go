@@ -4,14 +4,14 @@ import (
 	"fmt"
 )
 
-func (s *Solver) resetCounts() {
+func (s *Solution) resetCounts() {
 	s.Unique = nil
 	s.Triples = nil
 	s.Pairs = [3]CoinSet{nil, nil, nil}
 }
 
 // Tabulate the singletons, pairs and triples of the solution.
-func (s *Solver) Groupings() (*Solver, error) {
+func (s *Solution) Groupings() (*Solution, error) {
 	clone := s.Clone()
 	clone.resetCounts()
 
