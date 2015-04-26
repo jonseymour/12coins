@@ -91,3 +91,42 @@ func ParseStructure(r string, i int) (Structure, error) {
 		return nil, err
 	}
 }
+
+// Return a clone of the receiver in which the structure has been populated.
+func (s *Solver) AnalyseStructure() (*Solver, error) {
+	var r *Solver
+	var err error
+
+	if s.flags&GROUPED == 0 {
+		r, err = s.Groupings()
+	} else {
+		r = s.Clone()
+	}
+
+	if err != nil {
+		return r, err
+	}
+	r.flags |= ANALYSED
+
+	return r, nil
+}
+
+// Return a clone of the receiver in which the weighings have been permuted into the
+// the canonical order and all sets are ordered sets.
+func (s *Solver) Canonical() (*Solver, error) {
+	var r *Solver
+	var err error
+
+	if s.flags&ANALYSED == 0 {
+		r, err = s.AnalyseStructure()
+	} else {
+		r = s.Clone()
+	}
+
+	if err != nil {
+		return r, err
+	}
+
+	r.flags |= CANONICALISED
+	return r, nil
+}
