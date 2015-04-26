@@ -26,7 +26,9 @@ func (s *Solution) Reverse() (*Solution, error) {
 
 	clone.Coins = make([]int, 27, 27)
 	clone.Weights = make([]Weight, 27, 27)
-	clone.Flip = nil
+	if clone.flags&RECURSE == 0 {
+		clone.Flip = nil
+	}
 
 	for i, _ := range clone.Coins {
 		clone.Coins[i] = clone.GetZeroCoin()
@@ -96,9 +98,18 @@ func (s *Solution) Reverse() (*Solution, error) {
 			clone.Flip = pi(0)
 		} else if clone.Weights[6] == Equal {
 			clone.Flip = pi(1)
-		} else {
+		} else if clone.Weights[2] == Equal {
 			clone.Flip = pi(2)
+		} else {
+			panic(fmt.Errorf("unexpected case: %v!", clone.Weights))
 		}
+		if clone.flags&RECURSE != 0 {
+			panic(fmt.Errorf("infinite recursion detected: %v", clone.Weights))
+		}
+		defer func() {
+			clone.flags = clone.flags &^ RECURSE
+		}()
+		clone.flags |= RECURSE
 		return clone.Reverse()
 	}
 	clone.flags |= REVERSED

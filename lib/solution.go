@@ -14,6 +14,7 @@ const (
 	RELABLED           = 1 << 4
 	NORMALISED         = 1 << 5
 	CANONICALISED      = 1 << 6
+	RECURSE            = 1 << 7
 )
 
 // Describes a test failure. A test failure is an instance of a coin and weight such that the
