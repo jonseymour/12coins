@@ -81,6 +81,14 @@ func (s *Solution) decide(scale Scale) (int, Weight, int) {
 	return f, w, o
 }
 
+func (s *Solution) resetAnalysis() {
+	s.Unique = nil
+	s.Triples = nil
+	s.Pairs = [3]CoinSet{nil, nil, nil}
+	s.Structure = [3]Structure{nil, nil, nil}
+	s.flags = s.flags &^ (GROUPED | ANALYSED | CANONICALISED)
+}
+
 // Invoke the internal decide method to decide which coin
 // is counterfeit and what it's relative weight is.
 func (s *Solution) Decide(scale Scale) (int, Weight) {

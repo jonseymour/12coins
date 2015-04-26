@@ -4,16 +4,11 @@ import (
 	"fmt"
 )
 
-func (s *Solution) resetCounts() {
-	s.Unique = nil
-	s.Triples = nil
-	s.Pairs = [3]CoinSet{nil, nil, nil}
-}
-
 // Tabulate the singletons, pairs and triples of the solution.
 func (s *Solution) Groupings() (*Solution, error) {
 	clone := s.Clone()
-	clone.resetCounts()
+
+	clone.resetAnalysis()
 
 	a := clone.Weighings[0].Both()
 	b := clone.Weighings[1].Both()

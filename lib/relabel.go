@@ -20,7 +20,7 @@ func (s *Solution) Relabel() (*Solution, error) {
 		clone = s.Clone()
 	}
 
-	clone.resetCounts()
+	clone.resetAnalysis()
 
 	c := make([]int, len(clone.Coins), len(clone.Coins))
 	for i, e := range clone.Coins {
@@ -45,7 +45,7 @@ func (s *Solution) Relabel() (*Solution, error) {
 		clone.Coins[i] = i + clone.ZeroCoin
 	}
 
-	clone.flags |= (RELABLED | NORMALISED) &^ (CANONICALISED | GROUPED | ANALYSED)
+	clone.flags |= (RELABLED | NORMALISED)
 
 	return clone, nil
 }
