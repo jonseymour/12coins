@@ -18,8 +18,10 @@ func main() {
 	canonical := false
 	reset := false
 	invalid := false
+	flip := false
 
 	flag.BoolVar(&reverse, "reverse", false, "Derive the coins and weights array from the weighings.")
+	flag.BoolVar(&flip, "flip", false, "Flip the weighings so that LLL is never a valid weighing.")
 	flag.BoolVar(&relabel, "relabel", false, "Relabel solution into a indexing form.")
 	flag.BoolVar(&normalize, "normalize", false, "Order the coins in each weighing from lowest to highest.")
 	flag.BoolVar(&groupings, "groupings", false, "Derive the singletons, pairs and triples from the weighings.")
@@ -35,6 +37,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	if flip {
+		reverse = false
+	}
+
 	decoder := json.NewDecoder(os.Stdin)
 	encoder := json.NewEncoder(os.Stdout)
 	for {
@@ -47,7 +53,7 @@ func main() {
 
 		solution.Decode()
 
-		reset = reset || reverse || relabel || groupings || structure || canonical || valid || invalid
+		reset = reset || flip || reverse || relabel || groupings || structure || canonical || valid || invalid
 
 		if reset {
 			solution = solution.Reset()
@@ -57,6 +63,11 @@ func main() {
 			if solution, err = solution.Reverse(); err != nil {
 				ok = false
 				fmt.Fprintf(os.Stderr, "error: reverse: %v: %v\n", err, solution)
+			}
+		} else if flip {
+			if solution, err = solution.Flip(); err != nil {
+				ok = false
+				fmt.Fprintf(os.Stderr, "error: flip: %v: %v\n", err, solution)
 			}
 		}
 

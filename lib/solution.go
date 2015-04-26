@@ -179,6 +179,28 @@ func (s *Solution) Normalize() *Solution {
 	return clone
 }
 
+// Returns a new solution such that the LLL weighing is always invalid.
+func (s *Solution) Flip() (*Solution, error) {
+	var r *Solution
+	if s.flags&REVERSED == 0 {
+		var err error
+		if r, err = s.Reverse(); err != nil {
+			return r, err
+		}
+	} else {
+		r = s.Clone()
+	}
+	r.reset()
+	if r.encoding.Flip != nil {
+		w := r.Weighings[*r.encoding.Flip]
+		r.Weighings[*r.encoding.Flip] = NewWeighing(w.Right(), w.Left())
+		r.encoding.Flip = nil
+		r.markInvalid()
+		return r.Reverse()
+	}
+	return r, nil
+}
+
 // Answer true if the solution is a valid solution. This will be true if it could
 // be successfully reversed, false otherwise.
 func (s *Solution) IsValid() bool {
