@@ -318,8 +318,8 @@ func (s *Solver) Groupings() (*Solver, error) {
 
 	all := a.Union(b).Union(c)
 	triples := ab.Intersection(bc).Intersection(ca)
-	singletons := a.Remove(b.Union(c)).Union(b.Remove(a.Union(c))).Union(c.Remove(a.Union(b)))
-	pairs := all.Remove(triples).Remove(singletons)
+	singletons := a.Complement(b.Union(c)).Union(b.Complement(a.Union(c))).Union(c.Complement(a.Union(b)))
+	pairs := all.Complement(triples).Complement(singletons)
 
 	if triples.Size() != 3 || singletons.Size() != 3 || pairs.Size() != 6 {
 		s.Valid = pbool(false)

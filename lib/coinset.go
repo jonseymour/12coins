@@ -12,7 +12,7 @@ type CoinSet interface {
 	Sort() CoinSet
 	Union(other CoinSet) CoinSet
 	Intersection(other CoinSet) CoinSet
-	Remove(other CoinSet) CoinSet
+	Complement(other CoinSet) CoinSet
 }
 
 type coinSet struct {
@@ -93,7 +93,7 @@ func (s *coinSet) Intersection(other CoinSet) CoinSet {
 	return NewCoinSetFromMask(s.mask & o.mask)
 }
 
-func (s *coinSet) Remove(other CoinSet) CoinSet {
+func (s *coinSet) Complement(other CoinSet) CoinSet {
 	var o *coinSet
 	var ok bool
 	if o, ok = other.(*coinSet); !ok {
