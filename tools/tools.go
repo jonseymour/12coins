@@ -16,6 +16,7 @@ func main() {
 	valid := false
 	structure := false
 	canonical := false
+	reset := false
 
 	flag.BoolVar(&reverse, "reverse", false, "Derive the coins and weights array from the weighings.")
 	flag.BoolVar(&relabel, "relabel", false, "Relabel solution into a indexing form.")
@@ -24,6 +25,7 @@ func main() {
 	flag.BoolVar(&valid, "valid", false, "Only pass valid solutions to stdout.")
 	flag.BoolVar(&structure, "structure", false, "Analyse the structure of the weighings.")
 	flag.BoolVar(&canonical, "canonical", false, "Permute the weighings into the canonical form.")
+	flag.BoolVar(&reset, "reset", false, "Reset the analysis. Implied by reverse, relabel, groupings, structure or canonical.")
 	flag.Parse()
 
 	decoder := json.NewDecoder(os.Stdin)
@@ -37,6 +39,12 @@ func main() {
 		}
 
 		solution.Decode()
+
+		reset = reset || reverse || relabel || groupings || structure || canonical
+
+		if reset {
+			solution.Reset()
+		}
 
 		if reverse {
 			if solution, err = solution.Reverse(); err != nil {
