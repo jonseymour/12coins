@@ -15,6 +15,17 @@ func abs(i int) int {
 	}
 }
 
+type flag uint
+
+const (
+	REVERSED flag = 1
+	GROUPED
+	ANALYSED
+	RELABLED
+	NORMALISED
+	CANONICALISED
+)
+
 // Describes a test failure. A test failure is an instance of a coin and weight such that the
 // results of the weighings for that coin and weight are indistiguishable from some other coin
 // and weight.
@@ -45,6 +56,7 @@ type Solver struct {
 	Valid     *bool        `json:"valid,omitempty"`     // true if the solution is valid
 	Failures  []Failure    `json:"failures,omitempty"`  // a list of tests for which the solution is ambiguous
 	Structure [3]Structure `json:"-"`                   // the structure of the permutation
+	flags     flag         // as
 }
 
 // Decide the relative weight of a coin by generating a linear combination of the three weighings and using
@@ -119,6 +131,7 @@ func (s *Solver) Clone() *Solver {
 		Triples:   s.Triples,
 		Flip:      tmp,
 		Valid:     v,
+		flags:     s.flags,
 	}
 
 	copy(clone.Pairs[0:], s.Pairs[0:])
@@ -176,6 +189,8 @@ func (s *Solver) Relabel() (*Solver, error) {
 		clone.Coins[i] = i + clone.ZeroCoin
 	}
 
+	clone.flags |= (RELABLED | NORMALISED) &^ (CANONICALISED | GROUPED | ANALYSED)
+
 	return clone, nil
 }
 
@@ -186,6 +201,7 @@ func (s *Solver) Normalize() *Solver {
 	for i, _ := range clone.Weighings {
 		clone.Weighings[i] = NewWeighing(clone.Weighings[i].Pan(0).Sort(), clone.Weighings[i].Pan(1).Sort())
 	}
+	clone.flags |= NORMALISED &^ (CANONICALISED)
 	return clone
 }
 
@@ -286,6 +302,7 @@ func (s *Solver) Reverse() (*Solver, error) {
 		return clone.Reverse()
 	}
 	clone.Valid = pbool(true)
+	clone.flags |= REVERSED
 	return clone, nil
 }
 
@@ -335,8 +352,48 @@ func (s *Solver) Groupings() (*Solver, error) {
 	clone.Triples = triples
 	clone.Unique = singletons
 	clone.Pairs = [3]CoinSet{abp, bcp, cap}
+	clone.flags |= GROUPED
 
 	return clone, nil
+}
+
+// Return a clone of the receiver in which the structure has been populated.
+func (s *Solver) AnalyseStructure() (*Solver, error) {
+	var r *Solver
+	var err error
+
+	if s.Unique == nil || s.Triples == nil || s.Pairs[0] == nil || s.Pairs[1] == nil || s.Pairs[2] == nil {
+		r, err = s.Groupings()
+	} else {
+		r = s.Clone()
+	}
+
+	if err != nil {
+		return r, err
+	}
+	r.flags |= ANALYSED
+
+	return r, nil
+}
+
+// Return a clone of the receiver in which the weighings have been permuted into the
+// the canonical order and all sets are ordered sets.
+func (s *Solver) Canonical() (*Solver, error) {
+	var r *Solver
+	var err error
+
+	if s.Structure[0] == nil || s.Structure[1] == nil || s.Structure[2] == nil {
+		r, err = s.AnalyseStructure()
+	} else {
+		r = s.Clone()
+	}
+
+	if err != nil {
+		return r, err
+	}
+
+	r.flags |= CANONICALISED
+	return r, nil
 }
 
 // Convert the solution to its JSON representation.
@@ -382,41 +439,6 @@ func (s *Solver) Encode() {
 	if count == 3 {
 		s.encoding.Structure = &structure
 	}
-}
-
-// Return a clone of the receiver in which the structure has been populated.
-func (s *Solver) AnalyseStructure() (*Solver, error) {
-	var r *Solver
-	var err error
-
-	if s.Unique == nil || s.Triples == nil || s.Pairs[0] == nil || s.Pairs[1] == nil || s.Pairs[2] == nil {
-		r, err = s.Groupings()
-	} else {
-		r = s.Clone()
-	}
-
-	if err != nil {
-		return r, err
-	}
-	return r, nil
-}
-
-// Return a clone of the receiver in which the weighings have been permuted into the
-// the canonical order and all sets are ordered sets.
-func (s *Solver) Canonical() (*Solver, error) {
-	var r *Solver
-	var err error
-
-	if s.Structure[0] == nil || s.Structure[1] == nil || s.Structure[2] == nil {
-		r, err = s.AnalyseStructure()
-	} else {
-		r = s.Clone()
-	}
-
-	if err != nil {
-		return r, err
-	}
-	return r, nil
 }
 
 func (s *Solver) Decode() {
