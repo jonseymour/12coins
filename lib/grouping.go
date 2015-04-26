@@ -18,7 +18,7 @@ func (s *Solution) Groupings() (*Solution, error) {
 		}
 	}
 
-	clone.Reset()
+	clone.reset()
 
 	a := clone.Weighings[0].Both()
 	b := clone.Weighings[1].Both()

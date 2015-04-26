@@ -50,7 +50,7 @@ func main() {
 		reset = reset || reverse || relabel || groupings || structure || canonical || valid || invalid
 
 		if reset {
-			solution.Reset()
+			solution = solution.Reset()
 		}
 
 		if reverse {

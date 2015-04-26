@@ -82,17 +82,29 @@ func (s *Solution) decide(scale Scale) (int, Weight, int) {
 	return f, w, o
 }
 
-func (s *Solution) Reset() {
+// The internal reset is used to reset the analysis of the receiver but
+// does not undo the reversed state.
+func (s *Solution) reset() {
 	s.Unique = nil
 	s.Triples = nil
 	s.Pairs = [3]CoinSet{nil, nil, nil}
 	s.Structure = [3]Structure{nil, nil, nil}
-	s.Coins = []int{}
-	s.Weights = []Weight{}
 	s.encoding = encoding{
 		ZeroCoin: s.encoding.ZeroCoin,
 	}
 	s.flags = s.flags &^ (GROUPED | ANALYSED | CANONICALISED)
+}
+
+// The external reset creates a new clone in which only the weighings
+// are preserved.
+func (s *Solution) Reset() *Solution {
+	r := s.Clone()
+	r.reset()
+	r.Coins = []int{}
+	r.Weights = []Weight{}
+	r.flags = INVALID
+	r.Flip = nil
+	return r
 }
 
 // Invoke the internal decide method to decide which coin
