@@ -1,5 +1,9 @@
 package lib
 
+import (
+	"fmt"
+)
+
 func Permute(origin []int) [][]int {
 
 	if len(origin) == 1 {
@@ -39,4 +43,32 @@ func NewPermutation(permutation []int, zero int) *Permutation {
 
 func (p *Permutation) Index(e int) int {
 	return p.index[e-p.zero]
+}
+
+// Generate an identifier for a permutation of N digits numbers 0 to N-1
+func Number(permutation []int) uint {
+
+	counts := make([]int, len(permutation))
+	var number func([]int) (uint, uint)
+	number = func(p []int) (uint, uint) {
+		if len(p) == 1 {
+			return 0, 1
+		} else {
+			h := p[0]
+			t := p[1:]
+			for _, e := range t {
+				if e > h {
+					counts[e] += 1
+				}
+			}
+			ts, tf := number(t)
+			if h < counts[h] {
+				panic(fmt.Errorf("illegal state: h < counts[h]"))
+			}
+			rs := uint(h-counts[h])*tf + ts
+			return rs, tf * uint(len(p))
+		}
+	}
+	n, _ := number(permutation)
+	return n
 }
