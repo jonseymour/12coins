@@ -29,7 +29,7 @@ func (s *Solution) Reverse() (*Solution, error) {
 	clone.Flip = nil
 
 	for i, _ := range clone.Coins {
-		clone.Coins[i] = clone.ZeroCoin
+		clone.Coins[i] = clone.GetZeroCoin()
 		clone.Weights[i] = Equal
 	}
 

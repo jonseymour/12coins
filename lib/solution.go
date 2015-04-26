@@ -28,28 +28,28 @@ type Failure struct {
 type Solution struct {
 	encoding
 	Weighings [3]Weighing  `json:"-"`
-	Coins     []int        `json:"coins,omitempty"`     // a mapping between abs(27*a+9*b+c-13)-1 and the coin identity
-	Weights   []Weight     `json:"weights,omitempty"`   // a mapping between sgn(27*a+9*b+c-13)-1 and the coin weight
-	ZeroCoin  int          `json:"zero-coin,omitempty"` // the zero coin of the weighings. either 0 or 1.
-	Unique    CoinSet      `json:"-"`                   // the coins that appear in one weighing
-	Pairs     [3]CoinSet   `json:"-"`                   // the pairs that appear in exactly two weighings
-	Triples   CoinSet      `json:"-"`                   // the coins that appear in all 3 weighings
-	Flip      *int         `json:"flip,omitempty"`      // the weighing which needs to be flipped to guarantee abs(27*a+9*b+c-13)-1 is between 0 and 11
-	Failures  []Failure    `json:"failures,omitempty"`  // a list of tests for which the solution is ambiguous
-	Structure [3]Structure `json:"-"`                   // the structure of the permutation
+	Coins     []int        `json:"coins,omitempty"`    // a mapping between abs(27*a+9*b+c-13)-1 and the coin identity
+	Weights   []Weight     `json:"weights,omitempty"`  // a mapping between sgn(27*a+9*b+c-13)-1 and the coin weight
+	Unique    CoinSet      `json:"-"`                  // the coins that appear in one weighing
+	Pairs     [3]CoinSet   `json:"-"`                  // the pairs that appear in exactly two weighings
+	Triples   CoinSet      `json:"-"`                  // the coins that appear in all 3 weighings
+	Flip      *int         `json:"flip,omitempty"`     // the weighing which needs to be flipped to guarantee abs(27*a+9*b+c-13)-1 is between 0 and 11
+	Failures  []Failure    `json:"failures,omitempty"` // a list of tests for which the solution is ambiguous
+	Structure [3]Structure `json:"-"`                  // the structure of the permutation
 	flags     flag         // as
 }
 
 // Decide the relative weight of a coin by generating a linear combination of the three weighings and using
 // this to index the array.
 func (s *Solution) decide(scale Scale) (int, Weight, int) {
-	scale.SetZeroCoin(s.ZeroCoin)
+	z := s.GetZeroCoin()
+	scale.SetZeroCoin(z)
 
 	results := [3]Weight{}
 
-	results[0] = scale.Weigh(s.Weighings[0].Left().AsCoins(s.ZeroCoin), s.Weighings[0].Right().AsCoins(s.ZeroCoin))
-	results[1] = scale.Weigh(s.Weighings[1].Left().AsCoins(s.ZeroCoin), s.Weighings[1].Right().AsCoins(s.ZeroCoin))
-	results[2] = scale.Weigh(s.Weighings[2].Left().AsCoins(s.ZeroCoin), s.Weighings[2].Right().AsCoins(s.ZeroCoin))
+	results[0] = scale.Weigh(s.Weighings[0].Left().AsCoins(z), s.Weighings[0].Right().AsCoins(z))
+	results[1] = scale.Weigh(s.Weighings[1].Left().AsCoins(z), s.Weighings[1].Right().AsCoins(z))
+	results[2] = scale.Weigh(s.Weighings[2].Left().AsCoins(z), s.Weighings[2].Right().AsCoins(z))
 
 	if s.Flip != nil {
 		results[*s.Flip] = Heavy - results[*s.Flip]
@@ -101,7 +101,19 @@ func (s *Solution) Decide(scale Scale) (int, Weight) {
 
 // Configure the zero coin of the solution.
 func (s *Solution) SetZeroCoin(coin int) {
-	s.ZeroCoin = coin
+	if coin == ONE_BASED {
+		s.encoding.ZeroCoin = nil
+	} else {
+		s.encoding.ZeroCoin = pi(coin)
+	}
+}
+
+func (s *Solution) GetZeroCoin() int {
+	if s.encoding.ZeroCoin == nil {
+		return 1
+	} else {
+		return *s.encoding.ZeroCoin
+	}
 }
 
 // Create a deep clone of the receiver.
@@ -111,10 +123,12 @@ func (s *Solution) Clone() *Solution {
 		tmp = pi(*tmp)
 	}
 	clone := Solution{
+		encoding: encoding{
+			ZeroCoin: s.encoding.ZeroCoin,
+		},
 		Weighings: [3]Weighing{},
 		Coins:     make([]int, len(s.Coins)),
 		Weights:   make([]Weight, len(s.Weights)),
-		ZeroCoin:  s.ZeroCoin,
 		Unique:    s.Unique,
 		Triples:   s.Triples,
 		Failures:  make([]Failure, len(s.Failures)),

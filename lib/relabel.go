@@ -25,23 +25,24 @@ func (s *Solution) Relabel() (*Solution, error) {
 	for i, e := range clone.Coins {
 		c[i] = e
 	}
-	p := NewPermutation(c, clone.ZeroCoin)
+	z := clone.GetZeroCoin()
+	p := NewPermutation(c, z)
 
 	for i, w := range clone.Weighings {
 		coinSet := [2]CoinSet{}
 		for j, pan := range w.Pans() {
-			coins := pan.AsCoins(clone.ZeroCoin)
+			coins := pan.AsCoins(z)
 			for k, e := range coins {
-				coins[k] = p.Index(e) + clone.ZeroCoin
+				coins[k] = p.Index(e) + z
 			}
 			sort.Sort(sort.IntSlice(coins))
-			coinSet[j] = NewCoinSet(coins, clone.ZeroCoin)
+			coinSet[j] = NewCoinSet(coins, z)
 		}
 		clone.Weighings[i] = NewWeighing(coinSet[0], coinSet[1])
 	}
 
 	for i, _ := range clone.Coins {
-		clone.Coins[i] = i + clone.ZeroCoin
+		clone.Coins[i] = i + z
 	}
 
 	clone.flags |= (RELABLED | NORMALISED)
