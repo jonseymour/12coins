@@ -14,6 +14,10 @@ func pi(i int) *int {
 	return &i
 }
 
+func pu(u uint) *uint {
+	return &u
+}
+
 // convert a boolean value into a pointer to that value.
 func pbool(b bool) *bool {
 	return &b
