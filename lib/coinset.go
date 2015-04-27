@@ -2,6 +2,7 @@ package lib
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 const (
@@ -18,6 +19,7 @@ type CoinSet interface {
 	Union(other CoinSet) CoinSet
 	Intersection(other CoinSet) CoinSet
 	Complement(other CoinSet) CoinSet
+	ExactlyOne(zeroCoin int) int
 }
 
 type hasCoinSet interface {
@@ -133,6 +135,13 @@ func (s *coinSet) Complement(other CoinSet) CoinSet {
 		o = NewCoinSet(other.AsCoins(ZERO_BASED), ZERO_BASED).(hasCoinSet)
 	}
 	return NewCoinSetFromMask(s.mask &^ o.asCoinSet().mask)
+}
+
+func (s *coinSet) ExactlyOne(zeroCoin int) int {
+	if s.Size() != 1 {
+		panic(fmt.Errorf("illegal state: expected a set of exactly one: was %d", s.Size()))
+	}
+	return s.AsCoins(zeroCoin)[0]
 }
 
 // Return a new unordered set from the specified coins, assuming
