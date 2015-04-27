@@ -20,6 +20,7 @@ func main() {
 	invalid := false
 	flip := false
 	decode := false
+	encode := false
 
 	flag.BoolVar(&reverse, "reverse", false, "Derive the coins and weights array from the weighings.")
 	flag.BoolVar(&flip, "flip", false, "Flip the weighings so that LLL is never a valid weighing.")
@@ -32,6 +33,7 @@ func main() {
 	flag.BoolVar(&canonical, "canonical", false, "Permute the weighings into the canonical form.")
 	flag.BoolVar(&reset, "reset", false, "Reset the analysis. Implied by reverse, relabel, groupings, structure or canonical.")
 	flag.BoolVar(&decode, "decode", false, "Decode a number between 0 and 12!*176 and output the corresponding solution.")
+	flag.BoolVar(&encode, "encode", false, "Encode a solution as a number between 0 and 12!*176.")
 	flag.Parse()
 
 	if invalid && valid {
@@ -43,7 +45,9 @@ func main() {
 		reverse = false
 	}
 
-	reset = reset || flip || reverse || relabel || groupings || structure || canonical || valid || invalid
+	reset = reset || flip || reverse || relabel || groupings || structure || canonical || valid || invalid || encode
+
+	structure = structure || encode
 
 	decoder := json.NewDecoder(os.Stdin)
 	encoder := json.NewEncoder(os.Stdout)
@@ -131,7 +135,15 @@ func main() {
 			}
 		}
 
-		solution.Encode()
-		encoder.Encode(solution)
+		if encode {
+			if n, err := solution.N(); err != nil {
+				fmt.Fprintf(os.Stderr, "error: N: %v: %v\n", err, solution)
+			} else {
+				encoder.Encode(&n)
+			}
+		} else {
+			solution.Encode()
+			encoder.Encode(solution)
+		}
 	}
 }

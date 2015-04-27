@@ -216,3 +216,13 @@ func (s *Solution) IsValid() bool {
 		return true
 	}
 }
+
+func (s *Solution) N() (uint, error) {
+	if s, err := s.AnalyseStructure(); err != nil {
+		return 0, err
+	} else if s.encoding.N != nil {
+		return *s.encoding.N, nil
+	} else {
+		return 0, fmt.Errorf("getN: failed to derive N")
+	}
+}
