@@ -73,20 +73,20 @@ func (sp *structureP) Populate(s *Solution, i int, r [3]int, p *[12]int) {
 
 	switch i {
 	case 0:
-		(*p)[A] = left.Intersection(s.Unique).AsCoins(0)[0]
-		(*p)[D] = ll.AsCoins(0)[0]
-		(*p)[L] = right.Intersection(s.Triples).AsCoins(0)[0]
-		(*p)[E] = rr.AsCoins(0)[0]
+		(*p)[A] = left.Intersection(s.Unique).ExactlyOne(0)
+		(*p)[D] = ll.ExactlyOne(0)
+		(*p)[L] = right.Intersection(s.Triples).ExactlyOne(0)
+		(*p)[E] = rr.ExactlyOne(0)
 	case 1:
-		(*p)[B] = left.Intersection(s.Unique).AsCoins(0)[0]
-		(*p)[F] = ll.AsCoins(0)[0]
-		(*p)[J] = right.Intersection(s.Triples).AsCoins(0)[0]
-		(*p)[G] = rr.AsCoins(0)[0]
+		(*p)[B] = left.Intersection(s.Unique).ExactlyOne(0)
+		(*p)[F] = ll.ExactlyOne(0)
+		(*p)[J] = right.Intersection(s.Triples).ExactlyOne(0)
+		(*p)[G] = rr.ExactlyOne(0)
 	case 2:
-		(*p)[C] = left.Intersection(s.Unique).AsCoins(0)[0]
-		(*p)[H] = ll.AsCoins(0)[0]
-		(*p)[K] = right.Intersection(s.Triples).AsCoins(0)[0]
-		(*p)[I] = rr.AsCoins(0)[0]
+		(*p)[C] = left.Intersection(s.Unique).ExactlyOne(0)
+		(*p)[H] = ll.ExactlyOne(0)
+		(*p)[K] = right.Intersection(s.Triples).ExactlyOne(0)
+		(*p)[I] = rr.ExactlyOne(0)
 	default:
 		panic(fmt.Errorf("illegal argument: i: %d", i))
 	}
@@ -110,13 +110,13 @@ func (sp *structureQ) Populate(s *Solution, i int, r [3]int, p *[12]int) {
 		}
 	}
 
-	(*p)[D] = ll.AsCoins(0)[0]
-	(*p)[E] = rr.AsCoins(0)[0]
-	(*p)[A] = right.Intersection(s.Unique).AsCoins(0)[0]
+	(*p)[D] = ll.ExactlyOne(0)
+	(*p)[E] = rr.ExactlyOne(0)
+	(*p)[A] = right.Intersection(s.Unique).ExactlyOne(0)
 
 	row1right := s.Weighings[r[1]].Pan(s.Structure[r[1]].Pan(1))
 	row2right := s.Weighings[r[2]].Pan(s.Structure[r[2]].Pan(1))
-	(*p)[L] = left.Intersection(s.Triples).Complement(row1right).Complement(row2right).AsCoins(0)[0]
+	(*p)[L] = left.Intersection(s.Triples).Complement(row1right).Complement(row2right).ExactlyOne(0)
 }
 
 type structureR struct {
@@ -128,13 +128,13 @@ func (sp *structureR) Populate(s *Solution, i int, r [3]int, p *[12]int) {
 	right := s.Weighings[r[1]].Pan(sp.permutation[1])
 	allPairs := s.Pairs[0].Union(s.Pairs[1]).Union(s.Pairs[2])
 
-	(*p)[J] = right.Intersection(s.Triples).AsCoins(0)[0]
-	(*p)[B] = right.Intersection(s.Unique).AsCoins(0)[0]
+	(*p)[J] = right.Intersection(s.Triples).ExactlyOne(0)
+	(*p)[B] = right.Intersection(s.Unique).ExactlyOne(0)
 
-	(*p)[F] = left.Intersection(s.Weighings[r[0]].Both()).Intersection(allPairs).AsCoins(0)[0]
-	(*p)[G] = right.Intersection(s.Weighings[r[0]].Both()).Intersection(allPairs).AsCoins(0)[0]
-	(*p)[H] = left.Intersection(s.Weighings[r[2]].Both()).Intersection(allPairs).AsCoins(0)[0]
-	(*p)[I] = right.Intersection(s.Weighings[r[2]].Both()).Intersection(allPairs).AsCoins(0)[0]
+	(*p)[F] = left.Intersection(s.Weighings[r[0]].Both()).Intersection(allPairs).ExactlyOne(0)
+	(*p)[G] = right.Intersection(s.Weighings[r[0]].Both()).Intersection(allPairs).ExactlyOne(0)
+	(*p)[H] = left.Intersection(s.Weighings[r[2]].Both()).Intersection(allPairs).ExactlyOne(0)
+	(*p)[I] = right.Intersection(s.Weighings[r[2]].Both()).Intersection(allPairs).ExactlyOne(0)
 }
 
 type structureS struct {
@@ -144,8 +144,8 @@ type structureS struct {
 func (sp *structureS) Populate(s *Solution, i int, r [3]int, p *[12]int) {
 	right := s.Weighings[r[i]].Pan(sp.permutation[1])
 
-	(*p)[C] = right.Intersection(s.Unique).AsCoins(0)[0]
-	(*p)[K] = right.Intersection(s.Triples).AsCoins(0)[0]
+	(*p)[C] = right.Intersection(s.Unique).ExactlyOne(0)
+	(*p)[K] = right.Intersection(s.Triples).ExactlyOne(0)
 }
 
 type structureT struct {
@@ -158,8 +158,8 @@ func (sp *structureT) Populate(s *Solution, i int, r [3]int, p *[12]int) {
 	row0right := s.Weighings[r[0]].Pan(s.Structure[r[0]].Pan(1))
 	row1right := s.Weighings[r[1]].Pan(s.Structure[r[1]].Pan(1))
 
-	(*p)[C] = left.Intersection(s.Unique).AsCoins(0)[0]
-	(*p)[K] = left.Intersection(s.Triples).Complement(row0right).Complement(row1right).AsCoins(0)[0]
+	(*p)[C] = left.Intersection(s.Unique).ExactlyOne(0)
+	(*p)[K] = left.Intersection(s.Triples).Complement(row0right).Complement(row1right).ExactlyOne(0)
 }
 
 func (t StructureType) String() string {
