@@ -453,8 +453,8 @@ func (s *Solution) deriveCanonicalOrder() ([3]int, [3]StructureType, error) {
 			p[2] = 2
 		case 1: // PQP
 			p[0] = 1
-			p[1] = 2
-			p[2] = 0
+			p[1] = 0
+			p[2] = 2
 		case 2: // PPQ
 			p[0] = 2
 			p[1] = 0
