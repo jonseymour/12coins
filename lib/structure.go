@@ -131,10 +131,12 @@ func (sp *structureR) Populate(s *Solution, i int, r [3]int, p *[12]int) {
 	(*p)[J] = right.Intersection(s.Triples).ExactlyOne(0)
 	(*p)[B] = right.Intersection(s.Unique).ExactlyOne(0)
 
-	(*p)[F] = left.Intersection(s.Weighings[r[0]].Both()).Intersection(allPairs).ExactlyOne(0)
-	(*p)[G] = right.Intersection(s.Weighings[r[0]].Both()).Intersection(allPairs).ExactlyOne(0)
-	(*p)[H] = left.Intersection(s.Weighings[r[2]].Both()).Intersection(allPairs).ExactlyOne(0)
-	(*p)[I] = right.Intersection(s.Weighings[r[2]].Both()).Intersection(allPairs).ExactlyOne(0)
+	row0 := s.Weighings[r[0]].Both()
+	row2 := s.Weighings[r[2]].Both()
+	(*p)[F] = left.Intersection(row0).Intersection(allPairs).ExactlyOne(0)
+	(*p)[G] = right.Intersection(row0).Intersection(allPairs).ExactlyOne(0)
+	(*p)[H] = left.Intersection(row2).Intersection(allPairs).ExactlyOne(0)
+	(*p)[I] = right.Intersection(row2).Intersection(allPairs).ExactlyOne(0)
 }
 
 type structureS struct {
