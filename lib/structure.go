@@ -100,13 +100,13 @@ type Flips [3][2]int
 
 // Encode the Flips of a weighing into an integer.
 func (f Flips) Encode() uint {
-	F := uint(0)
+	uf := uint(0)
 	for i, p := range f {
 		if p[0] == 1 {
-			F |= (1 << uint(i))
+			uf |= (1 << uint(i))
 		}
 	}
-	return F
+	return uf
 }
 
 func DecodeFlips(f uint) Flips {
@@ -625,7 +625,7 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 
 		// sS now encodes sT as a single number between 0 and 21
 
-		F := flips.Encode()
+		f := flips.Encode()
 		S := EncodeStructure(o, st)
 
 		r.order = o
@@ -637,7 +637,7 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 			return s, err
 		}
 
-		N := (*canonical.encoding.N/176)*176 + 22*F + S
+		N := (*canonical.encoding.N/176)*176 + 22*f + S
 
 		r.Triples = canonical.Triples
 		r.Unique = canonical.Unique
@@ -645,7 +645,7 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 
 		r.encoding.P = canonical.P
 		r.encoding.S = &S
-		r.encoding.F = &F
+		r.encoding.F = &f
 		r.encoding.N = &N
 
 		// r.encoding.P now contains the permutation to be applied to 1,12
@@ -689,7 +689,7 @@ func (s *Solution) Decode() (*Solution, error) {
 
 	o, st := DecodeStructure(sN)
 	s.order = o
-	s.flips = DecodeFlips(F)
+	s.flips = DecodeFlips(f)
 
 	s.Unique = NewOrderedCoinSet(p[0:3], 0)
 	s.Pairs[0] = NewOrderedCoinSet(p[3:5], 0)
