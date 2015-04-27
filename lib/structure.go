@@ -34,13 +34,7 @@ const (
 type Structure interface {
 	Type() StructureType
 	String() string
-
-	// Extracts the identity of the coin.
-	// s is the current Solution
-	// i is the row index in the canonical solution
-	// p is the permutation from {0,11} to the current Solution
 	Encode(s *Solution, i int, p []int)
-	Pan(i int) int
 }
 
 func (f Flips) Encode() uint {
@@ -55,12 +49,7 @@ func (f Flips) Encode() uint {
 
 // Encodes the structure of a weighing.
 type structure struct {
-	_type       StructureType
-	permutation [2]int
-}
-
-func (s *structure) Pan(i int) int {
-	return s.permutation[i]
+	_type StructureType
 }
 
 type structureP struct {
@@ -192,13 +181,9 @@ func (t StructureType) String() string {
 }
 
 // Returns a new structure of the specified type.
-func NewStructure(t StructureType, p [2]int) Structure {
-	if p[0] == p[1] {
-		panic(fmt.Errorf("illegal argument: p[0] == p[1]: %d=%d", p[0], p[1]))
-	}
+func NewStructure(t StructureType) Structure {
 	s := structure{
-		_type:       t,
-		permutation: p,
+		_type: t,
 	}
 	switch t {
 	case P:
@@ -227,7 +212,7 @@ func NewStructure(t StructureType, p [2]int) Structure {
 }
 
 func (s *structure) String() string {
-	return fmt.Sprintf("%v[%d,%d]", s._type, s.permutation[0], s.permutation[1])
+	return fmt.Sprintf("%v", s._type)
 }
 
 func (s *structure) Type() StructureType {
@@ -236,52 +221,43 @@ func (s *structure) Type() StructureType {
 
 func ParseStructure(r string) (Structure, error) {
 	var (
-		s  *string
-		p0 *int
-		p1 *int
+		s *string
 	)
-	if n, err := fmt.Sscanf(r, "%s[%d,%d]", &s, &p0, &p1); n == 3 && err == nil {
-		var t StructureType
-		if s == nil || p0 == nil || p1 == nil {
-			return nil, fmt.Errorf("scanning failed: %s", r)
-		}
-		switch *s {
-		case "p":
-			t = P
-		case "q":
-			t = Q
-		case "r":
-			t = R
-		case "s":
-			t = S
-		case "t":
-			t = T
-		default:
-			return nil, fmt.Errorf("failed to parse structure type: %s", s)
-		}
-		return NewStructure(t, [2]int{*p0, *p1}), nil
-	} else {
-		return nil, err
+	var t StructureType
+	switch r {
+	case "p":
+		t = P
+	case "q":
+		t = Q
+	case "r":
+		t = R
+	case "s":
+		t = S
+	case "t":
+		t = T
+	default:
+		return nil, fmt.Errorf("failed to parse structure type: %s", s)
 	}
+	return NewStructure(t), nil
 }
 
-func (s *Solution) deriveOneStructure(nT uint8, l CoinSet, pi [2]int) (Structure, error) {
+func (s *Solution) deriveOneStructure(nT uint8, l CoinSet) (Structure, error) {
 
 	u := l.Intersection(s.Unique)
 	switch nT {
 	case 3:
 		switch u.Size() {
 		case 1:
-			return NewStructure(T, pi), nil
+			return NewStructure(T), nil
 		case 0:
-			return NewStructure(Q, pi), nil
+			return NewStructure(Q), nil
 		default:
 			return nil, fmt.Errorf("illegal state: t==3, u > 1")
 		}
 	case 2:
 		switch u.Size() {
 		case 1:
-			return NewStructure(P, pi), nil
+			return NewStructure(P), nil
 		case 0:
 			for _, pair := range s.Pairs {
 				match := pair.Intersection(l)
@@ -289,9 +265,9 @@ func (s *Solution) deriveOneStructure(nT uint8, l CoinSet, pi [2]int) (Structure
 				case 0:
 					continue
 				case 1:
-					return NewStructure(R, pi), nil
+					return NewStructure(R), nil
 				case 2:
-					return NewStructure(S, pi), nil
+					return NewStructure(S), nil
 				default:
 					return nil, fmt.Errorf("illegal state: t==2 && u==0: wrong size")
 				}
@@ -322,7 +298,7 @@ func (s *Solution) deriveStructure() (Flips, error) {
 		} else {
 			flips[i] = [2]int{0, 1}
 		}
-		if s.Structure[i], err = s.deriveOneStructure(t.Size(), l, flips[i]); err != nil {
+		if s.Structure[i], err = s.deriveOneStructure(t.Size(), l); err != nil {
 			return flips, err
 		}
 	}
@@ -404,14 +380,13 @@ func (s *Solution) deriveCanonical() (*Solution, error) {
 	r.Unique = s.Unique
 	r.Pairs = s.Pairs
 	st := [3]StructureType{}
-	noflip := [2]int{0, 1}
 	for i, _ := range r.Weighings {
 		si := s.order[i]
 		sw := s.Weighings[si]
 		sf := s.flips[si]
 		st[i] = s.Structure[si].Type()
 		r.Weighings[i] = NewWeighing(sw.Pan(sf[0]), sw.Pan(sf[1]))
-		r.Structure[i] = NewStructure(st[i], noflip)
+		r.Structure[i] = NewStructure(st[i])
 	}
 	r.order = [3]int{0, 1, 2}
 	r.flips = [3][2]int{}
