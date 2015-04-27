@@ -2,7 +2,7 @@ package lib
 
 import (
 	"fmt"
-	"os"
+	//	"os"
 )
 
 type StructureType uint8
@@ -15,15 +15,151 @@ const (
 	T
 )
 
+const (
+	A uint = iota
+	B
+	C
+	D
+	E
+	F
+	G
+	H
+	I
+	J
+	K
+	L
+)
+
 type Structure interface {
 	Type() StructureType
 	String() string
+
+	// Extracts the identity of the coin.
+	// s is the current Solution
+	// i is the row index in the canonical solution
+	// r is the mapping between the canonical solution and s
+	// p is the permutation from {0,11} to the current Solution
+	Populate(s *Solution, i int, r [3]int, p *[12]int)
+	Pan(i int) int
 }
 
 // Encodes the structure of a weighing.
 type structure struct {
 	_type       StructureType
 	permutation [2]int
+}
+
+func (s *structure) Pan(i int) int {
+	return s.permutation[i]
+}
+
+type structureP struct {
+	structure
+}
+
+func (sp *structureP) Populate(s *Solution, i int, r [3]int, p *[12]int) {
+	left := s.Weighings[r[i]].Pan(sp.permutation[0])
+	right := s.Weighings[r[i]].Pan(sp.permutation[1])
+
+	var ll CoinSet
+	var rr CoinSet
+	for _, pp := range s.Pairs {
+		ll = pp.Intersection(left)
+		if ll.Size() == 1 {
+			rr = pp.Complement(ll)
+			break
+		}
+	}
+
+	switch i {
+	case 0:
+		(*p)[A] = left.Intersection(s.Unique).AsCoins(0)[0]
+		(*p)[D] = ll.AsCoins(0)[0]
+		(*p)[L] = right.Intersection(s.Triples).AsCoins(0)[0]
+		(*p)[E] = rr.AsCoins(0)[0]
+	case 1:
+		(*p)[B] = left.Intersection(s.Unique).AsCoins(0)[0]
+		(*p)[F] = ll.AsCoins(0)[0]
+		(*p)[J] = right.Intersection(s.Triples).AsCoins(0)[0]
+		(*p)[G] = rr.AsCoins(0)[0]
+	case 2:
+		(*p)[C] = left.Intersection(s.Unique).AsCoins(0)[0]
+		(*p)[H] = ll.AsCoins(0)[0]
+		(*p)[K] = right.Intersection(s.Triples).AsCoins(0)[0]
+		(*p)[I] = rr.AsCoins(0)[0]
+	default:
+		panic(fmt.Errorf("illegal argument: i: %d", i))
+	}
+}
+
+type structureQ struct {
+	structure
+}
+
+func (sp *structureQ) Populate(s *Solution, i int, r [3]int, p *[12]int) {
+	left := s.Weighings[r[i]].Pan(sp.permutation[0])
+	right := s.Weighings[r[i]].Pan(sp.permutation[1])
+
+	var ll CoinSet
+	var rr CoinSet
+	for _, pp := range s.Pairs {
+		ll = pp.Intersection(left)
+		if ll.Size() == 1 {
+			rr = pp.Complement(ll)
+			break
+		}
+	}
+
+	(*p)[D] = ll.AsCoins(0)[0]
+	(*p)[E] = rr.AsCoins(0)[0]
+	(*p)[A] = right.Intersection(s.Unique).AsCoins(0)[0]
+
+	row1right := s.Weighings[r[1]].Pan(s.Structure[r[1]].Pan(1))
+	row2right := s.Weighings[r[2]].Pan(s.Structure[r[2]].Pan(1))
+	(*p)[L] = left.Intersection(s.Triples).Complement(row1right).Complement(row2right).AsCoins(0)[0]
+}
+
+type structureR struct {
+	structure
+}
+
+func (sp *structureR) Populate(s *Solution, i int, r [3]int, p *[12]int) {
+	left := s.Weighings[r[1]].Pan(sp.permutation[0])
+	right := s.Weighings[r[1]].Pan(sp.permutation[1])
+	allPairs := s.Pairs[0].Union(s.Pairs[1]).Union(s.Pairs[2])
+
+	(*p)[J] = right.Intersection(s.Triples).AsCoins(0)[0]
+	(*p)[B] = right.Intersection(s.Unique).AsCoins(0)[0]
+
+	(*p)[F] = left.Intersection(s.Weighings[r[0]].Both()).Intersection(allPairs).AsCoins(0)[0]
+	(*p)[G] = right.Intersection(s.Weighings[r[0]].Both()).Intersection(allPairs).AsCoins(0)[0]
+	(*p)[H] = left.Intersection(s.Weighings[r[2]].Both()).Intersection(allPairs).AsCoins(0)[0]
+	(*p)[I] = right.Intersection(s.Weighings[r[2]].Both()).Intersection(allPairs).AsCoins(0)[0]
+}
+
+type structureS struct {
+	structure
+}
+
+func (sp *structureS) Populate(s *Solution, i int, r [3]int, p *[12]int) {
+	right := s.Weighings[r[i]].Pan(sp.permutation[1])
+
+	(*p)[C] = right.Intersection(s.Unique).AsCoins(0)[0]
+	(*p)[K] = right.Intersection(s.Triples).AsCoins(0)[0]
+}
+
+type structureT struct {
+	structure
+}
+
+func (sp *structureT) Populate(s *Solution, i int, r [3]int, p *[12]int) {
+	left := s.Weighings[r[i]].Pan(sp.permutation[0])
+
+	row0right := s.Weighings[r[0]].Pan(s.Structure[r[0]].Pan(1))
+	row1right := s.Weighings[r[1]].Pan(s.Structure[r[1]].Pan(1))
+
+	(*p)[C] = left.Intersection(s.Unique).AsCoins(0)[0]
+	(*p)[K] = left.Intersection(s.Triples).Complement(row0right).Complement(row1right).AsCoins(0)[0]
 }
 
 func (t StructureType) String() string {
@@ -48,9 +184,33 @@ func NewStructure(t StructureType, p [2]int) Structure {
 	if p[0] == p[1] {
 		panic(fmt.Errorf("illegal argument: p[0] == p[1]: %d=%d", p[0], p[1]))
 	}
-	return &structure{
+	s := structure{
 		_type:       t,
 		permutation: p,
+	}
+	switch t {
+	case P:
+		return &structureP{
+			structure: s,
+		}
+	case Q:
+		return &structureQ{
+			structure: s,
+		}
+	case R:
+		return &structureR{
+			structure: s,
+		}
+	case S:
+		return &structureS{
+			structure: s,
+		}
+	case T:
+		return &structureT{
+			structure: s,
+		}
+	default:
+		panic(fmt.Errorf("illegal argument: t: %v", t))
 	}
 }
 
@@ -111,6 +271,8 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 	p := [3]int{0, 1, 2}
 	st := [3]StructureType{P, P, P}
 	F := 0
+
+	lock := false
 
 	for i, w := range r.Weighings {
 		pi := [2]int{0, 1}
@@ -176,7 +338,8 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 			st[2] = S
 			p[2] = i
 		case P:
-			if st[0] == P {
+			if st[0] == P && !lock {
+				lock = true
 				p[0] = i
 			}
 		case T:
@@ -213,15 +376,13 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 
 	switch st[0] {
 	case P:
-		if st[1] == P {
+		switch st[2] {
+		case T:
+			sS = Number(p[0:]) + 12
+		case S:
+			sS = Number(p[0:]) + 6
+		case P:
 			sS = 21
-		} else {
-			switch st[2] {
-			case T:
-				sS = Number(p[0:]) + 12
-			case S:
-				sS = Number(p[0:]) + 6
-			}
 		}
 	case Q:
 		if st[1] == P {
@@ -233,10 +394,17 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 		panic(fmt.Errorf("illegal state: st[1] != P"))
 	}
 
-	fmt.Fprintf(os.Stderr, "%d %v\n", sS, p)
-
+	Pa := [12]int{}
+	r.encoding.P = &Pa
 	r.encoding.S = pi(int(sS))
 	r.encoding.F = pi(F)
+
+	for i, e := range p {
+		r.Structure[e].Populate(r, i, p, r.encoding.P)
+	}
+
+	n := Number(Pa[0:])*176 + 8*sS + uint(F)
+	r.encoding.N = &n
 
 	r.flags |= ANALYSED
 	return r, nil

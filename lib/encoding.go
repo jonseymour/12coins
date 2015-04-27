@@ -15,6 +15,8 @@ type encoding struct {
 	Flip      *int         `json:"flip,omitempty"`
 	S         *int         `json:"S,omitempty"`
 	F         *int         `json:"F,omitempty"`
+	P         *[12]int     `json:"P,omitempty"`
+	N         *uint        `json:"N,omitempty"`
 }
 
 // Convert the solution to its JSON representation.
