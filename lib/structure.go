@@ -308,6 +308,28 @@ func (s *Solution) deriveOneStructure(nT uint8, l CoinSet, pi [2]int) (Structure
 
 }
 
+// Derive the structure of the 3 weighings. Return a number F which encodes how the weighings
+// must be flipped in order to obtain canonical form.
+func (s *Solution) deriveStructure() (Flips, error) {
+	var flips Flips
+	var err error
+	for i, w := range s.Weighings {
+		l := w.Left()
+		t := l.Intersection(s.Triples)
+		if t.Size() < 2 {
+			flips[i] = [2]int{1, 0}
+			l = w.Right()
+			t = l.Intersection(s.Triples)
+		} else {
+			flips[i] = [2]int{0, 1}
+		}
+		if s.Structure[i], err = s.deriveOneStructure(t.Size(), l, flips[i]); err != nil {
+			return flips, err
+		}
+	}
+	return flips, nil
+}
+
 // Return a clone of the receiver in which the structure has been populated.
 func (s *Solution) AnalyseStructure() (*Solution, error) {
 	var r *Solution
@@ -323,22 +345,10 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 		return r, err
 	}
 
-	F := 0
+	var flips Flips
 
-	for i, w := range r.Weighings {
-		pi := [2]int{0, 1}
-		l := w.Left()
-		t := l.Intersection(r.Triples)
-		if t.Size() < 2 {
-			pi = [2]int{1, 0}
-			l = w.Right()
-			t = l.Intersection(r.Triples)
-			F |= (1 << uint(i))
-		}
-		if r.Structure[i], err = r.deriveOneStructure(t.Size(), l, pi); err != nil {
-			s.markInvalid()
-			return s, err
-		}
+	if flips, err = r.deriveStructure(); err != nil {
+		return r, err
 	}
 
 	p := [3]int{0, 1, 2} // a permutation of rows from the canonical form to the current form
@@ -430,7 +440,7 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 	Pa := [12]int{}
 	r.encoding.P = &Pa
 	r.encoding.S = pi(int(sS))
-	r.encoding.F = pi(F)
+	r.encoding.F = pu(flips.Encode())
 
 	for i, e := range p {
 		r.Structure[e].Encode(r, i, p, r.encoding.P)

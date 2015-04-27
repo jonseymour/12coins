@@ -14,7 +14,7 @@ type encoding struct {
 	ZeroCoin  *int         `json:"zero-coin,omitempty"`
 	Flip      *int         `json:"flip,omitempty"`
 	S         *int         `json:"S,omitempty"`
-	F         *int         `json:"F,omitempty"`
+	F         *uint        `json:"F,omitempty"`
 	P         *[12]int     `json:"P,omitempty"`
 	N         *uint        `json:"N,omitempty"`
 }
