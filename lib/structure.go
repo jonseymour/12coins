@@ -8,6 +8,7 @@ import (
 type StructureType uint8
 
 type Flips [3][2]int
+
 const (
 	P StructureType = iota
 	Q
@@ -40,7 +41,7 @@ type Structure interface {
 	// i is the row index in the canonical solution
 	// r is the mapping between the canonical solution and s
 	// p is the permutation from {0,11} to the current Solution
-	Encode(s *Solution, i int, r [3]int, p *[12]int)
+	Encode(s *Solution, i int, r [3]int, p []int)
 	Pan(i int) int
 }
 
@@ -84,7 +85,7 @@ func splitPair(pairs [3]CoinSet, left CoinSet) (CoinSet, CoinSet) {
 }
 
 // (3T,1L,1U) (1T,2J,1R)
-func (sp *structureP) Encode(s *Solution, i int, r [3]int, p *[12]int) {
+func (sp *structureP) Encode(s *Solution, i int, r [3]int, p []int) {
 	left := s.Weighings[r[i]].Pan(sp.permutation[0])
 	right := s.Weighings[r[i]].Pan(sp.permutation[1])
 
@@ -92,20 +93,20 @@ func (sp *structureP) Encode(s *Solution, i int, r [3]int, p *[12]int) {
 
 	switch i {
 	case 0:
-		(*p)[A] = left.Intersection(s.Unique).ExactlyOne(0)
-		(*p)[D] = ll.ExactlyOne(0)
-		(*p)[L] = right.Intersection(s.Triples).ExactlyOne(0)
-		(*p)[E] = rr.ExactlyOne(0)
+		p[A] = left.Intersection(s.Unique).ExactlyOne(0)
+		p[D] = ll.ExactlyOne(0)
+		p[L] = right.Intersection(s.Triples).ExactlyOne(0)
+		p[E] = rr.ExactlyOne(0)
 	case 1:
-		(*p)[B] = left.Intersection(s.Unique).ExactlyOne(0)
-		(*p)[F] = ll.ExactlyOne(0)
-		(*p)[J] = right.Intersection(s.Triples).ExactlyOne(0)
-		(*p)[G] = rr.ExactlyOne(0)
+		p[B] = left.Intersection(s.Unique).ExactlyOne(0)
+		p[F] = ll.ExactlyOne(0)
+		p[J] = right.Intersection(s.Triples).ExactlyOne(0)
+		p[G] = rr.ExactlyOne(0)
 	case 2:
-		(*p)[C] = left.Intersection(s.Unique).ExactlyOne(0)
-		(*p)[H] = ll.ExactlyOne(0)
-		(*p)[K] = right.Intersection(s.Triples).ExactlyOne(0)
-		(*p)[I] = rr.ExactlyOne(0)
+		p[C] = left.Intersection(s.Unique).ExactlyOne(0)
+		p[H] = ll.ExactlyOne(0)
+		p[K] = right.Intersection(s.Triples).ExactlyOne(0)
+		p[I] = rr.ExactlyOne(0)
 	default:
 		panic(fmt.Errorf("illegal argument: i: %d", i))
 	}
@@ -115,64 +116,64 @@ type structureQ struct {
 	structure
 }
 
-func (sp *structureQ) Encode(s *Solution, i int, r [3]int, p *[12]int) {
+func (sp *structureQ) Encode(s *Solution, i int, r [3]int, p []int) {
 	left := s.Weighings[r[i]].Pan(sp.permutation[0])
 	right := s.Weighings[r[i]].Pan(sp.permutation[1])
 
 	ll, rr := splitPair(s.Pairs, left)
 
-	(*p)[D] = ll.ExactlyOne(0)
-	(*p)[E] = rr.ExactlyOne(0)
-	(*p)[A] = right.Intersection(s.Unique).ExactlyOne(0)
+	p[D] = ll.ExactlyOne(0)
+	p[E] = rr.ExactlyOne(0)
+	p[A] = right.Intersection(s.Unique).ExactlyOne(0)
 
 	row1right := s.Weighings[r[1]].Pan(s.Structure[r[1]].Pan(1))
 	row2right := s.Weighings[r[2]].Pan(s.Structure[r[2]].Pan(1))
-	(*p)[L] = left.Intersection(s.Triples).Complement(row1right).Complement(row2right).ExactlyOne(0)
+	p[L] = left.Intersection(s.Triples).Complement(row1right).Complement(row2right).ExactlyOne(0)
 }
 
 type structureR struct {
 	structure
 }
 
-func (sp *structureR) Encode(s *Solution, i int, r [3]int, p *[12]int) {
+func (sp *structureR) Encode(s *Solution, i int, r [3]int, p []int) {
 	left := s.Weighings[r[1]].Pan(sp.permutation[0])
 	right := s.Weighings[r[1]].Pan(sp.permutation[1])
 	allPairs := s.Pairs[0].Union(s.Pairs[1]).Union(s.Pairs[2])
 
-	(*p)[J] = right.Intersection(s.Triples).ExactlyOne(0)
-	(*p)[B] = right.Intersection(s.Unique).ExactlyOne(0)
+	p[J] = right.Intersection(s.Triples).ExactlyOne(0)
+	p[B] = right.Intersection(s.Unique).ExactlyOne(0)
 
 	row0 := s.Weighings[r[0]].Both()
 	row2 := s.Weighings[r[2]].Both()
-	(*p)[F] = left.Intersection(row0).Intersection(allPairs).ExactlyOne(0)
-	(*p)[G] = right.Intersection(row0).Intersection(allPairs).ExactlyOne(0)
-	(*p)[H] = left.Intersection(row2).Intersection(allPairs).ExactlyOne(0)
-	(*p)[I] = right.Intersection(row2).Intersection(allPairs).ExactlyOne(0)
+	p[F] = left.Intersection(row0).Intersection(allPairs).ExactlyOne(0)
+	p[G] = right.Intersection(row0).Intersection(allPairs).ExactlyOne(0)
+	p[H] = left.Intersection(row2).Intersection(allPairs).ExactlyOne(0)
+	p[I] = right.Intersection(row2).Intersection(allPairs).ExactlyOne(0)
 }
 
 type structureS struct {
 	structure
 }
 
-func (sp *structureS) Encode(s *Solution, i int, r [3]int, p *[12]int) {
+func (sp *structureS) Encode(s *Solution, i int, r [3]int, p []int) {
 	right := s.Weighings[r[i]].Pan(sp.permutation[1])
 
-	(*p)[C] = right.Intersection(s.Unique).ExactlyOne(0)
-	(*p)[K] = right.Intersection(s.Triples).ExactlyOne(0)
+	p[C] = right.Intersection(s.Unique).ExactlyOne(0)
+	p[K] = right.Intersection(s.Triples).ExactlyOne(0)
 }
 
 type structureT struct {
 	structure
 }
 
-func (sp *structureT) Encode(s *Solution, i int, r [3]int, p *[12]int) {
+func (sp *structureT) Encode(s *Solution, i int, r [3]int, p []int) {
 	left := s.Weighings[r[i]].Pan(sp.permutation[0])
 
 	row0right := s.Weighings[r[0]].Pan(s.Structure[r[0]].Pan(1))
 	row1right := s.Weighings[r[1]].Pan(s.Structure[r[1]].Pan(1))
 
-	(*p)[C] = left.Intersection(s.Unique).ExactlyOne(0)
-	(*p)[K] = left.Intersection(s.Triples).Complement(row0right).Complement(row1right).ExactlyOne(0)
+	p[C] = left.Intersection(s.Unique).ExactlyOne(0)
+	p[K] = left.Intersection(s.Triples).Complement(row0right).Complement(row1right).ExactlyOne(0)
 }
 
 func (t StructureType) String() string {
@@ -330,56 +331,34 @@ func (s *Solution) deriveStructure() (Flips, error) {
 	return flips, nil
 }
 
-// Return a clone of the receiver in which the structure has been populated.
-func (s *Solution) AnalyseStructure() (*Solution, error) {
-	var r *Solution
-	var err error
-
-	if s.flags&GROUPED == 0 {
-		r, err = s.Groupings()
-	} else {
-		r = s.Clone()
-	}
-
-	if err != nil {
-		return r, err
-	}
-
-	var flips Flips
-
-	if flips, err = r.deriveStructure(); err != nil {
-		return r, err
-	}
-
+// Derive the permutation that maps the canonical weighing order to the receiver's order.
+func (s *Solution) deriveCanonicalOrder() ([3]int, [3]StructureType, error) {
+	np := 0
 	p := [3]int{0, 1, 2} // a permutation of rows from the canonical form to the current form
 	st := [3]StructureType{P, P, P}
-	lock := false
-	for i, rs := range r.Structure {
+	for i, rs := range s.Structure {
 
 		switch rs.Type() {
 		case Q:
-			p[0] = i
 			st[0] = Q
+			p[0] = i
 		case R:
 			st[1] = R
 			p[1] = i
-		case S:
-			st[2] = S
+		case S, T:
+			st[2] = rs.Type()
 			p[2] = i
 		case P:
-			if st[0] == P && !lock {
+			if st[0] == P && np == 0 {
 				// if there is a single P, then we need to move it. but otherwise
 				// we leave it in place. required for PRS and PRT cases where P
 				// is not in position 0. specifically must not move the second or
 				// third P of a PPP or QPP case.
-				lock = true
 				p[0] = i
 			}
-		case T:
-			st[2] = T
-			p[2] = i
+			np += 1
 		default:
-			panic(fmt.Errorf("unknown structure: %v", r.Structure[i]))
+			return p, st, fmt.Errorf("unknown structure: %v", rs)
 		}
 
 	}
@@ -405,54 +384,85 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 			p[1] = 0
 			p[2] = 1
 		default:
-			panic(fmt.Errorf("illegal state: p[0] < 0 || p[0] > 2: %d", p[0]))
+			return p, st, fmt.Errorf("illegal state: p[0] < 0 || p[0] > 2: %d", p[0])
 		}
 	}
+	return p, st, nil
+}
 
-	// st now contains the canonical structure - one of qrs, prt, prs, qpp or ppp.
-	// p now contains the mapping from the canonical structure to the actual structure
-	// F now contain the flips required to arrange each weighing in canonical order.
-
-	sS := uint(0)
+// Encode p and s as a number between 0 and 21.
+func EncodeStructure(p [3]int, st [3]StructureType) uint {
+	s := uint(0)
 
 	switch st[0] {
 	case P:
 		switch st[2] {
 		case T:
-			sS = Number(p[0:]) + 12
+			s = Number(p[0:]) + 16
 		case S:
-			sS = Number(p[0:]) + 6
+			s = Number(p[0:]) + 10
 		case P:
-			sS = 21
+			s = 0
 		}
 	case Q:
 		if st[1] == P {
-			sS = 18 + Number(p[0:])/2
+			s = 1 + Number(p[0:])/2
 		} else {
-			sS = Number(p[0:])
+			s = Number(p[0:]) + 4
 		}
 	default:
 		panic(fmt.Errorf("illegal state: st[0] not in (P,Q)"))
 	}
+	return s
+}
 
-	// sS now encodes sT as a single number between 0 and 21
+// Return a clone of the receiver in which the structure has been populated.
+func (s *Solution) AnalyseStructure() (*Solution, error) {
+	var r *Solution
+	var err error
 
-	Pa := [12]int{}
-	r.encoding.P = &Pa
-	r.encoding.S = pi(int(sS))
-	r.encoding.F = pu(flips.Encode())
-
-	for i, e := range p {
-		r.Structure[e].Encode(r, i, p, r.encoding.P)
+	if s.flags&GROUPED == 0 {
+		r, err = s.Groupings()
+	} else {
+		r = s.Clone()
 	}
 
-	// r.encoding.P now contains the permutation to be applied to 1,12
+	if err != nil {
+		return r, err
+	}
 
-	n := Number(Pa[0:])*176 + 8*sS + uint(F)
-	r.encoding.N = &n
+	if flips, err := r.deriveStructure(); err != nil {
+		s.markInvalid()
+		return s, err
+	} else if o, st, err := r.deriveCanonicalOrder(); err != nil {
+		s.markInvalid()
+		return s, err
+	} else {
 
-	r.flags |= ANALYSED
-	return r, nil
+		// st now contains the canonical structure - one of qrs, prt, prs, qpp or ppp.
+		// p now contains the mapping from the canonical structure to the actual structure
+		// F now contain the flips required to arrange each weighing in canonical order.
+
+		// sS now encodes sT as a single number between 0 and 21
+
+		p := make([]int, 12)
+		F := flips.Encode()
+		S := EncodeStructure(o, st)
+		for i, e := range o {
+			r.Structure[e].Encode(r, i, o, p)
+		}
+		N := Number(p[0:])*176 + 8*S + F
+
+		r.encoding.P = p
+		r.encoding.S = &S
+		r.encoding.F = &F
+		r.encoding.N = &N
+
+		// r.encoding.P now contains the permutation to be applied to 1,12
+
+		r.flags |= ANALYSED
+		return r, nil
+	}
 }
 
 // Return a clone of the receiver in which the weighings have been permuted into the
