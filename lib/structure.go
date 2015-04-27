@@ -39,7 +39,7 @@ type Structure interface {
 	// i is the row index in the canonical solution
 	// r is the mapping between the canonical solution and s
 	// p is the permutation from {0,11} to the current Solution
-	Populate(s *Solution, i int, r [3]int, p *[12]int)
+	Encode(s *Solution, i int, r [3]int, p *[12]int)
 	Pan(i int) int
 }
 
@@ -73,7 +73,7 @@ func splitPair(pairs [3]CoinSet, left CoinSet) (CoinSet, CoinSet) {
 }
 
 // (3T,1L,1U) (1T,2J,1R)
-func (sp *structureP) Populate(s *Solution, i int, r [3]int, p *[12]int) {
+func (sp *structureP) Encode(s *Solution, i int, r [3]int, p *[12]int) {
 	left := s.Weighings[r[i]].Pan(sp.permutation[0])
 	right := s.Weighings[r[i]].Pan(sp.permutation[1])
 
@@ -104,7 +104,7 @@ type structureQ struct {
 	structure
 }
 
-func (sp *structureQ) Populate(s *Solution, i int, r [3]int, p *[12]int) {
+func (sp *structureQ) Encode(s *Solution, i int, r [3]int, p *[12]int) {
 	left := s.Weighings[r[i]].Pan(sp.permutation[0])
 	right := s.Weighings[r[i]].Pan(sp.permutation[1])
 
@@ -123,7 +123,7 @@ type structureR struct {
 	structure
 }
 
-func (sp *structureR) Populate(s *Solution, i int, r [3]int, p *[12]int) {
+func (sp *structureR) Encode(s *Solution, i int, r [3]int, p *[12]int) {
 	left := s.Weighings[r[1]].Pan(sp.permutation[0])
 	right := s.Weighings[r[1]].Pan(sp.permutation[1])
 	allPairs := s.Pairs[0].Union(s.Pairs[1]).Union(s.Pairs[2])
@@ -143,7 +143,7 @@ type structureS struct {
 	structure
 }
 
-func (sp *structureS) Populate(s *Solution, i int, r [3]int, p *[12]int) {
+func (sp *structureS) Encode(s *Solution, i int, r [3]int, p *[12]int) {
 	right := s.Weighings[r[i]].Pan(sp.permutation[1])
 
 	(*p)[C] = right.Intersection(s.Unique).ExactlyOne(0)
@@ -154,7 +154,7 @@ type structureT struct {
 	structure
 }
 
-func (sp *structureT) Populate(s *Solution, i int, r [3]int, p *[12]int) {
+func (sp *structureT) Encode(s *Solution, i int, r [3]int, p *[12]int) {
 	left := s.Weighings[r[i]].Pan(sp.permutation[0])
 
 	row0right := s.Weighings[r[0]].Pan(s.Structure[r[0]].Pan(1))
@@ -414,7 +414,7 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 	r.encoding.F = pi(F)
 
 	for i, e := range p {
-		r.Structure[e].Populate(r, i, p, r.encoding.P)
+		r.Structure[e].Encode(r, i, p, r.encoding.P)
 	}
 
 	// r.encoding.P now contains the permutation to be applied to 1,12
