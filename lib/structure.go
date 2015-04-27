@@ -2,7 +2,6 @@ package lib
 
 import (
 	"fmt"
-	//	"os"
 )
 
 type StructureType uint8
@@ -39,9 +38,8 @@ type Structure interface {
 	// Extracts the identity of the coin.
 	// s is the current Solution
 	// i is the row index in the canonical solution
-	// r is the mapping between the canonical solution and s
 	// p is the permutation from {0,11} to the current Solution
-	Encode(s *Solution, i int, r [3]int, p []int)
+	Encode(s *Solution, i int, p []int)
 	Pan(i int) int
 }
 
@@ -85,9 +83,9 @@ func splitPair(pairs [3]CoinSet, left CoinSet) (CoinSet, CoinSet) {
 }
 
 // (3T,1L,1U) (1T,2J,1R)
-func (sp *structureP) Encode(s *Solution, i int, r [3]int, p []int) {
-	left := s.Weighings[r[i]].Pan(sp.permutation[0])
-	right := s.Weighings[r[i]].Pan(sp.permutation[1])
+func (sp *structureP) Encode(s *Solution, i int, p []int) {
+	left := s.Weighings[i].Left()
+	right := s.Weighings[i].Right()
 
 	ll, rr := splitPair(s.Pairs, left)
 
@@ -116,9 +114,9 @@ type structureQ struct {
 	structure
 }
 
-func (sp *structureQ) Encode(s *Solution, i int, r [3]int, p []int) {
-	left := s.Weighings[r[i]].Pan(sp.permutation[0])
-	right := s.Weighings[r[i]].Pan(sp.permutation[1])
+func (sp *structureQ) Encode(s *Solution, i int, p []int) {
+	left := s.Weighings[i].Left()
+	right := s.Weighings[i].Right()
 
 	ll, rr := splitPair(s.Pairs, left)
 
@@ -126,8 +124,8 @@ func (sp *structureQ) Encode(s *Solution, i int, r [3]int, p []int) {
 	p[E] = rr.ExactlyOne(0)
 	p[A] = right.Intersection(s.Unique).ExactlyOne(0)
 
-	row1right := s.Weighings[r[1]].Pan(s.Structure[r[1]].Pan(1))
-	row2right := s.Weighings[r[2]].Pan(s.Structure[r[2]].Pan(1))
+	row1right := s.Weighings[1].Pan(1)
+	row2right := s.Weighings[2].Pan(1)
 	p[L] = left.Intersection(s.Triples).Complement(row1right).Complement(row2right).ExactlyOne(0)
 }
 
@@ -135,16 +133,16 @@ type structureR struct {
 	structure
 }
 
-func (sp *structureR) Encode(s *Solution, i int, r [3]int, p []int) {
-	left := s.Weighings[r[1]].Pan(sp.permutation[0])
-	right := s.Weighings[r[1]].Pan(sp.permutation[1])
+func (sp *structureR) Encode(s *Solution, i int, p []int) {
+	left := s.Weighings[i].Left()
+	right := s.Weighings[i].Right()
 	allPairs := s.Pairs[0].Union(s.Pairs[1]).Union(s.Pairs[2])
 
 	p[J] = right.Intersection(s.Triples).ExactlyOne(0)
 	p[B] = right.Intersection(s.Unique).ExactlyOne(0)
 
-	row0 := s.Weighings[r[0]].Both()
-	row2 := s.Weighings[r[2]].Both()
+	row0 := s.Weighings[0].Both()
+	row2 := s.Weighings[2].Both()
 	p[F] = left.Intersection(row0).Intersection(allPairs).ExactlyOne(0)
 	p[G] = right.Intersection(row0).Intersection(allPairs).ExactlyOne(0)
 	p[H] = left.Intersection(row2).Intersection(allPairs).ExactlyOne(0)
@@ -155,8 +153,8 @@ type structureS struct {
 	structure
 }
 
-func (sp *structureS) Encode(s *Solution, i int, r [3]int, p []int) {
-	right := s.Weighings[r[i]].Pan(sp.permutation[1])
+func (sp *structureS) Encode(s *Solution, i int, p []int) {
+	right := s.Weighings[i].Right()
 
 	p[C] = right.Intersection(s.Unique).ExactlyOne(0)
 	p[K] = right.Intersection(s.Triples).ExactlyOne(0)
@@ -166,11 +164,11 @@ type structureT struct {
 	structure
 }
 
-func (sp *structureT) Encode(s *Solution, i int, r [3]int, p []int) {
-	left := s.Weighings[r[i]].Pan(sp.permutation[0])
+func (sp *structureT) Encode(s *Solution, i int, p []int) {
+	left := s.Weighings[i].Pan(0)
 
-	row0right := s.Weighings[r[0]].Pan(s.Structure[r[0]].Pan(1))
-	row1right := s.Weighings[r[1]].Pan(s.Structure[r[1]].Pan(1))
+	row0right := s.Weighings[0].Right()
+	row1right := s.Weighings[1].Right()
 
 	p[C] = left.Intersection(s.Unique).ExactlyOne(0)
 	p[K] = left.Intersection(s.Triples).Complement(row0right).Complement(row1right).ExactlyOne(0)
@@ -390,6 +388,58 @@ func (s *Solution) deriveCanonicalOrder() ([3]int, [3]StructureType, error) {
 	return p, st, nil
 }
 
+func (s *Solution) deriveCanonical() (*Solution, error) {
+	var r *Solution
+	var err error
+	if s.flags&ANALYSED == 0 {
+		if s, err = s.AnalyseStructure(); err != nil {
+			return s, err
+		}
+	}
+
+	r = s.Clone()
+
+	r.reset()
+	r.Triples = s.Triples
+	r.Unique = s.Unique
+	r.Pairs = s.Pairs
+	st := [3]StructureType{}
+	noflip := [2]int{0, 1}
+	for i, _ := range r.Weighings {
+		si := s.order[i]
+		sw := s.Weighings[si]
+		sf := s.flips[si]
+		st[i] = s.Structure[si].Type()
+		r.Weighings[i] = NewWeighing(sw.Pan(sf[0]), sw.Pan(sf[1]))
+		r.Structure[i] = NewStructure(st[i], noflip)
+	}
+	r.order = [3]int{0, 1, 2}
+	r.flips = [3][2]int{}
+	r.Coins = []int{}
+	r.Weights = []Weight{}
+	p := make([]int, 12)
+	for i, e := range r.Structure {
+		e.Encode(r, i, p)
+	}
+
+	S := EncodeStructure(r.order, st)
+	N := Number(p[0:])*176 + S
+
+	r.Unique = NewOrderedCoinSet(p[0:3], 0)
+	r.Pairs[0] = NewOrderedCoinSet(p[3:5], 0)
+	r.Pairs[1] = NewOrderedCoinSet(p[5:7], 0)
+	r.Pairs[2] = NewOrderedCoinSet(p[7:9], 0)
+	r.Triples = NewOrderedCoinSet(p[9:12], 0)
+
+	r.encoding.P = p
+	r.encoding.F = pu(0)
+	r.encoding.S = &S
+	r.encoding.N = &N
+
+	r.flags |= (CANONICALISED | NUMBERED | GROUPED) &^ REVERSED
+	return r, nil
+}
+
 // Encode p and s as a number between 0 and 21.
 func EncodeStructure(p [3]int, st [3]StructureType) uint {
 	s := uint(0)
@@ -445,22 +495,32 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 
 		// sS now encodes sT as a single number between 0 and 21
 
-		p := make([]int, 12)
 		F := flips.Encode()
 		S := EncodeStructure(o, st)
-		for i, e := range o {
-			r.Structure[e].Encode(r, i, o, p)
-		}
-		N := Number(p[0:])*176 + 8*S + F
 
-		r.encoding.P = p
+		r.order = o
+		r.flips = flips
+		r.flags |= ANALYSED
+
+		var canonical *Solution
+		if canonical, err = r.deriveCanonical(); err != nil {
+			return s, err
+		}
+
+		N := (*canonical.encoding.N/176)*176 + 22*F + S
+
+		r.Triples = canonical.Triples
+		r.Unique = canonical.Unique
+		r.Pairs = canonical.Pairs
+
+		r.encoding.P = canonical.P
 		r.encoding.S = &S
 		r.encoding.F = &F
 		r.encoding.N = &N
 
 		// r.encoding.P now contains the permutation to be applied to 1,12
 
-		r.flags |= ANALYSED
+		r.flags |= NUMBERED
 		return r, nil
 	}
 }
@@ -471,16 +531,11 @@ func (s *Solution) Canonical() (*Solution, error) {
 	var r *Solution
 	var err error
 
-	if s.flags&ANALYSED == 0 {
-		r, err = s.AnalyseStructure()
+	if s.flags&CANONICALISED == 0 {
+		r, err = s.deriveCanonical()
 	} else {
 		r = s.Clone()
 	}
 
-	if err != nil {
-		return r, err
-	}
-
-	r.flags |= CANONICALISED
-	return r, nil
+	return r, err
 }

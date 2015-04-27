@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-type flag uint
+type flag uint16
 
 const (
 	INVALID       flag = 0
@@ -13,8 +13,9 @@ const (
 	ANALYSED           = 1 << 3
 	RELABLED           = 1 << 4
 	NORMALISED         = 1 << 5
-	CANONICALISED      = 1 << 6
-	RECURSE            = 1 << 7
+	NUMBERED           = 1 << 6
+	CANONICALISED      = 1 << 7
+	RECURSE            = 1 << 8
 )
 
 // Describes a test failure. A test failure is an instance of a coin and weight such that the
@@ -36,7 +37,9 @@ type Solution struct {
 	Triples   CoinSet      `json:"-"`                  // the coins that appear in all 3 weighings
 	Failures  []Failure    `json:"failures,omitempty"` // a list of tests for which the solution is ambiguous
 	Structure [3]Structure `json:"-"`                  // the structure of the permutation
-	flags     flag         // as
+	flags     flag         // indicates that invariants are true
+	order     [3]int       // permutation that maps from canonical order to this order
+	flips     Flips        // permutation that flips from canonical order to this order
 }
 
 // Decide the relative weight of a coin by generating a linear combination of the three weighings and using
@@ -156,6 +159,8 @@ func (s *Solution) Clone() *Solution {
 		Triples:   s.Triples,
 		Failures:  make([]Failure, len(s.Failures)),
 		flags:     s.flags,
+		order:     s.order,
+		flips:     s.flips,
 	}
 
 	copy(clone.Pairs[0:], s.Pairs[0:])
