@@ -45,3 +45,21 @@ func TestNumberPermute5(t *testing.T) {
 		t.Fatalf("assertion failed: was: %d expected: %d", n, 5)
 	}
 }
+
+func TestDecode5(t *testing.T) {
+	p := []int{0, 1, 2}
+	Decode(5, p)
+	e := Number(p)
+	if e != 5 {
+		t.Fatalf("round trip failed: %d: expected: %d", e, 5)
+	}
+}
+
+func TestDecode4(t *testing.T) {
+	p := []int{0, 1, 2}
+	Decode(4, p)
+	e := Number(p)
+	if e != 4 {
+		t.Fatalf("round trip failed: %d: expected: %d", e, 4)
+	}
+}

@@ -46,6 +46,7 @@ func (p *Permutation) Index(e int) int {
 }
 
 // Generate an identifier for a permutation of N digits numbers 0 to N-1
+// Note: O(N^2) is there a faster way?
 func Number(permutation []int) uint {
 
 	counts := make([]int, len(permutation))
@@ -71,4 +72,39 @@ func Number(permutation []int) uint {
 	}
 	n, _ := number(permutation)
 	return n
+}
+
+// Permute the input array with the permutation of len(output)
+// implied by the number n.
+func Decode(n int, output []int) {
+	index := make([]int, len(output))
+	for i, e := range output {
+		index[i] = e
+	}
+
+	nf := fact(len(output))
+	var decode func(r int, f int, o []int)
+	decode = func(r, f int, o []int) {
+		if len(o) == 1 {
+			o[0] = index[0]
+		} else {
+			d := r / f
+			o[0] = index[d]
+			copy(index[d:], index[d+1:])
+			t := o[1:]
+			decode(r%f, f/len(t), t)
+		}
+	}
+	decode(n%nf, nf/len(output), output[0:])
+}
+
+// Create an ordered slice of numbers from 0 to N-1 then permute it
+// with the permutation implied by N.
+func DecodeN(n int, N int) []int {
+	o := make([]int, N)
+	for i, _ := range o {
+		o[i] = i
+	}
+	Decode(n, o)
+	return o
 }
