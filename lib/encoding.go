@@ -89,7 +89,7 @@ func (s *Solution) Decode() {
 	}
 	if s.encoding.Structure != nil {
 		for i, t := range *s.encoding.Structure {
-			s.Structure[i], _ = ParseStructure(t, i)
+			s.Structure[i], _ = ParseStructure(t)
 		}
 	}
 }
