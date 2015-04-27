@@ -495,18 +495,23 @@ func EncodeStructure(p [3]int, st [3]StructureType) uint {
 	switch st[0] {
 	case P:
 		switch st[2] {
-		case T:
-			s = Number(p[0:]) + 16
-		case S:
-			s = Number(p[0:]) + 10
 		case P:
+			// PPP
 			s = 0
+		case S:
+			// PRS
+			s = Number(p[0:]) + 4
+		case T:
+			// PRT
+			s = Number(p[0:]) + 10
 		}
 	case Q:
 		if st[1] == P {
+			// QPP
 			s = 1 + Number(p[0:])/2
 		} else {
-			s = Number(p[0:]) + 4
+			// QRS
+			s = Number(p[0:]) + 16
 		}
 	default:
 		panic(fmt.Errorf("illegal state: st[0] not in (P,Q)"))
