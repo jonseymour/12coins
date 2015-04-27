@@ -8,14 +8,68 @@ type StructureType uint8
 
 type Flips [3][2]int
 
+//
+// A triple is coin that appears in 3 weighings
+// A pair is a coin that appears in exactly 2 weighings
+// A singleton is a coin that appears in exactly 1 weighing
+//
+// A pan is a collection of coins that appear on one side of the scale in a given weighing.
+//
+// A pair is split by a weighing if the components of the pair are split across both pans of a given weighing
+// or joint if both coins are placed on the same pan in a given weighing.
+//
+// Some assumed truths about valid solutions, not proven here:
+//
+// * no coin may appear twice in the same weighing
+// * every coin must be weighed at least once
+// * every solution has exactly 3 triples
+// * every solution has exactly 3 singletons
+// * every solution has exactly 3 disjoint pairs
+// * every solution has 3 weighings of 4 coins each
+// * every coin appears in exactly 2 weighings
+// * every singleton appears in its own weighing
+// * every pair is split by one weighing and is joined by another
+// * at most one weighing has all 3 triples on the one side
+//
+// 2T means choose 2 triples
+// 1L means choose the left half of a split pair
+// 1U means choose 1 of the singletons
+// 1T means choose the remaining triple
+// 2J means choose a joint pair
+// 1R means choose the right half of the split pair that 1L is in
+// 3T means choose 3 triples
+// 2L means choose the left half of two different split pairs
+// 2R means choose the right halves the split pairs that 2L are in
+//
+// There are 5 solutions with distinct structures
+//
+// PPP
+// QPP
+// PRS
+// PRT
+// QRS
+//
+// Every other valid solution is obtained by:
+//
+// * permuting order of the weighings (+ 17 = 22)
+// * swapping the pans of a weighing (x 8 = 176)
+// * relabeling the coins with a permutation (x 12! =~ 2^37 )
+// * permuting the coins within each pan (x 4!^6 =~ 2^64 )
+//
+
 const (
-	P StructureType = iota
-	Q
-	R
-	S
-	T
+	P StructureType = iota // (2T, 1L, 1U), (1T, 2J, 1R)
+	Q                      // (3T, 1L),     (2J, 1R, 1U)
+	R                      // (2T, 2L),     (1T, 2R, 1U)
+	S                      // (2T, 2J),     (1T, 2J, 1U)
+	T                      // (3T, 1U),     (2J, 2J)
 )
 
+//
+// A -> L are used to label the 12 positions of the canonical permutation in which
+// singletons are (A,B,C), the pairs are ((D,E), (F,G), (H,I)) and the triples
+// are (J,K,L)
+//
 const (
 	A uint = iota
 	B
@@ -31,7 +85,11 @@ const (
 	L
 )
 
+// A weighing structure knows to encode distribution of coins in one or more
+// weighings into permutation and how to construct a distribution of a weighing
+// from the coins of a permutation.
 type Structure interface {
+	// One of P, Q, R, S or T
 	Type() StructureType
 	String() string
 	Encode(s *Solution, i int, p []int)
@@ -415,7 +473,22 @@ func (s *Solution) deriveCanonical() (*Solution, error) {
 	return r, nil
 }
 
-// Encode p and s as a number between 0 and 21.
+// Encode p and s as a number between 0 and 21. The encoding
+// takes advantage of the fact that there are 5 distinct
+// structures
+//
+// PPP
+// QPP
+// PRS
+// PRT
+// QRS
+//
+// and 22 distinct permutations of these structures. There is
+// only one distinct permutation of PPP and there are only
+// 3 distinct permutations of QPP - all the others have 6
+//
+// 1+3+3*6=22
+//
 func EncodeStructure(p [3]int, st [3]StructureType) uint {
 	s := uint(0)
 
