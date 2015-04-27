@@ -114,21 +114,6 @@ type structureP struct {
 	structure
 }
 
-// Return two sets containing the left and right members of the
-// pair which intersects a set of left coins.
-func splitPair(pairs [3]CoinSet, left CoinSet) (CoinSet, CoinSet) {
-	var ll CoinSet
-	var rr CoinSet
-	for _, pp := range pairs {
-		ll = pp.Intersection(left)
-		if ll.Size() == 1 {
-			rr = pp.Complement(ll)
-			return ll, rr
-		}
-	}
-	panic(fmt.Errorf("illegal state: could not find an expected split pair: %v, %v", pairs, left))
-}
-
 // (3T,1L,1U) (1T,2J,1R)
 func (sp *structureP) Encode(s *Solution, i int, p []int) {
 	left := s.Weighings[i].Left()
@@ -591,4 +576,19 @@ func (s *Solution) Canonical() (*Solution, error) {
 	}
 
 	return r, err
+}
+
+// Return two sets containing the left and right members of the
+// pair which intersects a set of left coins.
+func splitPair(pairs [3]CoinSet, left CoinSet) (CoinSet, CoinSet) {
+	var ll CoinSet
+	var rr CoinSet
+	for _, pp := range pairs {
+		ll = pp.Intersection(left)
+		if ll.Size() == 1 {
+			rr = pp.Complement(ll)
+			return ll, rr
+		}
+	}
+	panic(fmt.Errorf("illegal state: could not find an expected split pair: %v, %v", pairs, left))
 }
