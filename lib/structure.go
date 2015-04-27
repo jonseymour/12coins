@@ -709,9 +709,11 @@ func (s *Solution) Decode() (*Solution, error) {
 		wn[o[i]] = s.Weighings[i]
 		sn[o[i]] = s.Structure[i]
 	}
-
-	s.Weighings = wn
 	s.Structure = sn
+
+	for i, _ := range wn {
+		s.Weighings[i] = NewWeighing(wn[i].Pan(s.flips[i][0]), wn[i].Pan(s.flips[i][1]))
+	}
 
 	s.flags |= GROUPED | NUMBERED | ANALYSED
 	return s, nil
