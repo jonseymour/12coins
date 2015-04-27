@@ -57,19 +57,27 @@ type structureP struct {
 	structure
 }
 
+// Return two sets containing the left and right members of the
+// pair which intersects a set of left coins.
+func splitPair(pairs [3]CoinSet, left CoinSet) (CoinSet, CoinSet) {
+	var ll CoinSet
+	var rr CoinSet
+	for _, pp := range pairs {
+		ll = pp.Intersection(left)
+		if ll.Size() == 1 {
+			rr = pp.Complement(ll)
+			return ll, rr
+		}
+	}
+	panic(fmt.Errorf("illegal state: could not find an expected split pair: %v, %v", pairs, left))
+}
+
+// (3T,1L,1U) (1T,2J,1R)
 func (sp *structureP) Populate(s *Solution, i int, r [3]int, p *[12]int) {
 	left := s.Weighings[r[i]].Pan(sp.permutation[0])
 	right := s.Weighings[r[i]].Pan(sp.permutation[1])
 
-	var ll CoinSet
-	var rr CoinSet
-	for _, pp := range s.Pairs {
-		ll = pp.Intersection(left)
-		if ll.Size() == 1 {
-			rr = pp.Complement(ll)
-			break
-		}
-	}
+	ll, rr := splitPair(s.Pairs, left)
 
 	switch i {
 	case 0:
@@ -100,15 +108,7 @@ func (sp *structureQ) Populate(s *Solution, i int, r [3]int, p *[12]int) {
 	left := s.Weighings[r[i]].Pan(sp.permutation[0])
 	right := s.Weighings[r[i]].Pan(sp.permutation[1])
 
-	var ll CoinSet
-	var rr CoinSet
-	for _, pp := range s.Pairs {
-		ll = pp.Intersection(left)
-		if ll.Size() == 1 {
-			rr = pp.Complement(ll)
-			break
-		}
-	}
+	ll, rr := splitPair(s.Pairs, left)
 
 	(*p)[D] = ll.ExactlyOne(0)
 	(*p)[E] = rr.ExactlyOne(0)
