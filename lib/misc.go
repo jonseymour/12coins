@@ -22,3 +22,12 @@ func pu(u uint) *uint {
 func pbool(b bool) *bool {
 	return &b
 }
+
+// calculate n factorial
+func fact(n int) int {
+	if n < 2 {
+		return 1
+	} else {
+		return n * fact(n-1)
+	}
+}
