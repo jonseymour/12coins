@@ -395,70 +395,70 @@ then permute the weighings according to the permutation to produce one of 5 poss
 		<th>Index</th><th>Structure</th><th>Permutation</th>
 	</tr>
 	<tr>
-		<td>0</td><td>qrs</td><td>0,1,2</td>
+		<td>0</td><td>ppp</td><td>0,1,2</td>
 	</tr>
 	<tr>
-		<td>1</td><td>qsr</td><td>0,2,1</td>
+		<td>1</td><td>qpp</td><td>0,1,2</td>
 	</tr>
 	<tr>
-		<td>2</td><td>rqs</td><td>1,0,2</td>
+		<td>2</td><td>pqp</td><td>1,0,2</td>
 	</tr>
 	<tr>
-		<td>3</td><td>sqr</td><td>1,2,0</td>
+		<td>3</td><td>ppq</td><td>2,0,1</td>
 	</tr>
 	<tr>
-		<td>4</td><td>rsq</td><td>2,0,1</td>
+		<td>4</td><td>prs</td><td>0,1,2</td>
 	</tr>
 	<tr>
-		<td>5</td><td>srq</td><td>2,1,0</td>
+		<td>5</td><td>psr</td><td>0,2,1</td>
 	</tr>
 	<tr>
-		<td>6</td><td>prs</td><td>0,1,2</td>
+		<td>6</td><td>rps</td><td>1,0,2</td>
 	</tr>
 	<tr>
-		<td>7</td><td>psr</td><td>0,2,1</td>
+		<td>7</td><td>spr</td><td>1,2,0</td>
 	</tr>
 	<tr>
-		<td>8</td><td>rps</td><td>1,0,2</td>
+		<td>8</td><td>rsp</td><td>2,0,1</td>
 	</tr>
 	<tr>
-		<td>9</td><td>spr</td><td>1,2,0</td>
+		<td>9</td><td>srp</td><td>2,1,0</td>
 	</tr>
 	<tr>
-		<td>10</td><td>rsp</td><td>2,0,1</td>
+		<td>10</td><td>prt</td><td>0,1,2</td>
 	</tr>
 	<tr>
-		<td>11</td><td>srp</td><td>2,1,0</td>
+		<td>11</td><td>ptr</td><td>0,2,1</td>
 	</tr>
 	<tr>
-		<td>12</td><td>prt</td><td>0,1,2</td>
+		<td>12</td><td>rpt</td><td>1,0,2</td>
 	</tr>
 	<tr>
-		<td>13</td><td>ptr</td><td>0,2,1</td>
+		<td>13</td><td>tpr</td><td>1,2,0</td>
 	</tr>
 	<tr>
-		<td>14</td><td>rpt</td><td>1,0,2</td>
+		<td>14</td><td>rtp</td><td>2,0,1</td>
 	</tr>
 	<tr>
-		<td>15</td><td>tpr</td><td>1,2,0</td>
+		<td>15</td><td>trp</td><td>2,1,0</td>
 	</tr>
 	<tr>
-		<td>16</td><td>rtp</td><td>2,0,1</td>
+		<td>16</td><td>qrs</td><td>0,1,2</td>
 	</tr>
 	<tr>
-		<td>17</td><td>trp</td><td>2,1,0</td>
+		<td>17</td><td>qsr</td><td>0,2,1</td>
 	</tr>
 	<tr>
-		<td>18</td><td>qpp</td><td>0,1,2</td>
+		<td>18</td><td>rqs</td><td>1,0,2</td>
 	</tr>
 	<tr>
-		<td>19</td><td>pqp</td><td>1,2,0</td>
+		<td>19</td><td>sqr</td><td>1,2,0</td>
 	</tr>
 	<tr>
-		<td>20</td><td>ppq</td><td>2,0,1</td>
+		<td>20</td><td>rsq</td><td>2,0,1</td>
 	</tr>
 	<tr>
-		<td>21</td><td>ppp</td><td>0,1,2</td>
+		<td>21</td><td>srq</td><td>2,1,0</td>
 	</tr>
 	</table>
 
@@ -492,16 +492,14 @@ the solution.
 
 The solutions can be numbered with a formula of this kind:
 
-	f0+2*(f1+4*(f2+8*(S+22*(k'+2*(j'+3*(i'+4*(h'+5*(g'+6*(f'+7*(e'+8*(d'+9*(c'+10*(b'+11*(a'))))))))))))))
-    =
-	      1 * f0+
-	      2 * f1+
-	      4 * f2+
-	      8 * S+
-	    176 * P12(a,b,c,d,e,f,g,j,k,l)
+	= P12(a,b,c,d,e,f,h,i,j,k,l)*176 + F*22 + S
 
-where P12 is a function that uniquely numbers the permutation of 1,2,3,4,5,6,7,8,9,10,11,12 that produces
-a,b,c,d,e,f,g,h,i,j,k,l.
+where:
+
+* P12 is a function that uniquely numbers the permutation of 1,2,3,4,5,6,7,8,9,10,11,12 that produces
+a,b,c,d,e,f,g,h,i,j,k,l
+* F is a number between 0-7 representing the pans that need to be flipped.
+* S is a number between 0 and 21 representing the 21 possible permutations of the 5 structures.
 
 #Deriving a solution from a number.
 
