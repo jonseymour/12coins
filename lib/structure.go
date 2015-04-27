@@ -7,6 +7,7 @@ import (
 
 type StructureType uint8
 
+type Flips [3][2]int
 const (
 	P StructureType = iota
 	Q
@@ -41,6 +42,16 @@ type Structure interface {
 	// p is the permutation from {0,11} to the current Solution
 	Encode(s *Solution, i int, r [3]int, p *[12]int)
 	Pan(i int) int
+}
+
+func (f Flips) Encode() uint {
+	F := uint(0)
+	for i, p := range f {
+		if p[0] == 0 {
+			F |= (1 << uint(i))
+		}
+	}
+	return F
 }
 
 // Encodes the structure of a weighing.
