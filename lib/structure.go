@@ -4,9 +4,27 @@ import (
 	"fmt"
 )
 
-type StructureType uint8
+//
+// A -> L are used to label the 12 positions of the canonical permutation in which
+// singletons are (A,B,C), the pairs are ((D,E), (F,G), (H,I)) and the triples
+// are (J,K,L)
+//
+const (
+	A uint = iota
+	B
+	C
+	D
+	E
+	F
+	G
+	H
+	I
+	J
+	K
+	L
+)
 
-type Flips [3][2]int
+type StructureType uint8
 
 //
 // A triple is coin that appears in 3 weighings
@@ -65,26 +83,6 @@ const (
 	T                      // (3T, 1U),     (2J, 2J)
 )
 
-//
-// A -> L are used to label the 12 positions of the canonical permutation in which
-// singletons are (A,B,C), the pairs are ((D,E), (F,G), (H,I)) and the triples
-// are (J,K,L)
-//
-const (
-	A uint = iota
-	B
-	C
-	D
-	E
-	F
-	G
-	H
-	I
-	J
-	K
-	L
-)
-
 // A weighing structure knows to encode distribution of coins in one or more
 // weighings into permutation and how to construct a distribution of a weighing
 // from the coins of a permutation.
@@ -95,6 +93,11 @@ type Structure interface {
 	Encode(s *Solution, i int, p []int)
 }
 
+// A flip switches two pans in a weighing. Flipping two pans in the weighing of a valid
+// solution does not affect the validity of the solution but affects the numbering of the solution.
+type Flips [3][2]int
+
+// Encode the Flips of a weighing into an integer.
 func (f Flips) Encode() uint {
 	F := uint(0)
 	for i, p := range f {
@@ -110,6 +113,7 @@ type structure struct {
 	_type StructureType
 }
 
+// Knows how to encode and decode weighings of structure type P.
 type structureP struct {
 	structure
 }
@@ -407,6 +411,10 @@ func (s *Solution) deriveCanonicalOrder() ([3]int, [3]StructureType, error) {
 	return p, st, nil
 }
 
+// Derives a canonical weighing from an analysed weighing.
+//
+// The canonical weighing as no flips (F=0) and has S = one of 0,1,4,10,16 representing
+// each of the canonical permutations of the PPP, QPP, QRS, PRS, PRT
 func (s *Solution) deriveCanonical() (*Solution, error) {
 	var r *Solution
 	var err error
