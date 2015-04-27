@@ -71,7 +71,7 @@ func (s *Solution) Encode() {
 }
 
 // Decode the simple JSON encoding into the richer internal structure.
-func (s *Solution) Decode() {
+func (s *Solution) DecodeJSON() {
 	z := s.GetZeroCoin()
 	if s.encoding.Weighings != nil {
 		for i, w := range *s.encoding.Weighings {

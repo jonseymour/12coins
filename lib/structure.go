@@ -91,6 +91,7 @@ type Structure interface {
 	Type() StructureType
 	String() string
 	Encode(s *Solution, i int, p []int)
+	Decode(s *Solution, i int, p []int)
 }
 
 // A flip switches two pans in a weighing. Flipping two pans in the weighing of a valid
@@ -106,6 +107,18 @@ func (f Flips) Encode() uint {
 		}
 	}
 	return F
+}
+
+func DecodeFlips(f uint) Flips {
+	var r Flips
+	for i, _ := range r {
+		if f&(1<<uint(i)) == 0 {
+			r[i] = [2]int{0, 1}
+		} else {
+			r[i] = [2]int{1, 0}
+		}
+	}
+	return r
 }
 
 // Encodes the structure of a weighing.
@@ -146,11 +159,29 @@ func (sp *structureP) Encode(s *Solution, i int, p []int) {
 	}
 }
 
+func (sp *structureP) Decode(s *Solution, i int, p []int) {
+	var left, right CoinSet
+	switch i {
+	case 0:
+		left = NewOrderedCoinSet([]int{p[A], p[D], p[J], p[K]}, 0)
+		right = NewOrderedCoinSet([]int{p[L], p[E], p[F], p[G]}, 0)
+	case 1:
+		left = NewOrderedCoinSet([]int{p[B], p[F], p[K], p[L]}, 0)
+		right = NewOrderedCoinSet([]int{p[J], p[G], p[H], p[I]}, 0)
+	case 2:
+		left = NewOrderedCoinSet([]int{p[C], p[H], p[L], p[J]}, 0)
+		right = NewOrderedCoinSet([]int{p[K], p[I], p[D], p[E]}, 0)
+	default:
+		panic(fmt.Errorf("illegal argument: i: %d", i))
+	}
+	s.Weighings[i] = NewWeighing(left, right)
+}
+
 type structureQ struct {
 	structure
 }
 
-func (sp *structureQ) Encode(s *Solution, i int, p []int) {
+func (sq *structureQ) Encode(s *Solution, i int, p []int) {
 	left := s.Weighings[i].Left()
 	right := s.Weighings[i].Right()
 
@@ -165,11 +196,17 @@ func (sp *structureQ) Encode(s *Solution, i int, p []int) {
 	p[L] = left.Intersection(s.Triples).Complement(row1right).Complement(row2right).ExactlyOne(0)
 }
 
+func (sq *structureQ) Decode(s *Solution, i int, p []int) {
+	left := NewOrderedCoinSet([]int{p[J], p[K], p[L], p[D]}, 0)
+	right := NewOrderedCoinSet([]int{p[E], p[F], p[G], p[A]}, 0)
+	s.Weighings[i] = NewWeighing(left, right)
+}
+
 type structureR struct {
 	structure
 }
 
-func (sp *structureR) Encode(s *Solution, i int, p []int) {
+func (sr *structureR) Encode(s *Solution, i int, p []int) {
 	left := s.Weighings[i].Left()
 	right := s.Weighings[i].Right()
 	allPairs := s.Pairs[0].Union(s.Pairs[1]).Union(s.Pairs[2])
@@ -185,22 +222,34 @@ func (sp *structureR) Encode(s *Solution, i int, p []int) {
 	p[I] = right.Intersection(row2).Intersection(allPairs).ExactlyOne(0)
 }
 
+func (sr *structureR) Decode(s *Solution, i int, p []int) {
+	left := NewOrderedCoinSet([]int{p[K], p[L], p[F], p[H]}, 0)
+	right := NewOrderedCoinSet([]int{p[J], p[G], p[I], p[B]}, 0)
+	s.Weighings[i] = NewWeighing(left, right)
+}
+
 type structureS struct {
 	structure
 }
 
-func (sp *structureS) Encode(s *Solution, i int, p []int) {
+func (ss *structureS) Encode(s *Solution, i int, p []int) {
 	right := s.Weighings[i].Right()
 
 	p[C] = right.Intersection(s.Unique).ExactlyOne(0)
 	p[K] = right.Intersection(s.Triples).ExactlyOne(0)
 }
 
+func (ss *structureS) Decode(s *Solution, i int, p []int) {
+	left := NewOrderedCoinSet([]int{p[L], p[J], p[D], p[E]}, 0)
+	right := NewOrderedCoinSet([]int{p[K], p[H], p[I], p[C]}, 0)
+	s.Weighings[i] = NewWeighing(left, right)
+}
+
 type structureT struct {
 	structure
 }
 
-func (sp *structureT) Encode(s *Solution, i int, p []int) {
+func (st *structureT) Encode(s *Solution, i int, p []int) {
 	left := s.Weighings[i].Pan(0)
 
 	row0right := s.Weighings[0].Right()
@@ -208,6 +257,12 @@ func (sp *structureT) Encode(s *Solution, i int, p []int) {
 
 	p[C] = left.Intersection(s.Unique).ExactlyOne(0)
 	p[K] = left.Intersection(s.Triples).Complement(row0right).Complement(row1right).ExactlyOne(0)
+}
+
+func (st *structureT) Decode(s *Solution, i int, p []int) {
+	left := NewOrderedCoinSet([]int{p[L], p[J], p[K], p[C]}, 0)
+	right := NewOrderedCoinSet([]int{p[H], p[I], p[D], p[E]}, 0)
+	s.Weighings[i] = NewWeighing(left, right)
 }
 
 func (t StructureType) String() string {
@@ -512,6 +567,35 @@ func EncodeStructure(p [3]int, st [3]StructureType) uint {
 	return s
 }
 
+// Returns the permutation to be applied to the canonical order to
+// obtain the final order and the structure of the canonical order
+func DecodeStructure(s uint) ([3]int, [3]StructureType) {
+	switch s {
+	case 0:
+		return [3]int{0, 1, 2}, [3]StructureType{P, P, P}
+	case 1, 2, 3:
+		p := DecodeN(int((s-1)*2), 3)
+		r := [3]int{}
+		copy(r[0:], p)
+		return r, [3]StructureType{Q, P, P}
+	default:
+		m := (s - 4) / 6
+		c := (s - 4) % 6
+		p := DecodeN(int(c), 3)
+		r := [3]int{}
+		copy(r[0:], p)
+		switch m {
+		case 0:
+			return r, [3]StructureType{P, R, S}
+		case 1:
+			return r, [3]StructureType{P, R, T}
+		case 2:
+			return r, [3]StructureType{Q, R, S}
+		}
+	}
+	panic(fmt.Errorf("illegal state: s: %d", s))
+}
+
 // Return a clone of the receiver in which the structure has been populated.
 func (s *Solution) AnalyseStructure() (*Solution, error) {
 	var r *Solution
@@ -584,6 +668,62 @@ func (s *Solution) Canonical() (*Solution, error) {
 	}
 
 	return r, err
+}
+
+func (s *Solution) Decode() (*Solution, error) {
+	if s.encoding.N == nil {
+		s.markInvalid()
+		return s, fmt.Errorf("illegal state: N == nil")
+	}
+
+	s.flags = INVALID
+
+	n := *(s.encoding.N)
+
+	p := DecodeN(int(n/176), 12)
+	sN := n % 22
+	f := (n / 22) % 8
+	s.encoding.P = p
+	s.encoding.S = &sN
+	s.encoding.F = &f
+
+	o, st := DecodeStructure(sN)
+	s.order = o
+	s.flips = DecodeFlips(F)
+
+	s.Unique = NewOrderedCoinSet(p[0:3], 0)
+	s.Pairs[0] = NewOrderedCoinSet(p[3:5], 0)
+	s.Pairs[1] = NewOrderedCoinSet(p[5:7], 0)
+	s.Pairs[2] = NewOrderedCoinSet(p[7:9], 0)
+	s.Triples = NewOrderedCoinSet(p[9:12], 0)
+
+	for i, e := range st {
+		s.Structure[i] = NewStructure(e)
+		s.Structure[i].Decode(s, i, p)
+	}
+
+	wn := [3]Weighing{}
+	sn := [3]Structure{}
+
+	for i, _ := range wn {
+		wn[o[i]] = s.Weighings[i]
+		sn[o[i]] = s.Structure[i]
+	}
+
+	s.Weighings = wn
+	s.Structure = sn
+
+	s.flags |= GROUPED | NUMBERED | ANALYSED
+	return s, nil
+}
+
+func DecodeSolution(n uint) (*Solution, error) {
+	solution := &Solution{
+		encoding: encoding{
+			N: &n,
+		},
+	}
+	return solution.Decode()
 }
 
 // Return two sets containing the left and right members of the
