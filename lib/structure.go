@@ -268,10 +268,9 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 		return r, err
 	}
 
-	p := [3]int{0, 1, 2}
+	p := [3]int{0, 1, 2} // a permutation of rows from the canonical form to the current form
 	st := [3]StructureType{P, P, P}
 	F := 0
-
 	lock := false
 
 	for i, w := range r.Weighings {
@@ -339,6 +338,10 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 			p[2] = i
 		case P:
 			if st[0] == P && !lock {
+				// if there is a single P, then we need to move it. but otherwise
+				// we leave it in place. required for PRS and PRT cases where P
+				// is not in position 0. specifically must not move the second or
+				// third P of a PPP or QPP case.
 				lock = true
 				p[0] = i
 			}
@@ -351,19 +354,22 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 	}
 
 	if (st[0] == Q || st[0] == P) && st[1] != R {
+
+		// The P and Q structures are ambiguous until this point.
+
 		if st[1] != P || st[2] != P {
 			panic(fmt.Errorf("illegal state: st[1] != P || st[2] != P: %v", st))
 		}
 		switch p[0] {
-		case 0:
+		case 0: // PPP or QPP
 			p[0] = 0
 			p[1] = 1
 			p[2] = 2
-		case 1:
+		case 1: // PQP
 			p[0] = 1
 			p[1] = 2
 			p[2] = 0
-		case 2:
+		case 2: // PPQ
 			p[0] = 2
 			p[1] = 0
 			p[2] = 1
@@ -371,6 +377,10 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 			panic(fmt.Errorf("illegal state: p[0] < 0 || p[0] > 2: %d", p[0]))
 		}
 	}
+
+	// st now contains the canonical structure - one of qrs, prt, prs, qpp or ppp.
+	// p now contains the mapping from the canonical structure to the actual structure
+	// F now contain the flips required to arrange each weighing in canonical order.
 
 	sS := uint(0)
 
@@ -394,6 +404,8 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 		panic(fmt.Errorf("illegal state: st[1] != P"))
 	}
 
+	// sS now encodes sT as a single number between 0 and 21
+
 	Pa := [12]int{}
 	r.encoding.P = &Pa
 	r.encoding.S = pi(int(sS))
@@ -402,6 +414,8 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 	for i, e := range p {
 		r.Structure[e].Populate(r, i, p, r.encoding.P)
 	}
+
+	// r.encoding.P now contains the permutation to be applied to 1,12
 
 	n := Number(Pa[0:])*176 + 8*sS + uint(F)
 	r.encoding.N = &n
