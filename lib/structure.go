@@ -403,7 +403,7 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 			sS = Number(p[0:])
 		}
 	default:
-		panic(fmt.Errorf("illegal state: st[1] != P"))
+		panic(fmt.Errorf("illegal state: st[0] not in (P,Q)"))
 	}
 
 	// sS now encodes sT as a single number between 0 and 21
