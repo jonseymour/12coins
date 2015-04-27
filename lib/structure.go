@@ -98,7 +98,7 @@ type Structure interface {
 func (f Flips) Encode() uint {
 	F := uint(0)
 	for i, p := range f {
-		if p[0] == 0 {
+		if p[0] == 1 {
 			F |= (1 << uint(i))
 		}
 	}
