@@ -255,6 +255,48 @@ func ParseStructure(r string) (Structure, error) {
 	}
 }
 
+func (s *Solution) deriveOneStructure(nT uint8, l CoinSet, pi [2]int) (Structure, error) {
+
+	u := l.Intersection(s.Unique)
+	switch nT {
+	case 3:
+		switch u.Size() {
+		case 1:
+			return NewStructure(T, pi), nil
+		case 0:
+			return NewStructure(Q, pi), nil
+		default:
+			return nil, fmt.Errorf("illegal state: t==3, u > 1")
+		}
+	case 2:
+		switch u.Size() {
+		case 1:
+			return NewStructure(P, pi), nil
+		case 0:
+			for _, pair := range s.Pairs {
+				match := pair.Intersection(l)
+				switch match.Size() {
+				case 0:
+					continue
+				case 1:
+					return NewStructure(R, pi), nil
+				case 2:
+					return NewStructure(S, pi), nil
+				default:
+					return nil, fmt.Errorf("illegal state: t==2 && u==0: wrong size")
+				}
+				break
+			}
+			return nil, fmt.Errorf("illegal state: t==2, u == 0: end of loop")
+		default:
+			return nil, fmt.Errorf("illegal state: t==2, u > 1")
+		}
+	default:
+		return nil, fmt.Errorf("illegal state: t < 2 || t > 3")
+	}
+
+}
+
 // Return a clone of the receiver in which the structure has been populated.
 func (s *Solution) AnalyseStructure() (*Solution, error) {
 	var r *Solution
@@ -270,65 +312,30 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 		return r, err
 	}
 
-	p := [3]int{0, 1, 2} // a permutation of rows from the canonical form to the current form
-	st := [3]StructureType{P, P, P}
 	F := 0
-	lock := false
 
 	for i, w := range r.Weighings {
 		pi := [2]int{0, 1}
-		tl := w.Left().Intersection(r.Triples)
-		tr := w.Right().Intersection(r.Triples)
-		t := tl
 		l := w.Left()
-		if tr.Size() > tl.Size() {
+		t := l.Intersection(r.Triples)
+		if t.Size() < 2 {
 			pi = [2]int{1, 0}
-			t = tr
 			l = w.Right()
+			t = l.Intersection(r.Triples)
 			F |= (1 << uint(i))
 		}
-		u := l.Intersection(r.Unique)
-		switch t.Size() {
-		case 3:
-			switch u.Size() {
-			case 1:
-				r.Structure[i] = NewStructure(T, pi)
-			case 0:
-				r.Structure[i] = NewStructure(Q, pi)
-			default:
-				s.markInvalid()
-				return s, fmt.Errorf("illegal state: t==3, u > 1")
-			}
-		case 2:
-			switch u.Size() {
-			case 1:
-				r.Structure[i] = NewStructure(P, pi)
-			case 0:
-				for _, pair := range r.Pairs {
-					match := pair.Intersection(l)
-					switch match.Size() {
-					case 0:
-						continue
-					case 1:
-						r.Structure[i] = NewStructure(R, pi)
-					case 2:
-						r.Structure[i] = NewStructure(S, pi)
-					default:
-						s.markInvalid()
-						return s, fmt.Errorf("illegal state: t==2 && u==0 && j==0 && l == 0")
-					}
-					break
-				}
-			default:
-				s.markInvalid()
-				return s, fmt.Errorf("illegal state: t==2, u > 1")
-			}
-		default:
+		if r.Structure[i], err = r.deriveOneStructure(t.Size(), l, pi); err != nil {
 			s.markInvalid()
-			return s, fmt.Errorf("illegal state: t < 2 || t > 3")
+			return s, err
 		}
+	}
 
-		switch r.Structure[i].Type() {
+	p := [3]int{0, 1, 2} // a permutation of rows from the canonical form to the current form
+	st := [3]StructureType{P, P, P}
+	lock := false
+	for i, rs := range r.Structure {
+
+		switch rs.Type() {
 		case Q:
 			p[0] = i
 			st[0] = Q
@@ -353,6 +360,7 @@ func (s *Solution) AnalyseStructure() (*Solution, error) {
 		default:
 			panic(fmt.Errorf("unknown structure: %v", r.Structure[i]))
 		}
+
 	}
 
 	if (st[0] == Q || st[0] == P) && st[1] != R {
