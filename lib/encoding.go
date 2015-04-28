@@ -128,7 +128,7 @@ func (s *Solution) Format() string {
 				suffix = ""
 			}
 			switch k {
-			case "weighings":
+			case "weighings", "failures":
 				bytes = append(bytes, []byte(fmt.Sprintf("%s%s%s%s: [\n", INDENT, QUOTE, k, QUOTE))...)
 				sw := ","
 				va := v.([]interface{})
