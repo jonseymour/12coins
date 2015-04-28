@@ -521,8 +521,8 @@ where:
 
 * P12 is a function that uniquely numbers the permutation of 1,2,3,4,5,6,7,8,9,10,11,12 that produces
 a,b,c,d,e,f,g,h,i,j,k,l
-* F is a number between 0-7 representing the pans that need to be flipped.
-* S is a number between 0 and 21 representing the 21 possible permutations of the 5 structures.
+* F is a number between 0-7 representing the pans that need to be flipped in order to make each weighing match of the 5 weighing structures: p,q,r,s or t.
+* S is a number between 0 and 21 representing the 22 possible permutations of the 5 canonical solution structures to the found solution structure.
 
 #Deriving a solution from a number.
 
