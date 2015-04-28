@@ -644,7 +644,7 @@ If you have a lot of time and CPU to spare, you can generate all 84304281600 sol
 
 If you want a random solution, you can do:
 
-	echo $RANDOM * $RANDOM | ./tools --decode
+	expr $RANDOM \* $RANDOM | ./tools --decode
 
 Alternatively, it is possible to pipe a JSON encoding of a 12 coins solution into the program and it will encode the solution as a number between 0 and 84304281600 - 1. For example, to encode one of the solutions from Frans' [page](http://www.iwriteiam.nl/Ha12coins.html) about the 12 coins problem, run:
 
