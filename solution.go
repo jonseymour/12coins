@@ -31,13 +31,11 @@ var (
 // 13. Again, why this is so is not easily proven, except by exhaustive enumeration. Note also that
 // the grouping of the coins was chosen so that the sum would have this property.
 //
-// Suffice to say that the venn diagrams of the coins involved in each weighing are highly
+// Suffice to say that the Venn diagrams of the coins involved in each weighing are highly
 // symmetrical. There are 3 coins common to all weighings. Each weighing shares a pair
-// of coins with one weighing but not the other. One of each of these shared pair
-// is weighed on the same side, the other on opposite sides. In the weighing that shares the pair,
+// of coins with one weighing but not the other. In one weighing that shares a pair,
 // the pair that is shared will be split if the other weighing grouped it and grouped if the other weighing split it.
-// Each weighing has a coin unique to it. No coin appears on the same side of all weighings. No pair of coins
-// appears on the same side of all weighings.
+// Each weighing has a coin unique to it.
 //
 // 1,5,7 are shared by all weighings.
 //
