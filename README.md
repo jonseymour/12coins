@@ -657,7 +657,7 @@ which yields:
 Other options allow you to relabel any working solution into an indexing solution of the kind described
 above, so:
 
-	echo 41981248865 | ./tools --decode --relabel --structure | ./tools --decode --relabel
+	echo 41981248865 | ./tools --decode --relabel
 
 will permute one of Frans' solutions into an indexing solution.
 
