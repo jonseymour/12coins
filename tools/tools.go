@@ -21,6 +21,7 @@ func main() {
 	flip := false
 	decode := false
 	encode := false
+	format := false
 
 	flag.BoolVar(&reverse, "reverse", false, "Derive the coins and weights array from the weighings.")
 	flag.BoolVar(&flip, "flip", false, "Flip the weighings so that LLL is never a valid weighing.")
@@ -34,6 +35,7 @@ func main() {
 	flag.BoolVar(&reset, "reset", false, "Reset the analysis. Implied by reverse, relabel, groupings, structure or canonical.")
 	flag.BoolVar(&decode, "decode", false, "Decode a number between 0 and 12!*176 and output the corresponding solution.")
 	flag.BoolVar(&encode, "encode", false, "Encode a solution as a number between 0 and 12!*176.")
+	flag.BoolVar(&format, "format", false, "Format each solution over multiple lines.")
 	flag.Parse()
 
 	if invalid && valid {
@@ -142,8 +144,12 @@ func main() {
 				encoder.Encode(&n)
 			}
 		} else {
-			solution.Encode()
-			encoder.Encode(solution)
+			if format {
+				fmt.Fprintf(os.Stdout, "%s", solution.Format())
+			} else {
+				solution.Encode()
+				encoder.Encode(solution)
+			}
 		}
 	}
 }

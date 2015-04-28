@@ -2,6 +2,8 @@ package lib
 
 import (
 	"encoding/json"
+	"fmt"
+	"sort"
 )
 
 // A simple JSON encoding of data that has a richer structure internally.
@@ -93,5 +95,66 @@ func (s *Solution) DecodeJSON() {
 		for i, t := range *s.encoding.Structure {
 			s.Structure[i], _ = ParseStructure(t)
 		}
+	}
+}
+
+const (
+	QUOTE  = "\""
+	INDENT = "    "
+)
+
+func (s *Solution) Format() string {
+
+	s.Encode()
+	if buf, err := json.Marshal(s); err != nil {
+		panic(err)
+	} else {
+		result := make(map[string]interface{})
+		if err = json.Unmarshal(buf, &result); err != nil {
+			panic(err)
+		}
+		bytes := []byte{}
+		bytes = append(bytes, []byte("{\n")...)
+		i := 0
+		keys := []string{}
+		for k, _ := range result {
+			keys = append(keys, k)
+		}
+		sort.Sort(sort.StringSlice(keys))
+		for _, k := range keys {
+			v := result[k]
+			suffix := ","
+			if i+1 == len(result) {
+				suffix = ""
+			}
+			switch k {
+			case "weighings":
+				bytes = append(bytes, []byte(fmt.Sprintf("%s%s%s%s: [\n", INDENT, QUOTE, k, QUOTE))...)
+				sw := ","
+				va := v.([]interface{})
+				for kw, vw := range va {
+					if kw+1 == len(va) {
+						sw = ""
+					}
+					if encoded, err := json.Marshal(vw); err != nil {
+						panic(err)
+					} else {
+						bytes = append(bytes, []byte(fmt.Sprintf("%s%s%s%s%s\n", INDENT, INDENT, INDENT, string(encoded), sw))...)
+					}
+				}
+				bytes = append(bytes, []byte(fmt.Sprintf("%s]%s\n", INDENT, suffix))...)
+			case "N":
+				bytes = append(bytes, []byte(fmt.Sprintf("%s%s%s%s: %d%s\n", INDENT, QUOTE, k, QUOTE, s.encoding.N, suffix))...)
+			default:
+				if encoded, err := json.Marshal(v); err != nil {
+					panic(err)
+				} else {
+					bytes = append(bytes, []byte(fmt.Sprintf("%s%s%s%s: %s%s\n", INDENT, QUOTE, k, QUOTE, string(encoded), suffix))...)
+				}
+			}
+			i++
+		}
+		bytes = append(bytes, []byte("}\n")...)
+		return string(bytes)
 	}
 }
