@@ -138,10 +138,12 @@ func main() {
 		}
 
 		if encode {
-			if n, err := solution.N(); err != nil {
-				fmt.Fprintf(os.Stderr, "error: N: %v: %v\n", err, solution)
-			} else {
-				encoder.Encode(&n)
+			if ok {
+				if n, err := solution.N(); err != nil {
+					fmt.Fprintf(os.Stderr, "error: N: %v: %v\n", err, solution)
+				} else {
+					encoder.Encode(&n)
+				}
 			}
 		} else {
 			if format {
