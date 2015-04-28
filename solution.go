@@ -9,18 +9,6 @@ const (
 	heavy = lib.Heavy
 )
 
-// Decide returns the identity of the counterfeit coin and what the relative
-// weight of that coin is with respect to any other coin.
-
-var (
-	coins   = []int{0, 4, 5, 1, 7, 2, 6, 3, 11, 10, 9, 8}
-	weights = []lib.Weight{
-		light, heavy, heavy, light,
-		heavy, light, heavy, light,
-		light, heavy, light, heavy,
-	}
-)
-
 // A solution to the 12 coins problem.
 //
 // A notable feature of this solution is that 3 weighings are sufficient to discriminate
@@ -61,6 +49,7 @@ var (
 // If only B is unbalanced the counterfeit must be 9
 // If only C is unbalanced the counterfeit must be 11
 //
+
 func decide(scale lib.Scale) (int, lib.Weight) {
 
 	a := scale.Weigh([]int{0, 3, 5, 7}, []int{1, 2, 4, 6})
@@ -75,7 +64,17 @@ func decide(scale lib.Scale) (int, lib.Weight) {
 	}
 
 	f := int(o - 1)
-	w := weights[o-1]
+
+	w := lib.Weight((func() int {
+		switch f >> 2 {
+		case 0:
+			return f>>1 ^ f
+		case 1:
+			return (1 ^ f)
+		default:
+			return f
+		}
+	}() & 1) << 1)
 
 	if i > 12 {
 		w = heavy - w
