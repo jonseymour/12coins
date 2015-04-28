@@ -14,7 +14,7 @@ The decide() function is a go-lang solution to this problem. When compiled and
 executed, the program tests that function against all 24 possible
 configurations.
 
-#The Solution
+#A Solution
 
 The solution documented in solution.go is a very pleasing solution.
 
@@ -56,6 +56,15 @@ given configuration of the coins.
 		return f, w
 	}
 
+See the <a href="#simple">link</a> for a slightly simpler variant of this solution.
+
+I have since [discovered](http://www.iwriteiam.nl/Ha12coins.html) that a very
+similar solution was discovered in 1961 by Frank Cole. The arithmetic of Cole's
+solution is more amenable to being tracked by a human than the bit manipulations
+performed here although its [Go representation](https://github.com/jonseymour/12coins/blob/frank-cole/solution.go#L11-L31) is arguably less straight forward.
+
+#Visualising The Structure Of The Solution
+
 The following Venn diagram, which shows the intersections between the sets of
 coins involved in all 3 weighings, helps to provide a heuristic justification
 for why this set of weighings is capable of discriminating the 24 cases - each
@@ -68,8 +77,12 @@ Some observations:
 
 - all weighings share 3 coins {1,5,7}
 - each weighing shares a different pair of coins with each other weighing
+- each pair of two coins shared by two weighings is grouped on one pan by one weighing and split across both pans by the other weighing.
 - each weighing has a single coin that is unique to itself
 - each weighing shares exactly 5 coins with one weighing and a different (but partially overlapping) set of 5 coins with the other weighing
+
+It would seem that all valid solutions to the 12 coins problem share the same symmetry as this solution although closer examination reveals that beneath this unifying symmetry there are actually 5 structurally
+distinct solutions as will be revealed in later sections.
 
 #Explanation Of Completeness
 
@@ -118,14 +131,14 @@ the need for this array in the solution.
 
 Observe that for each set of coins A, B, C one weighing acts as the weight bit
 and the other weighings act as an indexing function for the coin. For example,
-for the coins 0-7 and the corresponding weights
-[light,heavy,heavy,light,heavy,light,heavy,light], the A weighings will all be
-biased in the light direction (e.g. produce a trit of 0). The other weighings
-enumerate the 8 trits between 01 and 22. Observe that the B and C weighings
+for the coins 0-7 and the corresponding weights [light,heavy,heavy,light,heavy,light,heavy,light],
+the A weighings will all be biased in the light direction (e.g. produce a trit of 0).
+
+The B and C weighings enumerate the 8 trits between 01 and 22. Observe that the B and C weighings
 never register 00 (light, light) for any of these coins because any coin that
 causes weighing A to produce 0 cannot simultaneously cause both the B and C
 weighings to produce 0. Also observe that when the B and C weighings register 11
-(equal, equal), then the A weighing directly reveales the weight of the
+(equal, equal), then the A weighing directly reveals the weight of the
 counterfeit coin that is unique to the A weighing.
 
 #Explanation Of Weight Deriviation Function
@@ -148,7 +161,7 @@ of the weight derivation function.
 			w = heavy - w
 		}
 
-This function had been reversed engineered from the mapping of 9a*3b*c-1 via a
+This function had been reversed engineered from the mapping of 9a\*3b\*c-1 via a
 table that gave the correct weight for each configuration and certainly can't be
 justified merely by inspecting the code.
 
@@ -165,6 +178,8 @@ derivation function so I reintroduced arrays to implement those functions. I
 kept shuffling until I stumbled across a weight deriviation function that had a
 simpler structure that the original one. I then applied the re-labeling
 trick to the resulting solution and ended up with this:
+
+<a name="simple"></a>
 
 	func decide(scale Scale) (int, Weight) {
 
@@ -286,13 +301,12 @@ and p(2) means apply the permutation (1,2,0) to the triples, pairs and singleton
 	2J = d,e
 	1R = i
 
-
 Note that weighings such as:
 
 	(1T, 2J, 1R) (2T, 1L,1U)
 
 that have less triples on the left hand side than the right hand side are obtained simply
-by swapping the two sides.
+by swapping the two sides. This yields 2^3 = 8 permutations.
 
 The valid solutions are triples of weighings with one of these structures:
 
@@ -350,8 +364,8 @@ whose terms sum to 9T+3U+2L+2R+8J. Intuitively this is not a solution because
 one pair (h,i) is weighed on the same side twice and is never split. This
 arrangement prevents discrimination between of the relative weight of h and i.
 
-In fact, for this reason any structure that has more than one than one weighing
-with a structure from the set (s,t) cannot be a solution.
+In fact, for this reason any structure that has more than one weighing with a
+structure from the set (s,t) cannot be a solution.
 
 Another class of invalid solution is represented by structures that have more
 than 7T's on the left hand side. An example of this class is the solution
@@ -365,9 +379,18 @@ In this case, the issue is that there is no way to distinguish the relative
 weight of l and k since l and k, when they appear, always appear on the same
 side of a weighing and are never split across pans.
 
+Another invalid solution is p(0)+q(1)+r(2). Again, examining the sum of like terms, we see such a
+solution has 9T+4J+4L+4R+3U which again does not provide sufficient discrimination between the
+pair d and e.
+
+	(j,k,d,a) (l,f,g,e)
+	(k,l,j,f) (g,h,i,b)
+	(l,j,h,d) (k,i,e,c)
+
 It turns out that of the 125 possible ways to construct a triple from p,q,r,s,t
-only 22 of these produce valid solutions to the 12 coins problem because of
-issues of this kind.
+only 22 of these produce distinct and valid solutions to the 12 coins
+problem because of issues of this kind. Of these 22 solutions, 17 are permutatons of the solutions
+identified above.
 
 Labeling a solution
 --------------------
@@ -377,7 +400,7 @@ reconstruct that solution at a later time.
 1. Count the occurrences of each coin in each weighing. No coin can appear more than once in a given weighing. There should be 3 coins that appear it at most one weighing, 6 coins that appear exactly twice and 3 coins that appear exactly three times. Any other combination of coins will not be a valid solution to the problem. This can be verified by testing the proposed solution against all 24 input configurations.
 
 2. If the left hand side of each weighing contains less triples than the right handside, flip the
-weighing and record the fact of the flip. Call this recording (f0,f1,f2) where fn is 1 if the pans of the nth weighing were flipped and 0 if they weren't.
+weighing and record the fact of the flip. Call this recording (f0,f1,f2) where fn is 1 if the pans of the nth weighing were flipped and 0 if they weren't. Calculate, F = f2*4+f1*2+f0 a number which will be between 0 and 7.
 
 3. Identify the pairs by finding coins that are split across two pans in one weighing and grouped in one pan on the other weighing.
 
@@ -472,7 +495,7 @@ then permute the weighings according to the permutation to produce one of 5 poss
 
 The original weighing is then uniquely identified by:
 
-	((a,b,c)((d,e),(f,g),(h,i)),(j,k,l)),(S),(f0,f1,f2)
+	((a,b,c)((d,e),(f,g),(h,i)),(j,k,l)),(F),(S)
 
 There are thus:
 
@@ -521,11 +544,160 @@ Rewrite f in the form:
 
 Allocate the coins according to the allocations implied by the identified structure then permute the weighings according to the identified permutation. Flip the pans according to the bits f2, f1 and f0.
 
+#Tools
+
+To help validate that the numbering solution was reasonable, I wrote a tool that can convert
+a number between 0 and 84304281600 - 1 into a unique solution to the 12 coins problem or alternatively
+encode a valid solution to the 12 coins problem into a unique number between 0 and 84304281600 - 1.
+
+To use the tools, set up a go-lang environment, then run:
+
+	go get github.com/jonseymour/12coins/tools
+	cd $GOPATH/src/github.com/jonseymour/12coins/tools
+	go build
+	echo "0 1 4 10 16" | tr ' ' \\012 | ./tools --decode
+
+This will generate the first 5 structurally distinct solutions to the 12 coins problem, as numbered by
+my numbering scheme:
+
+	{
+		"weighings":[
+			[[1,4,10,11],[12,5,6,7]],
+			[[2,6,11,12],[10,7,8,9]],
+			[[3,8,12,10],[11,9,4,5]]],
+		"unique":[1,2,3],
+		"pairs":[[4,5],[6,7],[8,9]],
+		"triples":[10,11,12],
+		"structure":["p","p","p"],
+		"S":0,
+		"F":0,
+		"P":[0,1,2,3,4,5,6,7,8,9,10,11],
+		"N":0
+	}
+
+	{
+		"weighings": [
+			[[10,11,12,4],[5,6,7,1]],
+			[[2,6,11,12],[10,7,8,9]],
+			[[3,8,12,10],[11,9,4,5]]],
+		"unique": [1,2,3],
+		"pairs": [[4,5],[6,7],[8,9]],
+		"triples":[10,11,12],
+		"structure":["q","p","p"],
+		"S":1,
+		"F":0,
+		"P":[0,1,2,3,4,5,6,7,8,9,10,11],
+		"N":1
+	}
+
+	{
+		"weighings":[
+			[[1,4,10,11],[12,5,6,7]],
+			[[11,12,6,8],[10,7,9,2]],
+			[[12,10,4,5],[11,8,9,3]]],
+		"unique": [1,2,3],
+		"pairs": [[4,5],[6,7],[8,9]],
+		"triples": [10,11,12],
+		"structure": ["p","r","s"],
+		"S":4,
+		"F":0,
+		"P":[0,1,2,3,4,5,6,7,8,9,10,11],
+		"N":4
+	}
+
+	{
+		"weighings":[
+			[[1,4,10,11],[12,5,6,7]],
+			[[11,12,6,8],[10,7,9,2]],
+			[[12,10,11,3],[8,9,4,5]]],
+		"unique":[1,2,3],
+		"pairs":[[4,5],[6,7],[8,9]],
+		"triples":[10,11,12],
+		"structure":["p","r","t"],
+		"S":10,
+		"F":0,
+		"P":[0,1,2,3,4,5,6,7,8,9,10,11],
+		"N":10
+	}
+
+	{
+		"weighings":[
+			[[10,11,12,4],[5,6,7,1]],
+			[[11,12,6,8],[10,7,9,2]],
+			[[12,10,4,5],[11,8,9,3]]],
+		"unique":[1,2,3],
+		"pairs":[[4,5],[6,7],[8,9]],
+		"triples":[10,11,12],
+		"structure":["q","r","s"],
+		"S":16,
+		"F":0,
+		"P":[0,1,2,3,4,5,6,7,8,9,10,11],
+		"N":16
+	}
+
+If you have a lot of time and CPU to spare, you can generate all 84304281600 solutions to the problem with:
+
+	n=0; while test $n -lt 84304281600; do
+		echo $l
+		let l=l+1
+	done | ./tools --decode
+
+If you want a random solution, you can do:
+
+	echo $RANDOM * $RANDOM | ./tools --decode
+
+Alternatively, it is possible to pipe a JSON encoding of a 12 coins solution into the program and it will encode the solution as a number between 0 and 84304281600 - 1. For example, to encode one of the solutions from Frans' [page](http://www.iwriteiam.nl/Ha12coins.html) about the 12 coins problem, run:
+
+	echo '{"weighings":[[[1,2,3,10],[4,5,6,11]],[[1,2,3,11],[7,8,9,10]],[[1,4,7,10],[2,5,8,12]]]}' | ./tools --encode
+
+which yields:
+
+	41981248865
+
+Other options allow you to relabel any working solution into an indexing solution of the kind described
+above, so:
+
+	echo 41981248865 | ./tools --decode --relabel --structure | ./tools --decode --relabel
+
+will permute one of Frans' solutions into an indexing solution.
+
+This example shows a 1-based variant of the indexing solution documented above:
+
+	echo 83235379605 | ./tools/tools --decode --reverse
+
+which produces:
+
+	{
+		"weighings": [
+			[[1,7,3,5],[6,2,8,4]],
+			[[8,6,11,1],[2,9,7,10]],
+			[[12,3,2,8],[6,5,11,9]]
+		],
+		"coins": [1,2,3,4,5,6,7,8,9,10,11,12],
+		"weights": [0,2,0,2,0,2,0,2,2,2,0,0]
+	}
+
+notice how the coins array is numbered in strictly increasing order from 1 and the weights array alternates
+according to the lower bit of the coin id for the first 8 coins and with the negation of the 2nd lowest bit
+for the remaining 4 coins.
+
+You can also use the tool to test whether a candidate solution is a valid solution.
+
+	echo '{"weighings":[[[7,2,3,10],[4,5,6,11]],[[1,2,3,11],[7,8,9,10]],[[1,4,7,10],[2,5,8,12]]]}' | ./tools/tools --encode
+
+produces, on stderr:
+
+	error: structure: not a valid solution because of 4 failures: {"weighings":[[[2,3,7,10],[4,5,6,11]],[[1,2,3,11],[7,8,9,10]],[[1,4,7,10],[2,5,8,12]]],"failures":[{"coin":7,"weight":0},{"coin":10,"weight":0},{"coin":8,"weight":0},{"coin":1,"weight":2}]}
+
+You can filter in only candidates which are valid solutions with:
+
+	echo '{"weighings":[[[7,2,3,10],[4,5,6,11]],[[1,2,3,11],[7,8,9,10]],[[1,4,7,10],[2,5,8,12]]]}' | ./tools/tools --valid
+
 #Other notes
 
-Adding one to each coin identifier (so they are numbered 1->12 instead of 0-11),
-yields this Venn diagram where the even coins are shared by an odd number of
-weighings and the odd coins by an even number of weighings.
+Adding one to each coin identifier in the diagram above (so they are numbered 1->12 instead of 0-11),
+yields this Venn diagram where the even coins are shared by an odd number of weighings and
+the odd coins by an even number of weighings.
 
 <img src="venn-1-based.png">
 
