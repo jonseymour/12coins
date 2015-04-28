@@ -41,8 +41,9 @@ func (s *Solution) Reverse() (*Solution, error) {
 	failures := make(map[int]bool)
 
 	fail := func(coin int, weight Weight) {
-		if !failures[coin] {
-			failures[coin] = true
+		k := coin*2 + (int(weight) / 2)
+		if !failures[k] {
+			failures[k] = true
 			s.Failures = append(s.Failures, Failure{
 				Coin:   coin,
 				Weight: weight,
