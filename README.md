@@ -664,7 +664,7 @@ will permute one of Frans' solutions into an indexing solution.
 The --reverse option allows you to reverse engineer a lookup table and weights array that allows you
 to convert the sum abs(9a + 3b + c - 13) into a coin index.
 
-	echo 83235379605 | ./tools/tools --decode --reverse
+	echo 83235379605 | ./tools --decode --reverse
 
 which produces:
 
@@ -687,11 +687,11 @@ for the remaining 4 coins.
 Some solutions aren't readily indexed because LLL, HHH and EEE are all valid solutions. To convert such a solution (such as 83235379649) into a readily indexed soltion (in this case 83235379605)
 add a --flip option to produce a solution such that LLL, HHH and EEE are all invalid weighings. So:
 
-	echo 83235379649 | ./tools/tools  --decode --reverse --flip
+	echo 83235379649 | ./tools  --decode --reverse --flip
 
 You can also use the tool to test whether a candidate solution is a valid solution.
 
-	echo '{"weighings":[[[7,2,3,10],[4,5,6,11]],[[1,2,3,11],[7,8,9,10]],[[1,4,7,10],[2,5,8,12]]]}' | ./tools/tools --encode
+	echo '{"weighings":[[[7,2,3,10],[4,5,6,11]],[[1,2,3,11],[7,8,9,10]],[[1,4,7,10],[2,5,8,12]]]}' | ./tools --encode
 
 produces, on stderr:
 
@@ -699,7 +699,7 @@ produces, on stderr:
 
 You can filter in only candidates which are valid solutions with:
 
-	echo '{"weighings":[[[7,2,3,10],[4,5,6,11]],[[1,2,3,11],[7,8,9,10]],[[1,4,7,10],[2,5,8,12]]]}' | ./tools/tools --valid
+	echo '{"weighings":[[[7,2,3,10],[4,5,6,11]],[[1,2,3,11],[7,8,9,10]],[[1,4,7,10],[2,5,8,12]]]}' | ./tools --valid
 
 #Other notes
 
