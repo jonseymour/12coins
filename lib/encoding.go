@@ -144,7 +144,7 @@ func (s *Solution) Format() string {
 				}
 				bytes = append(bytes, []byte(fmt.Sprintf("%s]%s\n", INDENT, suffix))...)
 			case "N":
-				bytes = append(bytes, []byte(fmt.Sprintf("%s%s%s%s: %d%s\n", INDENT, QUOTE, k, QUOTE, s.encoding.N, suffix))...)
+				bytes = append(bytes, []byte(fmt.Sprintf("%s%s%s%s: %d%s\n", INDENT, QUOTE, k, QUOTE, *s.encoding.N, suffix))...)
 			default:
 				if encoded, err := json.Marshal(v); err != nil {
 					panic(err)
