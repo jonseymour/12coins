@@ -661,7 +661,8 @@ above, so:
 
 will permute one of Frans' solutions into an indexing solution.
 
-This example shows a 1-based variant of the indexing solution documented above:
+The --reverse option allows you to reverse engineer a lookup table and weights array that allows you
+to convert the sum abs(9a + 3b + c - 13) into a coin index.
 
 	echo 83235379605 | ./tools/tools --decode --reverse
 
@@ -677,7 +678,9 @@ which produces:
 		"weights": [0,2,0,2,0,2,0,2,2,2,0,0]
 	}
 
-notice how the coins array is numbered in strictly increasing order from 1 and the weights array alternates
+which is a 1-based variant of one of the indexing solutions described above.
+
+Notice how the coins array is numbered in strictly increasing order from 1 and the weights array alternates
 according to the lower bit of the coin id for the first 8 coins and with the negation of the 2nd lowest bit
 for the remaining 4 coins.
 
