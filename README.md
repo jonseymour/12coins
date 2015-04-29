@@ -648,7 +648,13 @@ If you want a random solution, you can do:
 
 Alternatively, it is possible to pipe a JSON encoding of a 12 coins solution into the program and it will encode the solution as a number between 0 and 84304281600 - 1. For example, to encode one of the solutions from Frans' [page](http://www.iwriteiam.nl/Ha12coins.html) about the 12 coins problem, run:
 
-	echo '{"weighings":[[[1,2,3,10],[4,5,6,11]],[[1,2,3,11],[7,8,9,10]],[[1,4,7,10],[2,5,8,12]]]}' | ./tools --encode
+	echo '{
+    "weighings": [
+            [[1,2,3,10],[4,5,6,11]],
+            [[1,2,3,11],[7,8,9,10]],
+            [[1,4,7,10],[2,5,8,12]]
+    ]
+	}' | ./tools --encode
 
 which yields:
 
@@ -691,15 +697,27 @@ add a --flip option to produce a solution such that LLL, HHH and EEE are all inv
 
 You can also use the tool to test whether a candidate solution is a valid solution.
 
-	echo '{"weighings":[[[7,2,3,10],[4,5,6,11]],[[1,2,3,11],[7,8,9,10]],[[1,4,7,10],[2,5,8,12]]]}' | ./tools --encode
+	echo '{
+	    "weighings": [
+            [[2,3,7,10],[4,5,6,11]],
+            [[1,2,3,11],[7,8,9,10]],
+            [[1,4,7,10],[2,5,8,12]]
+    	]
+	}' | ./tools --encode
 
 produces, on stderr:
 
-	error: structure: not a valid solution because of 4 failures: {"weighings":[[[2,3,7,10],[4,5,6,11]],[[1,2,3,11],[7,8,9,10]],[[1,4,7,10],[2,5,8,12]]],"failures":[{"coin":7,"weight":0},{"coin":10,"weight":0},{"coin":8,"weight":0},{"coin":1,"weight":2}]}
+	error: structure: not a valid solution because of 8 failures: {"weighings":[[[2,3,7,10],[4,5,6,11]],[[1,2,3,11],[7,8,9,10]],[[1,4,7,10],[2,5,8,12]]],"failures":[{"coin":7,"weight":0},{"coin":10,"weight":0},{"coin":8,"weight":0},{"coin":1,"weight":2},{"coin":1,"weight":0},{"coin":8,"weight":2},{"coin":7,"weight":2},{"coin":10,"weight":2}]}
 
 You can filter in only candidates which are valid solutions with:
 
-	echo '{"weighings":[[[7,2,3,10],[4,5,6,11]],[[1,2,3,11],[7,8,9,10]],[[1,4,7,10],[2,5,8,12]]]}' | ./tools --valid
+	echo '{
+	    "weighings": [
+            [[2,3,7,10],[4,5,6,11]],
+            [[1,2,3,11],[7,8,9,10]],
+            [[1,4,7,10],[2,5,8,12]]
+    	]
+	}' | ./tools --valid
 
 #Other notes
 
