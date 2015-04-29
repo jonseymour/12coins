@@ -411,7 +411,12 @@ the left hand side of the weighing has.
 then permute the weighings according to the permutation to produce one of 5 possible structures:
 {ppp, qpp, prs, prt or qrs}.
 
-	Note that there may be multiple ways to obtain the required structure from the original permutation. In these cases, we choose one of the possible permutations and always use that one. For example, for weighings of the structure ppp we always choose the permutation (0,1,2). For weighings of the structure qpp, we always choose whichever of (0,1,2), (1,0,2), (2,1,0) produces the correct permutation.
+	Note that there may be multiple ways to obtain the required structure from the original permutation. In these cases, we choose one of the possible permutations and always use that one. For example, for weighings of the structure ppp we always choose the permutation (0,1,2). For weighings of the structure qpp, we always choose whichever of (0,1,2), (1,0,2), (2,0,1) produces the correct permutation.
+
+	The reason we can exclude the 5 other permutations of ppp and and the other 3 permutations of qpp is
+	that the solutions implied by these permutations are obtained by other permutations of the three
+	outermost sets of (a,b,c),((d,e),(f,g),(h,i)),(j,k,l) and so can be counted by those permutations - we
+	specifically want to avoid counting them twice so that the numbering function is completely invertible.
 
 	<table>
 	<tr>
