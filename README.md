@@ -638,8 +638,8 @@ my numbering scheme:
 If you have a lot of time and CPU to spare, you can generate all 84304281600 solutions to the problem with:
 
 	n=0; while test $n -lt 84304281600; do
-		echo $l
-		let l=l+1
+		echo $n
+		let n=n+1
 	done | ./tools --decode
 
 If you want a random solution, you can do:
