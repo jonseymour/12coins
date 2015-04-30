@@ -695,8 +695,9 @@ Notice how the coins array is numbered in strictly increasing order from 1 and t
 according to the lower bit of the coin id for the first 8 coins and with the negation of the 2nd lowest bit
 for the remaining 4 coins.
 
-Some solutions aren't readily indexed because LLL, HHH and EEE are all valid solutions. To convert such a solution (such as 83235379649) into a readily indexed soltion (in this case 83235379605)
-add a --flip option to produce a solution such that LLL, HHH and EEE are all invalid weighings. So:
+Some solutions aren't readily indexed because LLL, HHH are both valid solutions. To convert such a
+solution (such as 83235379649) into a readily indexed soltion (in this case 83235379605)
+add a --flip option to produce a solution such that both LLL, HHH are all invalid weighings. So:
 
 	echo 83235379649 | ./tools  --decode --reverse --flip
 
